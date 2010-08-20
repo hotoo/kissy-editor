@@ -6,3 +6,4 @@
 *.bak
 .DS_Store
 Thumb.db
+.idea/*
