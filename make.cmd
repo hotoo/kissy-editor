@@ -1,7 +1,6 @@
 @echo off
 REM yubo@taobao.com 2008/10/15
 
-color 03
 setlocal enabledelayedexpansion
 echo.
 echo  ~ Starting ...
