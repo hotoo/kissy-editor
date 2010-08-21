@@ -1,72 +1,76 @@
 /**
- * constructor for kissy editor and event,editor instances holder
- * @author:yiminghe@gmail.com
+ * Constructor for kissy editor and event, editor instances holder
+ * @author: yiminghe@gmail.com, lifesinger@gmail.com
  */
-KISSY.add("editor", function(S) {
+KISSY.add("editor", function(S, undefined) {
+    
     function Editor(textarea, cfg) {
         var self = this;
+        
         if (!(self instanceof Editor)) {
             return new Editor(textarea, cfg);
         }
+        
         if (S.isString(textarea)) {
             textarea = S.one(textarea);
         }
         if (!textarea[0]) textarea = new Node(textarea);
-        S.app(self, S.EventTarget);
+
         self.cfg = cfg;
-        self.use = function(plugins) {
-            //debugger
-            S.use.call(self, plugins, function() {
+        
+        S.app(self, S.EventTarget);
+        self.use = function(mods) {
+            S.use.call(self, mods, function() {
                 self.on("dataReady", function() {
                     self.setData(textarea.val());
                 });
-            }, {
-                order:true,
-                global:Editor
-            });
+            }, { order:  true, global:  Editor });
         };
+        
         self.init(textarea);
     }
 
     S.app(Editor, S.EventTarget);
-
     Editor.Config.base = S.Config.base + "editor/";
-    var cores = {},
-        plugins = {
-            "htmlparser":{
-                attach:false,
-                path:"plugins/htmldataprocessor/htmlparser/htmlparser.js"
+    
+    var mods = {
+            "htmlparser": {
+                attach: false,
+                path: "plugins/htmldataprocessor/htmlparser/htmlparser.js"
             }
         },
-        core_names = [
+        core_mods = [
             "utils","focusmanager","definition",
             "dtd","dom", "elementpath",
             "walker","range","domiterator",
             "selection","styles"
         ],
-        plugin_names = [
+        plugin_mods = [
             "clipboard",
             {
-                name:"color",
-                useCss:true
+                name: "color",
+                useCss: true
             },
             {
-                name:"elementpaths",
-                useCss:true
+                name: "elementpaths",
+                useCss: true
             },
             "enterkey",
             "fakeobjects",
             {
-                name:"flash",
-                requires:["fakeobjects","overlay"]
+                name: "flash",
+                requires: ["fakeobjects","overlay"]
             },
             "font",
             "format",
             {
-                name:"htmldataprocessor",
-                requires:["htmlparser-text"]
+                name: "htmldataprocessor",
+                requires: ["htmlparser-text"]
             },
-            "image",
+            {
+                name: "image",
+                requires: ["overlay"]
+            },
             "indent",
             "justify",
             "link",
@@ -76,125 +80,135 @@ KISSY.add("editor", function(S) {
             "preview",
             "removeformat",
             {
-                name:"smiley",
-                useCss:true
+                name: "smiley",
+                useCss: true
             },
             "sourcearea",
             {
-                name:"table",
-                useCss:true,
-                requires:["overlay",
+                name: "table",
+                useCss: true,
+                requires: ["overlay",
                     "contextmenu"]
             },
             {
-                name:"templates",
-                useCss:true
+                name: "templates",
+                requires: ["overlay"],
+                useCss: true
             },
             "undo"
         ],
-        htmlparser_names = [
+        htmlparser_mods = [
             {
-                name:"htmlparser-basicwriter",
-                requires:["htmlparser"]
+                name: "htmlparser-basicwriter",
+                requires: ["htmlparser"]
             },
             {
-                name:"htmlparser-element",
-                requires:["htmlparser-fragment"]
+                name: "htmlparser-element",
+                requires: ["htmlparser-fragment"]
             },
             {
-                name:"htmlparser-filter",
-                requires:["htmlparser-element"]
+                name: "htmlparser-filter",
+                requires: ["htmlparser-element"]
             },
             {
-                name:"htmlparser-fragment",
-                requires:["htmlparser-htmlwriter"]
+                name: "htmlparser-fragment",
+                requires: ["htmlparser-htmlwriter"]
             },
             {
-                name:"htmlparser-htmlwriter",
-                requires:["htmlparser-basicwriter"]
+                name: "htmlparser-htmlwriter",
+                requires: ["htmlparser-basicwriter"]
             },
             {
-                name:"htmlparser-text",
-                requires:["htmlparser-filter"]
+                name: "htmlparser-text",
+                requires: ["htmlparser-filter"]
             }
         ],
-        n,
-        name,
-        i,
-        requires,
-        uis = [
-            "button","overlay",
+        ui_mods = [
+            "button", "overlay",
             {
-                name:"contextmenu",
-                requires:["overlay"]
+                name: "contextmenu",
+                requires: ["overlay"]
             }
-        ];
-    for (i = 0; i < uis.length; i++) {
-        n = uis[i];
-        requires = null;
-        if (!S.isString(n)) {
-            requires = n.requires;
-            n = n.name;
-        }
-        plugins[n] = {
-            attach:false,
-            requires:requires,
-            path:"ui/" + n + ".js",
-            csspath:"ui/" + n + ".css"
-        };
+        ],
+        i, len, mod, name, requires;
 
+    // ui modules
+    for (i = 0, len = ui_mods.length; i < len; i++) {
+        mod = ui_mods[i];
+        requires = undefined;
+
+        if (!S.isString(mod)) {
+            requires = mod.requires;
+            mod = mod.name;
+        }
+
+        mods[mod] = {
+            attach: false,
+            requires: requires,
+            path: "ui/" + mod + ".js",
+            csspath: "ui/" + mod + ".css"
+        };
     }
-    for (i = 0; i < plugin_names.length; i++) {
-        n = plugin_names[i];
-        name = n;
+
+    // plugins modules
+    for (i = 0, len = plugin_mods.length; i < len; i++) {
+        mod = plugin_mods[i];
+        name = mod;
         requires = ["button"];
-        if (!S.isString(n)) {
-            n.requires && (requires = requires.concat(n.requires));
-            name = n.name;
+
+        if (!S.isString(mod)) {
+            mod.requires && (requires = requires.concat(mod.requires));
+            name = mod.name;
         }
-        plugins[name] = {
-            attach:false,
-            requires:requires,
-            csspath:(n.useCss ? "plugins/" + name + "/plugin.css" : null),
-            path:"plugins/" + name + "/plugin.js"
-        };
-    }
-    for (i = 0; i < htmlparser_names.length; i++) {
-        n = htmlparser_names[i];
-        requires = null;
-        if (!S.isString(n)) {
-            requires = n.requires;
-            n = n.name;
-        }
-        plugins[n] = {
-            attach:false,
-            requires:requires,
-            path:"plugins/htmldataprocessor/htmlparser/" + n.substring(11) + ".js"
+
+        mods[name] = {
+            attach: false,
+            requires: requires,
+            csspath: (mod.useCss ? "plugins/" + name + "/plugin.css" :  undefined),
+            path: "plugins/" + name + "/plugin.js"
         };
     }
 
-    //debugger
-    Editor.add(plugins);
-    var last = null;
-    for (i = 0; i < core_names.length; i++) {
-        n = core_names[i];
-        cores[n] = {
-            host:"editor",
-            requires:last || []
+    // htmlparser
+    for (i = 0, len = htmlparser_mods.length; i < len; i++) {
+        mod = htmlparser_mods[i];
+        requires = undefined;
+
+        if (!S.isString(mod)) {
+            requires = mod.requires;
+            mod = mod.name;
+        }
+
+        mods[mod] = {
+            attach: false,
+            requires: requires,
+            path: "plugins/htmldataprocessor/htmlparser/" + mod.substring(11) + ".js"
         };
-        last = [n];
     }
-    Editor.add(cores);
+
+    Editor.add(mods);
+
+    mods = { };
+    for (i = 0, len = core_mods.length; i < len; i++) {
+        mod = core_mods[i];
+        mods[mod] = {
+            host: "editor",
+            requires: i > 0 ? core_mods[i - 1] : []
+        };
+    }
+    Editor.add(mods);
+
     S.Editor = Editor;
-});/**
+});
+/**
  * modified from ckeditor,common utils for kissy editor
- * @modifier:yiminghe@gmail.com
+ * @modifier: <yiminghe@gmail.com>
  */
 KISSY.Editor.add("utils", function(KE) {
     var S = KISSY,Node = S.Node,DOM = S.DOM;
     KE.Utils = {
         /**
-         * ÀÁ¶èÒ»ÏÂ
+         * æ‡’æƒ°ä¸€ä¸‹
          * @param obj
          * @param before
          * @param after
@@ -207,12 +221,12 @@ KISSY.Editor.add("utils", function(KE) {
                 return a.apply(this, arguments);
             };
         },
-        
+
 
         getXY:function(x, y, srcDoc, destDoc) {
             var currentWindow = srcDoc.defaultView || srcDoc.parentWindow;
 
-            //x,yÏà¶ÔÓÚµ±Ç°iframeÎÄµµ,·ÀÖ¹µ±Ç°iframeÓĞ¹ö¶¯Ìõ
+            //x,yç›¸å¯¹äºå½“å‰iframeæ–‡æ¡£,é˜²æ­¢å½“å‰iframeæœ‰æ»šåŠ¨æ¡
             x -= DOM.scrollLeft(currentWindow);
             y -= DOM.scrollTop(currentWindow);
             if (destDoc) {
@@ -318,9 +332,10 @@ KISSY.Editor.add("utils", function(KE) {
             return r;
         }
     };
-});/**
- * ¶àÊµÀıµÄ½¹µã¿ØÖÆ£¬Ö÷ÒªÊÇÎªÁËfirefox½¹µãÊ§È¥bug£¬¼ÇÂ¼µ±Ç°×´Ì¬
- * @author:yiminghe@gmail.com
+});
+/**
+ * å¤šå®ä¾‹çš„ç„¦ç‚¹æ§åˆ¶ï¼Œä¸»è¦æ˜¯ä¸ºäº†firefoxç„¦ç‚¹å¤±å»bugï¼Œè®°å½•å½“å‰çŠ¶æ€
+ * @author: <yiminghe@gmail.com>
  */
 KISSY.Editor.add("focusmanager", function(KE) {
     var S = KISSY,
@@ -359,9 +374,10 @@ KISSY.Editor.add("focusmanager", function(KE) {
     }
 
     KE.focusManager = focusManager;
-});/**
+});
+/**
  * definition of editor class for kissy editor
- * @author:yiminghe@gmail.com
+ * @author: <yiminghe@gmail.com>
  */
 KISSY.Editor.add("definition", function(KE) {
     var S = KISSY,
@@ -393,9 +409,9 @@ KISSY.Editor.add("definition", function(KE) {
             + "' rel='stylesheet'/>"
             + "</head>"
             + "<body class='ke-editor'>"
-            //firefox ±ØĞëÀïÃæÓĞ¶«Î÷£¬·ñÔò±à¼­Ç°²»ÄÜÉ¾³ı!
+            //firefox å¿…é¡»é‡Œé¢æœ‰ä¸œè¥¿ï¼Œå¦åˆ™ç¼–è¾‘å‰ä¸èƒ½åˆ é™¤!
             + "&nbsp;"
-            //Ê¹ÓÃ setData ¼ÓÇ¿°²È«ĞÔ
+            //ä½¿ç”¨ setData åŠ å¼ºå®‰å…¨æ€§
             // + (textarea.value || "")
             + "</body>"
             + "<html>";
@@ -406,7 +422,7 @@ KISSY.Editor.add("definition", function(KE) {
             'document.close();',
         editorHtml = "<div " +
             " class='ke-editor-wrap' " +
-            //!!±à¼­Æ÷ÄÚ½¹µã²»Ê§È¥,firefox?
+            //!!ç¼–è¾‘å™¨å†…ç„¦ç‚¹ä¸å¤±å»,firefox?
             " onmousedown=' " +
             "return false;' " +
             " > " +
@@ -439,9 +455,9 @@ KISSY.Editor.add("definition", function(KE) {
             self.toolBarDiv = editorWrap.one(ke_editor_tools);
             self.textarea = textarea;
             self.statusDiv = editorWrap.one(ke_editor_status);
-            //ie µã»÷°´Å¥²»¶ªÊ§½¹µã
+            //ie ç‚¹å‡»æŒ‰é’®ä¸ä¸¢å¤±ç„¦ç‚¹
             self.toolBarDiv._4e_unselectable();
-            //¿ÉÒÔÖ±½Óµ÷ÓÃ²å¼ş¹¦ÄÜ
+            //å¯ä»¥ç›´æ¥è°ƒç”¨æ’ä»¶åŠŸèƒ½
             self._commands = {};
             self._plugins = {};
             var tw = textarea._4e_style(WIDTH),th = textarea._4e_style(HEIGHT);
@@ -462,17 +478,17 @@ KISSY.Editor.add("definition", function(KE) {
 
             self.on("dataReady", function() {
                 self.ready = true;
-                //Ä¬ÈÏÌî³äp±êÇ©?
-                //¼à¿Øenter°´¼ü£¡£¬ÎÄ×Ö±Ø¶¨ÓĞ p °üº¬
+                //é»˜è®¤å¡«å……pæ ‡ç­¾?
+                //ç›‘æ§enteræŒ‰é”®ï¼ï¼Œæ–‡å­—å¿…å®šæœ‰ p åŒ…å«
                 //self.setData(S.trim(self.textarea.val()) || "");
-                //ÆúÓÃÔ­ÏÈµÄ¼Ü¹¹
+                //å¼ƒç”¨åŸå…ˆçš„æ¶æ„
                 //KE.fire("instanceCreated", {editor:self});
             });
             // With FF, it's better to load the data on iframe.load. (#3894,#4058)
             if (UA.gecko) {
                 iframe.on('load', self._initIFrame, self);
             } else {
-                //webkit(chrome) loadµÈ²»À´£¡
+                //webkit(chrome) loadç­‰ä¸æ¥ï¼
                 self._initIFrame();
             }
         },
@@ -495,11 +511,11 @@ KISSY.Editor.add("definition", function(KE) {
         sync:function() {
             this.textarea.val(this.getData());
         },
-        //³·ÏúÖØ×öÊ±£¬²»ĞèÒª¸ñÊ½»¯´úÂë£¬Ö±½ÓÈ¡×ÔÉí
+        //æ’¤é”€é‡åšæ—¶ï¼Œä¸éœ€è¦æ ¼å¼åŒ–ä»£ç ï¼Œç›´æ¥å–è‡ªèº«
         _getRawData:function() {
             return this.document.body.innerHTML;
         },
-        //³·ÏúÖØ×öÊ±£¬²»ĞèÒª¸ñÊ½»¯´úÂë£¬Ö±½ÓÈ¡×ÔÉí
+        //æ’¤é”€é‡åšæ—¶ï¼Œä¸éœ€è¦æ ¼å¼åŒ–ä»£ç ï¼Œç›´æ¥å–è‡ªèº«
         _setRawData:function(data) {
             this.document.body.innerHTML = data;
         },
@@ -518,7 +534,7 @@ KISSY.Editor.add("definition", function(KE) {
             self.toolBarDiv.children().css(VISIBILITY, HIDDEN);
             self.toolBarDiv.all(".ke-tool-editor-source").css(VISIBILITY, "");
             self.statusDiv.children().css(VISIBILITY, HIDDEN);
-            //ie textarea height:100%²»Æğ×÷ÓÃ
+            //ie textarea height:100%ä¸èµ·ä½œç”¨
             if (UA.ie < 8) {
                 self.textarea.css(HEIGHT, self.wrap.css(HEIGHT));
             }
@@ -534,7 +550,7 @@ KISSY.Editor.add("definition", function(KE) {
                 win = DOM._4e_getWin(self.document);
             UA.webkit && win && win.parent && win.parent.focus();
             //win && win.blur();
-            //yiminghe note:firefox need this ,ÔİÊ±Ê¹µÃiframeÏÈÊ§È¥½¹µã£¬´¥·¢ blinkCursor ²¹¶¡
+            //yiminghe note:firefox need this ,æš‚æ—¶ä½¿å¾—iframeå…ˆå¤±å»ç„¦ç‚¹ï¼Œè§¦å‘ blinkCursor è¡¥ä¸
             //if (UA.gecko)self.blur();
             //yiminghe note:webkit need win.focus
 
@@ -545,7 +561,7 @@ KISSY.Editor.add("definition", function(KE) {
         } ,
         blur:function() {
             /*
-             ¹¤¾ßÀ¸ÓĞ½¹µã£¬iframeÒ²ÓĞ½¹µã£¿£¿
+             å·¥å…·æ æœ‰ç„¦ç‚¹ï¼Œiframeä¹Ÿæœ‰ç„¦ç‚¹ï¼Ÿï¼Ÿ
              this.toolBarDiv.children().each(function(el) {
              el[0].focus();
              });
@@ -556,11 +572,11 @@ KISSY.Editor.add("definition", function(KE) {
             self.document && self.document.body.blur();
             //self.notifySelectionChange();
 
-            //firefox ½¹µãÏà¹Ø£¬Ç¿ÖÆ mousedown Ë¢ĞÂ¹â±ê
+            //firefox ç„¦ç‚¹ç›¸å…³ï¼Œå¼ºåˆ¶ mousedown åˆ·æ–°å…‰æ ‡
             //this.iframeFocus = false;
         },
         /**
-         * ³õÊ¼»¯iframeÄÚÈİÒÔ¼°ä¯ÀÀÆ÷¼ä¼æÈİĞÔ´¦Àí
+         * åˆå§‹åŒ–iframeå†…å®¹ä»¥åŠæµè§ˆå™¨é—´å…¼å®¹æ€§å¤„ç†
          */
         _initIFrame:function() {
             var self = this,
@@ -604,7 +620,7 @@ KISSY.Editor.add("definition", function(KE) {
 
             // Gecko need a key event to 'wake up' the editing
             // ability when document is empty.(#3864)
-            //activateEditing É¾µô£¬³õÊ¼ÒıÆğÆÁÄ»¹ö¶¯ÁË
+            //activateEditing åˆ æ‰ï¼Œåˆå§‹å¼•èµ·å±å¹•æ»šåŠ¨äº†
 
             // IE, Opera and Safari may not support it and throw
             // errors.
@@ -715,23 +731,23 @@ KISSY.Editor.add("definition", function(KE) {
             Event.on(win, 'focus', function() {
                 //console.log(" i am  focus inner");
                 /**
-                 * yimingheÌØ±ğ×¢Òâ£ºfirefox¹â±ê¶ªÊ§bug
-                 * blinkºó¹â±ê³öÏÖÔÚ×îºó£¬Õâ¾ÍĞèÒªÊµÏÖ±£´ærange
-                 * focusºóÔÙ»Ö¸´range
+                 * yimingheç‰¹åˆ«æ³¨æ„ï¼šfirefoxå…‰æ ‡ä¸¢å¤±bug
+                 * blinkåå…‰æ ‡å‡ºç°åœ¨æœ€åï¼Œè¿™å°±éœ€è¦å®ç°ä¿å­˜range
+                 * focusåå†æ¢å¤range
                  */
                 if (UA.gecko)
                     blinkCursor(false);
                 else if (UA.opera)
                     body.focus();
 
-                // focus ºóÇ¿ÖÆË¢ĞÂ×Ô¼º×´Ì¬
+                // focus åå¼ºåˆ¶åˆ·æ–°è‡ªå·±çŠ¶æ€
                 self.notifySelectionChange();
             });
 
 
             if (UA.gecko) {
                 /**
-                 * firefox ½¹µã¶ªÊ§ºó£¬ÔÙµã±à¼­Æ÷ÇøÓò½¹µã»áÒÆ²»¹ıÀ´£¬ÒªµãÁ½ÏÂ
+                 * firefox ç„¦ç‚¹ä¸¢å¤±åï¼Œå†ç‚¹ç¼–è¾‘å™¨åŒºåŸŸç„¦ç‚¹ä¼šç§»ä¸è¿‡æ¥ï¼Œè¦ç‚¹ä¸¤ä¸‹
                  */
                 Event.on(self.document, "mousedown", function() {
                     if (!self.iframeFocus) {
@@ -804,8 +820,8 @@ KISSY.Editor.add("definition", function(KE) {
             setTimeout(function() {
                 self.fire("dataReady");
             }, 10);
-            //×¢Òâ£º±ØĞë·ÅÔÚÕâ¸öÎ»ÖÃ£¬µÈiframe¼ÓÔØºÃÔÙ¿ªÊ¼ÔËĞĞ
-            //¼ÓÈë½¹µã¹ÜÀí£¬ºÍÆäËûÊµÀıÁªÏµÆğÀ´
+            //æ³¨æ„ï¼šå¿…é¡»æ”¾åœ¨è¿™ä¸ªä½ç½®ï¼Œç­‰iframeåŠ è½½å¥½å†å¼€å§‹è¿è¡Œ
+            //åŠ å…¥ç„¦ç‚¹ç®¡ç†ï¼Œå’Œå…¶ä»–å®ä¾‹è”ç³»èµ·æ¥
             focusManager.add(self);
         },
         addPlugin:function(func) {
@@ -835,7 +851,7 @@ KISSY.Editor.add("definition", function(KE) {
         }
         ,
         /**
-         * Ç¿ÖÆÍ¨Öª²å¼ş¸üĞÂ×´Ì¬£¬·ÀÖ¹²å¼şĞŞ¸Ä±à¼­Æ÷ÄÚÈİ£¬×Ô¼º·´¶øµÃ²»µ½Í¨Öª
+         * å¼ºåˆ¶é€šçŸ¥æ’ä»¶æ›´æ–°çŠ¶æ€ï¼Œé˜²æ­¢æ’ä»¶ä¿®æ”¹ç¼–è¾‘å™¨å†…å®¹ï¼Œè‡ªå·±åè€Œå¾—ä¸åˆ°é€šçŸ¥
          */
         notifySelectionChange:function() {
             this.previousPath = null;
@@ -911,7 +927,7 @@ KISSY.Editor.add("definition", function(KE) {
             if (KE.HtmlDataProcessor)
                 data = KE.HtmlDataProcessor.toDataFormat(data);//, "p");
             /**
-             * webkit insert html ÓĞÎÊÌâ£¡»á°Ñ±êÇ©È¥µô£¬ËãÁËÖ±½ÓÓÃinsertElement
+             * webkit insert html æœ‰é—®é¢˜ï¼ä¼šæŠŠæ ‡ç­¾å»æ‰ï¼Œç®—äº†ç›´æ¥ç”¨insertElement
              */
             if (UA.webkit) {
                 var nodes = DOM.create(data, null, this.document);
@@ -940,9 +956,10 @@ KISSY.Editor.add("definition", function(KE) {
             }, 10);
         }
     });
-});/**
+});
+/**
  * modified from ckeditor ,xhtml1.1 transitional dtd translation
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @modifier: <yiminghe@gmail.com(chengyu)>
  */
 KISSY.Editor.add("dtd", function(KE) {
     /**
@@ -1171,9 +1188,10 @@ KISSY.Editor.add("dtd", function(KE) {
         };
     })();
 
-});/**
+});
+/**
  * modified from ckeditor,dom utils for kissy editor
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @modifier: <yiminghe@gmail.com(chengyu)>
  */
 KISSY.Editor.add("dom", function(KE) {
 
@@ -1229,9 +1247,9 @@ KISSY.Editor.add("dom", function(KE) {
         },
         editorDom = {
             _4e_equals:function(e1, e2) {
-                //È«²¿Îª¿Õ
+                //å…¨éƒ¨ä¸ºç©º
                 if (!e1 && !e2)return true;
-                //Ò»¸öÎª¿Õ£¬Ò»¸ö²»Îª¿Õ
+                //ä¸€ä¸ªä¸ºç©ºï¼Œä¸€ä¸ªä¸ä¸ºç©º
                 if (!e1 || !e2)return false;
                 e1 = normalElDom(e1);
                 e2 = normalElDom(e2);
@@ -1539,7 +1557,7 @@ KISSY.Editor.add("dom", function(KE) {
                             return;
 
                         node.removeAttribute('id', false);
-                        //¸´ÖÆÊ±²»Òª¸´ÖÆexpando
+                        //å¤åˆ¶æ—¶ä¸è¦å¤åˆ¶expando
                         node.removeAttribute('_ke_expando', false);
 
                         var childs = node.childNodes;
@@ -1553,7 +1571,7 @@ KISSY.Editor.add("dom", function(KE) {
                 return new Node($clone);
             },
             /**
-             * Éî¶ÈÓÅÏÈ±éÀú»ñÈ¡ÏÂÒ»½áµã
+             * æ·±åº¦ä¼˜å…ˆéå†è·å–ä¸‹ä¸€ç»“ç‚¹
              * @param el
              * @param startFromSibling
              * @param nodeType
@@ -1683,7 +1701,7 @@ KISSY.Editor.add("dom", function(KE) {
                         return node._4e_name() == n;
                     };
                 }
-                //µ½document¾ÍÍêÁË
+                //åˆ°documentå°±å®Œäº†
                 while ($ && $.nodeType != 9) {
                     if (!name || name(new Node($)) === true)
                         return new Node($);
@@ -1733,7 +1751,7 @@ KISSY.Editor.add("dom", function(KE) {
                 :
                 function(el) {
                     el = normalElDom(el);
-                    //É¾³ıfirefox×Ô¼ºÌí¼ÓµÄ±êÖ¾
+                    //åˆ é™¤firefoxè‡ªå·±æ·»åŠ çš„æ ‡å¿—
                     UA.gecko && el.removeAttribute("_moz_dirty");
                     var attributes = el.attributes;
                     return ( attributes.length > 1 || ( attributes.length == 1 && attributes[0].nodeName != '_ke_expando' ) );
@@ -2040,7 +2058,7 @@ KISSY.Editor.add("dom", function(KE) {
                 el = normalElDom(el);
                 var expandoNumber = el.getAttribute('_ke_expando');
                 expandoNumber && delete customData[ expandoNumber ];
-                //ie inner html »á°ÑÊôĞÔ´øÉÏ£¬É¾µô£¡
+                //ie inner html ä¼šæŠŠå±æ€§å¸¦ä¸Šï¼Œåˆ æ‰ï¼
                 expandoNumber && el.removeAttribute("_ke_expando");
             },
             _4e_getUniqueId : function(el) {
@@ -2097,8 +2115,8 @@ KISSY.Editor.add("dom", function(KE) {
                 return ( dtd && dtd['#'] );
             },
             /**
-             * ĞŞÕıscrollIntoViewÔÚ¿ÉÊÓÇøÓòÄÚ²»ĞèÒª¹ö¶¯
-             * @param el
+             * ä¿®æ­£scrollIntoViewåœ¨å¯è§†åŒºåŸŸå†…ä¸éœ€è¦æ»šåŠ¨
+             * @param elem
              */
             _4e_scrollIntoView:function(elem) {
                 elem = normalEl(elem);
@@ -2136,10 +2154,10 @@ KISSY.Editor.add("dom", function(KE) {
         }
     };
     S.DOM._4e_inject(editorDom);
-
-});/**
+});
+/**
  * modified from ckeditor ,elementpath represents element's tree path from body
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @modifier: <yiminghe@gmail.com(chengyu)>
  */
 KISSY.Editor.add("elementpath", function(KE) {
     var S = KISSY,
@@ -2244,10 +2262,11 @@ KISSY.Editor.add("elementpath", function(KE) {
 
     KE.ElementPath = ElementPath;
 
-});/**
+});
+/**
  * modified from ckeditor for kissy editor ,walker implementation
- * @refer:http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal#TreeWalker
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @refer: http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal#TreeWalker
+ * @modifier: yiminghe@gmail.com(chengyu)
  */
 KISSY.Editor.add("walker", function(KE) {
 
@@ -2289,18 +2308,18 @@ KISSY.Editor.add("walker", function(KE) {
             // Gets the node that stops the walker when going LTR.
             var limitLTR = range.endContainer,
                 blockerLTR = new Node(limitLTR[0].childNodes[range.endOffset]);
-            //´Ó×óµ½ÓÒ±£Ö¤ÔÚ range Çø¼äÄÚ»ñÈ¡ nextSourceNode
+            //ä»å·¦åˆ°å³ä¿è¯åœ¨ range åŒºé—´å†…è·å– nextSourceNode
             this._.guardLTR = function(node, movingOut) {
-                //´ÓendContainerÒÆ³öÈ¥£¬Ê§°Ü·µ»Øfalse
+                //ä»endContainerç§»å‡ºå»ï¼Œå¤±è´¥è¿”å›false
                 return (
                     ( !movingOut
                         ||
                         ! DOM._4e_equals(limitLTR, node)
                         )
-                        //µ½´ïÉî¶È±éÀúµÄ×îºóÒ»¸ö½Úµã£¬½áÊø
+                        //åˆ°è¾¾æ·±åº¦éå†çš„æœ€åä¸€ä¸ªèŠ‚ç‚¹ï¼Œç»“æŸ
                         && ( !blockerLTR[0] || node[0] !== (blockerLTR[0]) )
 
-                        //´ÓbodyÒÆ³öÒ²½áÊø
+                        //ä»bodyç§»å‡ºä¹Ÿç»“æŸ
                         && ( node[0].nodeType != KEN.NODE_ELEMENT
                         || !movingOut
                         || node._4e_name() != 'body' ) );
@@ -2466,7 +2485,7 @@ KISSY.Editor.add("walker", function(KE) {
 
         /**
          * Check all nodes at left, executing the evaluation fuction.
-         * ÊÇ²»ÊÇ (²»ÄÜºóÍËÁË)
+         * æ˜¯ä¸æ˜¯ (ä¸èƒ½åé€€äº†)
          * @returns {Boolean} "false" if the evaluator function returned
          *        "false" for any of the matched nodes. Otherwise "true".
          */
@@ -2577,9 +2596,10 @@ KISSY.Editor.add("walker", function(KE) {
 
 
     KE.Walker = Walker;
-});/**
+});
+/**
  * modified from ckeditor,range implementation across browsers for kissy editor
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @modifier: <yiminghe@gmail.com(chengyu)>
  */
 KISSY.Editor.add("range", function(KE) {
     KE.RANGE = {
@@ -2912,7 +2932,7 @@ KISSY.Editor.add("range", function(KE) {
 
                     currentNode = currentSibling;
                 }
-                //ckeditorÕâÀï´íÁË£¬µ±Ç°½ÚµãµÄÂ·¾¶ËùÔÚ¸¸½Úµã²»ÄÜclone(true)£¬ÒªÔÚºóÃæÉîÈë×Ó½Úµã´¦Àí
+                //ckeditorè¿™é‡Œé”™äº†ï¼Œå½“å‰èŠ‚ç‚¹çš„è·¯å¾„æ‰€åœ¨çˆ¶èŠ‚ç‚¹ä¸èƒ½clone(true)ï¼Œè¦åœ¨åé¢æ·±å…¥å­èŠ‚ç‚¹å¤„ç†
                 if (levelClone)
                     clone = levelClone;
             }
@@ -2969,7 +2989,7 @@ KISSY.Editor.add("range", function(KE) {
                 var startTextNode = self.startContainer[0];
                 if (startTextNode.nodeType == KEN.NODE_TEXT
                     && startTextNode.nextSibling
-                    //yiminghe note:careful,nextsilbling should be text node 
+                    //yiminghe note:careful,nextsilbling should be text node
                     && startTextNode.nextSibling.nodeType == KEN.NODE_TEXT) {
                     startTextNode.data += startTextNode.nextSibling.data;
                     startTextNode.parentNode.removeChild(startTextNode.nextSibling);
@@ -4115,12 +4135,12 @@ KISSY.Editor.add("range", function(KE) {
     function elementBoundaryEval(node) {
         // Reject any text node unless it's being bookmark
         // OR it's spaces. (#3883)
-        //Èç¹û²»ÊÇÎÄ±¾½Úµã²¢ÇÒÊÇ¿ÕµÄ£¬¿ÉÒÔ¼ÌĞøÈ¡ÏÂÒ»¸öÅĞ¶Ï±ß½ç
+        //å¦‚æœä¸æ˜¯æ–‡æœ¬èŠ‚ç‚¹å¹¶ä¸”æ˜¯ç©ºçš„ï¼Œå¯ä»¥ç»§ç»­å–ä¸‹ä¸€ä¸ªåˆ¤æ–­è¾¹ç•Œ
         var c1 = node[0].nodeType != KEN.NODE_TEXT
             && node._4e_name() in dtd.$removeEmpty,
-            //ÎÄ±¾Îª¿Õ£¬¿ÉÒÔ¼ÌĞøÈ¡ÏÂÒ»¸öÅĞ¶Ï±ß½ç
+            //æ–‡æœ¬ä¸ºç©ºï¼Œå¯ä»¥ç»§ç»­å–ä¸‹ä¸€ä¸ªåˆ¤æ–­è¾¹ç•Œ
             c2 = !S.trim(node[0].nodeValue),
-            //¶÷£¬½øÈ¥ÁËÊéÇ©£¬¿ÉÒÔ¼ÌĞøÈ¡ÏÂÒ»¸öÅĞ¶Ï±ß½ç
+            //æ©ï¼Œè¿›å»äº†ä¹¦ç­¾ï¼Œå¯ä»¥ç»§ç»­å–ä¸‹ä¸€ä¸ªåˆ¤æ–­è¾¹ç•Œ
             c3 = !!node.parent().attr('_ke_bookmark');
         return c1 || c2 || c3;
     }
@@ -4189,9 +4209,10 @@ KISSY.Editor.add("range", function(KE) {
 
 
     KE.Range = KERange;
-});/**
+});
+/**
  * modified from ckeditor ,dom iterator implementation using walker and nextSourceNode
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @modifier: <yiminghe@gmail.com(chengyu)>
  */
 KISSY.Editor.add("domiterator", function(KE) {
     var S = KISSY,
@@ -4217,7 +4238,7 @@ KISSY.Editor.add("domiterator", function(KE) {
         this._ || ( this._ = {} );
     }
 
-    var beginWhitespaceRegex = /^[\r\n\t ]*$/,///^[\r\n\t ]+$/,//+:*??²»Æ¥Åä¿Õ´®
+    var beginWhitespaceRegex = /^[\r\n\t ]*$/,///^[\r\n\t ]+$/,//+:*??ä¸åŒ¹é…ç©ºä¸²
         isBookmark = Walker.bookmark();
 
     S.augment(Iterator, {
@@ -4504,9 +4525,10 @@ KISSY.Editor.add("domiterator", function(KE) {
     KERange.prototype.createIterator = function() {
         return new Iterator(this);
     };
-});/**
+});
+/**
  * modified from ckeditor core plugin : selection
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @modifier: <yiminghe@gmail.com(chengyu)>
  */
 KISSY.Editor.add("selection", function(KE) {
     KE.SELECTION = {};
@@ -4700,7 +4722,7 @@ KISSY.Editor.add("selection", function(KE) {
                                     comparisonEnd = testRange.compareEndPoints('EndToStart', range);
 
                                 testRange.collapse();
-                                //ÖĞ¼äÓĞÆäËû±êÇ©
+                                //ä¸­é—´æœ‰å…¶ä»–æ ‡ç­¾
                                 if (comparisonStart > 0)
                                     break;
                                 // When selection stay at the side of certain self-closing elements, e.g. BR,
@@ -4729,9 +4751,9 @@ KISSY.Editor.add("selection", function(KE) {
 
                         try {
                             while (distance > 0)
-                                //bug? ¿ÉÄÜ²»ÊÇÎÄ±¾½Úµã nodeValue undefined
-                                //ÓÀÔ¶²»»á³öÏÖ textnode<img/>textnode
-                                //Í£Ö¹Ê±£¬Ç°ÃæÒ»¶¨Îªtextnode
+                                //bug? å¯èƒ½ä¸æ˜¯æ–‡æœ¬èŠ‚ç‚¹ nodeValue undefined
+                                //æ°¸è¿œä¸ä¼šå‡ºç° textnode<img/>textnode
+                                //åœæ­¢æ—¶ï¼Œå‰é¢ä¸€å®šä¸ºtextnode
                                 distance -= siblings[ --i ].nodeValue.length;
                         }
                             // Measurement in IE could be somtimes wrong because of <select> element. (#4611)
@@ -5232,7 +5254,7 @@ KISSY.Editor.add("selection", function(KE) {
     }
 
     /**
-     * ¼à¿ØÑ¡ÔñÇøÓò±ä»¯
+     * ç›‘æ§é€‰æ‹©åŒºåŸŸå˜åŒ–
      * @param editor
      */
     function monitorAndFix(editor) {
@@ -5241,12 +5263,12 @@ KISSY.Editor.add("selection", function(KE) {
             html = new Node(doc.documentElement);
 
         if (UA.ie) {
-            //wokao,ie ½¹µã¹ÜÀí²»ĞĞ°¡
+            //wokao,ie ç„¦ç‚¹ç®¡ç†ä¸è¡Œå•Š
             // In IE6/7 the blinking cursor appears, but contents are
             // not editable. (#5634)
-            //ÖÕÓÚºÍckÍ¬²½ÁË£¬ÎÒÒ²·¢ÏÖÁËÕâ¸öbug£¬¹ş¹ş,ck3.3.2½â¾ö
+            //ç»ˆäºå’ŒckåŒæ­¥äº†ï¼Œæˆ‘ä¹Ÿå‘ç°äº†è¿™ä¸ªbugï¼Œå“ˆå“ˆ,ck3.3.2è§£å†³
             if (UA.ie < 8 ||
-                //ie8 µÄ 7 ¼æÈİÄ£Ê½
+                //ie8 çš„ 7 å…¼å®¹æ¨¡å¼
                 document.documentMode == 7) {
                 // The 'click' event is not fired when clicking the
                 // scrollbars, so we can use it to check whether
@@ -5392,9 +5414,10 @@ KISSY.Editor.add("selection", function(KE) {
         var editor = ev.editor;
         monitorAndFix(editor);
     });
-});/**
+});
+/**
  * modified from ckeditor for kissy editor,use style to gen element and wrap range's elements
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @modifier: <yiminghe@gmail.com(chengyu)>
  */
 KISSY.Editor.add("styles", function(KE) {
 
@@ -5409,11 +5432,10 @@ KISSY.Editor.add("styles", function(KE) {
         //Walker = KE.Walker,
         Node = S.Node,
         UA = S.UA,
-        DOM = S.DOM,
         ElementPath = KE.ElementPath,
         blockElements = { address:1,div:1,h1:1,h2:1,h3:1,h4:1,h5:1,h6:1,p:1,pre:1 },
         objectElements = {
-            //why? a should be same to inline? µ«ÊÇ²»ÄÜ»¥ÏàÇ¶Ì×
+            //why? a should be same to inline? ä½†æ˜¯ä¸èƒ½äº’ç›¸åµŒå¥—
             //a:1,
             embed:1,hr:1,img:1,li:1,object:1,ol:1,table:1,td:1,tr:1,th:1,ul:1,dl:1,dt:1,dd:1,form:1},
         semicolonFixRegex = /\s*(?:;\s*|$)/,
@@ -5456,11 +5478,11 @@ KISSY.Editor.add("styles", function(KE) {
 
         var func = remove ? this.removeFromRange : this.applyToRange,self = this;
         // Apply the style to the ranges.
-        //ie select Ñ¡ÖĞÆÚ¼ädocumentµÃ²»µ½range
+        //ie select é€‰ä¸­æœŸé—´documentå¾—ä¸åˆ°range
         document.body.focus();
         var selection = new KESelection(document),ranges = selection.getRanges();
         for (var i = 0; i < ranges.length; i++)
-            //¸ñÊ½»¯ºó£¬range½øÈë¸ñÊ½±êÇ©ÄÚ
+            //æ ¼å¼åŒ–åï¼Œrangeè¿›å…¥æ ¼å¼æ ‡ç­¾å†…
             func.call(self, ranges[ i ]);
         // Select the ranges again.
         selection.selectRanges(ranges);
@@ -5984,7 +6006,7 @@ KISSY.Editor.add("styles", function(KE) {
                         }
                         //bug notice add by yiminghe@gmail.com
                         //<span style="font-size:70px"><span style="font-size:30px">xcxx</span></span>
-                        //ÏÂÒ»´Î¸ñÊ½xxxÎª70px
+                        //ä¸‹ä¸€æ¬¡æ ¼å¼xxxä¸º70px
                         //var exit = false;
                         for (var styleName in def.styles) {
                             if (styleNode._4e_style(styleName) == parent._4e_style(styleName)) {

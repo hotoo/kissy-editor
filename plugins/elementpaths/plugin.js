@@ -1,6 +1,6 @@
 /**
  * element path shown in status bar,modified from ckeditor
- * @modifier:yiminghe@gmail.com
+ * @modifier: yiminghe@gmail.com
  */
 KISSY.Editor.add("elementpaths", function(editor) {
     var KE = KISSY.Editor,S = KISSY,Node = S.Node,DOM = S.DOM;
@@ -44,7 +44,7 @@ KISSY.Editor.add("elementpaths", function(editor) {
                         element = elements[i];
 
                         var a = new Node("<a href='#' class='elementpath'>" +
-                            //¿¼ÂÇ fake objects
+                            //è€ƒè™‘ fake objects
                             (element.attr("_ke_real_element_type") || element._4e_name())
                             + "</a>");
                         self._cache.push(a);

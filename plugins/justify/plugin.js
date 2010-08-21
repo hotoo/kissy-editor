@@ -1,6 +1,6 @@
 /**
  * align support for kissy editor
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("justify", function(editor) {
     var KE = KISSY.Editor,
@@ -78,9 +78,9 @@ KISSY.Editor.add("justify", function(editor) {
         })();
     }
     editor.addPlugin(function() {
-        new KE.Justify(editor, "left", "◊Û∂‘∆Î", "ke-toolbar-alignleft");
-        new KE.Justify(editor, "center", "æ”÷–∂‘∆Î", "ke-toolbar-aligncenter");
-        new KE.Justify(editor, "right", "”“∂‘∆Î", "ke-toolbar-alignright");
-        //new Justify(editor, "justify", "¡Ω∂À∂‘∆Î");
+        new KE.Justify(editor, "left", "Â∑¶ÂØπÈΩê", "ke-toolbar-alignleft");
+        new KE.Justify(editor, "center", "Â±Ö‰∏≠ÂØπÈΩê", "ke-toolbar-aligncenter");
+        new KE.Justify(editor, "right", "Âè≥ÂØπÈΩê", "ke-toolbar-alignright");
+        //new Justify(editor, "justify", "‰∏§Á´ØÂØπÈΩê");
     });
 });

@@ -1,6 +1,6 @@
 /**
  * definition of editor class for kissy editor
- * @author:yiminghe@gmail.com
+ * @author: <yiminghe@gmail.com>
  */
 KISSY.Editor.add("definition", function(KE) {
     var S = KISSY,
@@ -32,9 +32,9 @@ KISSY.Editor.add("definition", function(KE) {
             + "' rel='stylesheet'/>"
             + "</head>"
             + "<body class='ke-editor'>"
-            //firefox ±ØĞëÀïÃæÓĞ¶«Î÷£¬·ñÔò±à¼­Ç°²»ÄÜÉ¾³ı!
+            //firefox å¿…é¡»é‡Œé¢æœ‰ä¸œè¥¿ï¼Œå¦åˆ™ç¼–è¾‘å‰ä¸èƒ½åˆ é™¤!
             + "&nbsp;"
-            //Ê¹ÓÃ setData ¼ÓÇ¿°²È«ĞÔ
+            //ä½¿ç”¨ setData åŠ å¼ºå®‰å…¨æ€§
             // + (textarea.value || "")
             + "</body>"
             + "<html>";
@@ -45,7 +45,7 @@ KISSY.Editor.add("definition", function(KE) {
             'document.close();',
         editorHtml = "<div " +
             " class='ke-editor-wrap' " +
-            //!!±à¼­Æ÷ÄÚ½¹µã²»Ê§È¥,firefox?
+            //!!ç¼–è¾‘å™¨å†…ç„¦ç‚¹ä¸å¤±å»,firefox?
             " onmousedown=' " +
             "return false;' " +
             " > " +
@@ -78,9 +78,9 @@ KISSY.Editor.add("definition", function(KE) {
             self.toolBarDiv = editorWrap.one(ke_editor_tools);
             self.textarea = textarea;
             self.statusDiv = editorWrap.one(ke_editor_status);
-            //ie µã»÷°´Å¥²»¶ªÊ§½¹µã
+            //ie ç‚¹å‡»æŒ‰é’®ä¸ä¸¢å¤±ç„¦ç‚¹
             self.toolBarDiv._4e_unselectable();
-            //¿ÉÒÔÖ±½Óµ÷ÓÃ²å¼ş¹¦ÄÜ
+            //å¯ä»¥ç›´æ¥è°ƒç”¨æ’ä»¶åŠŸèƒ½
             self._commands = {};
             self._plugins = {};
             var tw = textarea._4e_style(WIDTH),th = textarea._4e_style(HEIGHT);
@@ -101,17 +101,17 @@ KISSY.Editor.add("definition", function(KE) {
 
             self.on("dataReady", function() {
                 self.ready = true;
-                //Ä¬ÈÏÌî³äp±êÇ©?
-                //¼à¿Øenter°´¼ü£¡£¬ÎÄ×Ö±Ø¶¨ÓĞ p °üº¬
+                //é»˜è®¤å¡«å……pæ ‡ç­¾?
+                //ç›‘æ§enteræŒ‰é”®ï¼ï¼Œæ–‡å­—å¿…å®šæœ‰ p åŒ…å«
                 //self.setData(S.trim(self.textarea.val()) || "");
-                //ÆúÓÃÔ­ÏÈµÄ¼Ü¹¹
+                //å¼ƒç”¨åŸå…ˆçš„æ¶æ„
                 //KE.fire("instanceCreated", {editor:self});
             });
             // With FF, it's better to load the data on iframe.load. (#3894,#4058)
             if (UA.gecko) {
                 iframe.on('load', self._initIFrame, self);
             } else {
-                //webkit(chrome) loadµÈ²»À´£¡
+                //webkit(chrome) loadç­‰ä¸æ¥ï¼
                 self._initIFrame();
             }
         },
@@ -134,11 +134,11 @@ KISSY.Editor.add("definition", function(KE) {
         sync:function() {
             this.textarea.val(this.getData());
         },
-        //³·ÏúÖØ×öÊ±£¬²»ĞèÒª¸ñÊ½»¯´úÂë£¬Ö±½ÓÈ¡×ÔÉí
+        //æ’¤é”€é‡åšæ—¶ï¼Œä¸éœ€è¦æ ¼å¼åŒ–ä»£ç ï¼Œç›´æ¥å–è‡ªèº«
         _getRawData:function() {
             return this.document.body.innerHTML;
         },
-        //³·ÏúÖØ×öÊ±£¬²»ĞèÒª¸ñÊ½»¯´úÂë£¬Ö±½ÓÈ¡×ÔÉí
+        //æ’¤é”€é‡åšæ—¶ï¼Œä¸éœ€è¦æ ¼å¼åŒ–ä»£ç ï¼Œç›´æ¥å–è‡ªèº«
         _setRawData:function(data) {
             this.document.body.innerHTML = data;
         },
@@ -157,7 +157,7 @@ KISSY.Editor.add("definition", function(KE) {
             self.toolBarDiv.children().css(VISIBILITY, HIDDEN);
             self.toolBarDiv.all(".ke-tool-editor-source").css(VISIBILITY, "");
             self.statusDiv.children().css(VISIBILITY, HIDDEN);
-            //ie textarea height:100%²»Æğ×÷ÓÃ
+            //ie textarea height:100%ä¸èµ·ä½œç”¨
             if (UA.ie < 8) {
                 self.textarea.css(HEIGHT, self.wrap.css(HEIGHT));
             }
@@ -173,7 +173,7 @@ KISSY.Editor.add("definition", function(KE) {
                 win = DOM._4e_getWin(self.document);
             UA.webkit && win && win.parent && win.parent.focus();
             //win && win.blur();
-            //yiminghe note:firefox need this ,ÔİÊ±Ê¹µÃiframeÏÈÊ§È¥½¹µã£¬´¥·¢ blinkCursor ²¹¶¡
+            //yiminghe note:firefox need this ,æš‚æ—¶ä½¿å¾—iframeå…ˆå¤±å»ç„¦ç‚¹ï¼Œè§¦å‘ blinkCursor è¡¥ä¸
             //if (UA.gecko)self.blur();
             //yiminghe note:webkit need win.focus
 
@@ -184,7 +184,7 @@ KISSY.Editor.add("definition", function(KE) {
         } ,
         blur:function() {
             /*
-             ¹¤¾ßÀ¸ÓĞ½¹µã£¬iframeÒ²ÓĞ½¹µã£¿£¿
+             å·¥å…·æ æœ‰ç„¦ç‚¹ï¼Œiframeä¹Ÿæœ‰ç„¦ç‚¹ï¼Ÿï¼Ÿ
              this.toolBarDiv.children().each(function(el) {
              el[0].focus();
              });
@@ -195,11 +195,11 @@ KISSY.Editor.add("definition", function(KE) {
             self.document && self.document.body.blur();
             //self.notifySelectionChange();
 
-            //firefox ½¹µãÏà¹Ø£¬Ç¿ÖÆ mousedown Ë¢ĞÂ¹â±ê
+            //firefox ç„¦ç‚¹ç›¸å…³ï¼Œå¼ºåˆ¶ mousedown åˆ·æ–°å…‰æ ‡
             //this.iframeFocus = false;
         },
         /**
-         * ³õÊ¼»¯iframeÄÚÈİÒÔ¼°ä¯ÀÀÆ÷¼ä¼æÈİĞÔ´¦Àí
+         * åˆå§‹åŒ–iframeå†…å®¹ä»¥åŠæµè§ˆå™¨é—´å…¼å®¹æ€§å¤„ç†
          */
         _initIFrame:function() {
             var self = this,
@@ -243,7 +243,7 @@ KISSY.Editor.add("definition", function(KE) {
 
             // Gecko need a key event to 'wake up' the editing
             // ability when document is empty.(#3864)
-            //activateEditing É¾µô£¬³õÊ¼ÒıÆğÆÁÄ»¹ö¶¯ÁË
+            //activateEditing åˆ æ‰ï¼Œåˆå§‹å¼•èµ·å±å¹•æ»šåŠ¨äº†
 
             // IE, Opera and Safari may not support it and throw
             // errors.
@@ -354,23 +354,23 @@ KISSY.Editor.add("definition", function(KE) {
             Event.on(win, 'focus', function() {
                 //console.log(" i am  focus inner");
                 /**
-                 * yimingheÌØ±ğ×¢Òâ£ºfirefox¹â±ê¶ªÊ§bug
-                 * blinkºó¹â±ê³öÏÖÔÚ×îºó£¬Õâ¾ÍĞèÒªÊµÏÖ±£´ærange
-                 * focusºóÔÙ»Ö¸´range
+                 * yimingheç‰¹åˆ«æ³¨æ„ï¼šfirefoxå…‰æ ‡ä¸¢å¤±bug
+                 * blinkåå…‰æ ‡å‡ºç°åœ¨æœ€åï¼Œè¿™å°±éœ€è¦å®ç°ä¿å­˜range
+                 * focusåå†æ¢å¤range
                  */
                 if (UA.gecko)
                     blinkCursor(false);
                 else if (UA.opera)
                     body.focus();
 
-                // focus ºóÇ¿ÖÆË¢ĞÂ×Ô¼º×´Ì¬
+                // focus åå¼ºåˆ¶åˆ·æ–°è‡ªå·±çŠ¶æ€
                 self.notifySelectionChange();
             });
 
 
             if (UA.gecko) {
                 /**
-                 * firefox ½¹µã¶ªÊ§ºó£¬ÔÙµã±à¼­Æ÷ÇøÓò½¹µã»áÒÆ²»¹ıÀ´£¬ÒªµãÁ½ÏÂ
+                 * firefox ç„¦ç‚¹ä¸¢å¤±åï¼Œå†ç‚¹ç¼–è¾‘å™¨åŒºåŸŸç„¦ç‚¹ä¼šç§»ä¸è¿‡æ¥ï¼Œè¦ç‚¹ä¸¤ä¸‹
                  */
                 Event.on(self.document, "mousedown", function() {
                     if (!self.iframeFocus) {
@@ -443,8 +443,8 @@ KISSY.Editor.add("definition", function(KE) {
             setTimeout(function() {
                 self.fire("dataReady");
             }, 10);
-            //×¢Òâ£º±ØĞë·ÅÔÚÕâ¸öÎ»ÖÃ£¬µÈiframe¼ÓÔØºÃÔÙ¿ªÊ¼ÔËĞĞ
-            //¼ÓÈë½¹µã¹ÜÀí£¬ºÍÆäËûÊµÀıÁªÏµÆğÀ´
+            //æ³¨æ„ï¼šå¿…é¡»æ”¾åœ¨è¿™ä¸ªä½ç½®ï¼Œç­‰iframeåŠ è½½å¥½å†å¼€å§‹è¿è¡Œ
+            //åŠ å…¥ç„¦ç‚¹ç®¡ç†ï¼Œå’Œå…¶ä»–å®ä¾‹è”ç³»èµ·æ¥
             focusManager.add(self);
         },
         addPlugin:function(func) {
@@ -474,7 +474,7 @@ KISSY.Editor.add("definition", function(KE) {
         }
         ,
         /**
-         * Ç¿ÖÆÍ¨Öª²å¼ş¸üĞÂ×´Ì¬£¬·ÀÖ¹²å¼şĞŞ¸Ä±à¼­Æ÷ÄÚÈİ£¬×Ô¼º·´¶øµÃ²»µ½Í¨Öª
+         * å¼ºåˆ¶é€šçŸ¥æ’ä»¶æ›´æ–°çŠ¶æ€ï¼Œé˜²æ­¢æ’ä»¶ä¿®æ”¹ç¼–è¾‘å™¨å†…å®¹ï¼Œè‡ªå·±åè€Œå¾—ä¸åˆ°é€šçŸ¥
          */
         notifySelectionChange:function() {
             this.previousPath = null;
@@ -550,7 +550,7 @@ KISSY.Editor.add("definition", function(KE) {
             if (KE.HtmlDataProcessor)
                 data = KE.HtmlDataProcessor.toDataFormat(data);//, "p");
             /**
-             * webkit insert html ÓĞÎÊÌâ£¡»á°Ñ±êÇ©È¥µô£¬ËãÁËÖ±½ÓÓÃinsertElement
+             * webkit insert html æœ‰é—®é¢˜ï¼ä¼šæŠŠæ ‡ç­¾å»æ‰ï¼Œç®—äº†ç›´æ¥ç”¨insertElement
              */
             if (UA.webkit) {
                 var nodes = DOM.create(data, null, this.document);

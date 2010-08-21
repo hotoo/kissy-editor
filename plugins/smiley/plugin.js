@@ -1,6 +1,6 @@
 /**
  * smiley icon from wangwang for kissy editor
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("smiley", function(editor) {
     var KE = KISSY.Editor,
@@ -33,7 +33,7 @@ KISSY.Editor.add("smiley", function(editor) {
                     self.el = new TripleButton({
                         //text:"smiley",
                         contentCls:"ke-toolbar-smiley",
-                        title:"²åÈë±íÇé",
+                        title:"æ’å…¥è¡¨æƒ…",
                         container:editor.toolBarDiv
                     });
                     self.el.on("offClick", this._show, this);
@@ -41,7 +41,7 @@ KISSY.Editor.add("smiley", function(editor) {
                 },
                 _hidePanel:function(ev) {
                     var self = this,t = ev.target;
-                    //¶à´°¿Ú¹ÜÀí
+                    //å¤šçª—å£ç®¡ç†
                     if (DOM._4e_ascendant(ev.target, function(node) {
                         return  node[0] === self.el.el[0];
                     }))return;

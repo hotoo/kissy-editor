@@ -1,15 +1,15 @@
 /**
  * templates support for kissy editor
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("templates", function(editor) {
     var KE = KISSY.Editor,
         S = KISSY,
         Node = S.Node,
-        Event = S.Event,
-        KEN = KE.NODE,
-        UA = S.UA,
-        DOM = S.DOM,
+        //Event = S.Event,
+        //KEN = KE.NODE,
+        //UA = S.UA,
+        //DOM = S.DOM,
         TripleButton = KE.TripleButton,
         Overlay = KE.SimpleOverlay;
 
@@ -27,7 +27,7 @@ KISSY.Editor.add("templates", function(editor) {
                         container:editor.toolBarDiv,
                         //text:"template",
                         contentCls:"ke-toolbar-template",
-                        title:"ƒ£∞Â"
+                        title:"Ê®°Êùø"
                     });
                     el.on("click", self._show, self);
                     KE.Utils.lazyRun(this, "_prepare", "_real");
@@ -43,7 +43,7 @@ KISSY.Editor.add("templates", function(editor) {
                     HTML += "</div>";
 
                     this._initDialogOk = true;
-                    var ui = new Overlay({mask:true,title:"ƒ⁄»›ƒ£∞Â"});
+                    var ui = new Overlay({mask:true,title:"ÂÜÖÂÆπÊ®°Êùø"});
                     ui.body.html(HTML);
                     var list = ui.body.all(".ke-tpl-list");
                     ui.on("hide", function() {

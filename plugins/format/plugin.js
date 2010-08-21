@@ -1,6 +1,6 @@
 /**
  * format formatting,modified from ckeditor
- * @modifier:yiminghe@gmail.com
+ * @modifier: yiminghe@gmail.com
  */
 KISSY.Editor.add("format", function(editor) {
     var KE = KISSY.Editor,
@@ -10,15 +10,15 @@ KISSY.Editor.add("format", function(editor) {
     if (!KE.Format) {
         (function() {
             var
-                FORMAT_SELECTION_HTML = "<select title='格式'>",
+                FORMAT_SELECTION_HTML = "<select title='鏍煎紡'>",
                 FORMATS = {
-                    "标题 / 清除":"p",
-                    "标题1":"h1",
-                    "标题2":"h2",
-                    "标题3":"h3",
-                    "标题4":"h4",
-                    "标题5":"h5",
-                    "标题6":"h6"
+                    "鏍囬 / 娓呴櫎":"p",
+                    "鏍囬1":"h1",
+                    "鏍囬2":"h2",
+                    "鏍囬3":"h3",
+                    "鏍囬4":"h4",
+                    "鏍囬5":"h5",
+                    "鏍囬6":"h6"
                 },FORMAT_STYLES = {},KEStyle = KE.Style;
 
             for (var p in FORMATS) {
@@ -87,7 +87,7 @@ KISSY.Editor.add("format", function(editor) {
                         }
                     }
 
-                    //默认为普通！
+                    //榛樿涓烘櫘閫氾紒
                     this._set("v", "p");
                     this.el.val("p");
 

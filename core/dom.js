@@ -1,6 +1,6 @@
 /**
  * modified from ckeditor,dom utils for kissy editor
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @modifier: <yiminghe@gmail.com(chengyu)>
  */
 KISSY.Editor.add("dom", function(KE) {
 
@@ -56,9 +56,9 @@ KISSY.Editor.add("dom", function(KE) {
         },
         editorDom = {
             _4e_equals:function(e1, e2) {
-                //È«²¿Îª¿Õ
+                //å…¨éƒ¨ä¸ºç©º
                 if (!e1 && !e2)return true;
-                //Ò»¸öÎª¿Õ£¬Ò»¸ö²»Îª¿Õ
+                //ä¸€ä¸ªä¸ºç©ºï¼Œä¸€ä¸ªä¸ä¸ºç©º
                 if (!e1 || !e2)return false;
                 e1 = normalElDom(e1);
                 e2 = normalElDom(e2);
@@ -366,7 +366,7 @@ KISSY.Editor.add("dom", function(KE) {
                             return;
 
                         node.removeAttribute('id', false);
-                        //¸´ÖÆÊ±²»Òª¸´ÖÆexpando
+                        //å¤åˆ¶æ—¶ä¸è¦å¤åˆ¶expando
                         node.removeAttribute('_ke_expando', false);
 
                         var childs = node.childNodes;
@@ -380,7 +380,7 @@ KISSY.Editor.add("dom", function(KE) {
                 return new Node($clone);
             },
             /**
-             * Éî¶ÈÓÅÏÈ±éÀú»ñÈ¡ÏÂÒ»½áµã
+             * æ·±åº¦ä¼˜å…ˆéå†è·å–ä¸‹ä¸€ç»“ç‚¹
              * @param el
              * @param startFromSibling
              * @param nodeType
@@ -510,7 +510,7 @@ KISSY.Editor.add("dom", function(KE) {
                         return node._4e_name() == n;
                     };
                 }
-                //µ½document¾ÍÍêÁË
+                //åˆ°documentå°±å®Œäº†
                 while ($ && $.nodeType != 9) {
                     if (!name || name(new Node($)) === true)
                         return new Node($);
@@ -560,7 +560,7 @@ KISSY.Editor.add("dom", function(KE) {
                 :
                 function(el) {
                     el = normalElDom(el);
-                    //É¾³ıfirefox×Ô¼ºÌí¼ÓµÄ±êÖ¾
+                    //åˆ é™¤firefoxè‡ªå·±æ·»åŠ çš„æ ‡å¿—
                     UA.gecko && el.removeAttribute("_moz_dirty");
                     var attributes = el.attributes;
                     return ( attributes.length > 1 || ( attributes.length == 1 && attributes[0].nodeName != '_ke_expando' ) );
@@ -867,7 +867,7 @@ KISSY.Editor.add("dom", function(KE) {
                 el = normalElDom(el);
                 var expandoNumber = el.getAttribute('_ke_expando');
                 expandoNumber && delete customData[ expandoNumber ];
-                //ie inner html »á°ÑÊôĞÔ´øÉÏ£¬É¾µô£¡
+                //ie inner html ä¼šæŠŠå±æ€§å¸¦ä¸Šï¼Œåˆ æ‰ï¼
                 expandoNumber && el.removeAttribute("_ke_expando");
             },
             _4e_getUniqueId : function(el) {
@@ -924,8 +924,8 @@ KISSY.Editor.add("dom", function(KE) {
                 return ( dtd && dtd['#'] );
             },
             /**
-             * ĞŞÕıscrollIntoViewÔÚ¿ÉÊÓÇøÓòÄÚ²»ĞèÒª¹ö¶¯
-             * @param el
+             * ä¿®æ­£scrollIntoViewåœ¨å¯è§†åŒºåŸŸå†…ä¸éœ€è¦æ»šåŠ¨
+             * @param elem
              */
             _4e_scrollIntoView:function(elem) {
                 elem = normalEl(elem);
@@ -963,5 +963,4 @@ KISSY.Editor.add("dom", function(KE) {
         }
     };
     S.DOM._4e_inject(editorDom);
-
 });

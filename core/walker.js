@@ -1,7 +1,7 @@
 /**
  * modified from ckeditor for kissy editor ,walker implementation
- * @refer:http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal#TreeWalker
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @refer: http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal#TreeWalker
+ * @modifier: yiminghe@gmail.com(chengyu)
  */
 KISSY.Editor.add("walker", function(KE) {
 
@@ -43,18 +43,18 @@ KISSY.Editor.add("walker", function(KE) {
             // Gets the node that stops the walker when going LTR.
             var limitLTR = range.endContainer,
                 blockerLTR = new Node(limitLTR[0].childNodes[range.endOffset]);
-            //´Ó×óµ½ÓÒ±£Ö¤ÔÚ range Çø¼äÄÚ»ñÈ¡ nextSourceNode
+            //ä»å·¦åˆ°å³ä¿è¯åœ¨ range åŒºé—´å†…è·å– nextSourceNode
             this._.guardLTR = function(node, movingOut) {
-                //´ÓendContainerÒÆ³öÈ¥£¬Ê§°Ü·µ»Øfalse
+                //ä»endContainerç§»å‡ºå»ï¼Œå¤±è´¥è¿”å›false
                 return (
                     ( !movingOut
                         ||
                         ! DOM._4e_equals(limitLTR, node)
                         )
-                        //µ½´ïÉî¶È±éÀúµÄ×îºóÒ»¸ö½Úµã£¬½áÊø
+                        //åˆ°è¾¾æ·±åº¦éå†çš„æœ€åä¸€ä¸ªèŠ‚ç‚¹ï¼Œç»“æŸ
                         && ( !blockerLTR[0] || node[0] !== (blockerLTR[0]) )
 
-                        //´ÓbodyÒÆ³öÒ²½áÊø
+                        //ä»bodyç§»å‡ºä¹Ÿç»“æŸ
                         && ( node[0].nodeType != KEN.NODE_ELEMENT
                         || !movingOut
                         || node._4e_name() != 'body' ) );
@@ -220,7 +220,7 @@ KISSY.Editor.add("walker", function(KE) {
 
         /**
          * Check all nodes at left, executing the evaluation fuction.
-         * ÊÇ²»ÊÇ (²»ÄÜºóÍËÁË)
+         * æ˜¯ä¸æ˜¯ (ä¸èƒ½åé€€äº†)
          * @returns {Boolean} "false" if the evaluator function returned
          *        "false" for any of the matched nodes. Otherwise "true".
          */

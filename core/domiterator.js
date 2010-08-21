@@ -1,6 +1,6 @@
 /**
  * modified from ckeditor ,dom iterator implementation using walker and nextSourceNode
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @modifier: <yiminghe@gmail.com(chengyu)>
  */
 KISSY.Editor.add("domiterator", function(KE) {
     var S = KISSY,
@@ -26,7 +26,7 @@ KISSY.Editor.add("domiterator", function(KE) {
         this._ || ( this._ = {} );
     }
 
-    var beginWhitespaceRegex = /^[\r\n\t ]*$/,///^[\r\n\t ]+$/,//+:*??≤ª∆•≈‰ø’¥Æ
+    var beginWhitespaceRegex = /^[\r\n\t ]*$/,///^[\r\n\t ]+$/,//+:*??‰∏çÂåπÈÖçÁ©∫‰∏≤
         isBookmark = Walker.bookmark();
 
     S.augment(Iterator, {

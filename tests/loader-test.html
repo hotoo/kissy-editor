@@ -1,19 +1,20 @@
 <!doctype html>
 <html>
 <head>
-<meta charset="gbk"/>
-<title>Simple Editor Test</title>
-<link href="../../../base/css/ks-base.css?t=20100819b" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<title>KISSY Editor Test</title>
+<link href="../assets/base.css" rel="stylesheet"/>
+<link href="../assets/editor.css" rel="stylesheet"/>
 </head>
 <body>
 
-<h1>Simple Editor Demo (Ö§³Ö±í¸ñÓÒ¼ü)</h1>
+<h1>KISSY Editor Demo</h1>
 
-<div style="width:90%;margin:0 auto;">
-
-    <textarea id="edit" tabindex="1" style="width:100%;height:400px;margin:0 auto;">
+<div style="width: 90%; margin: 0 auto">
+    <label for="editor">Editor Instance 1:</label>
+    <textarea id="editor" tabindex="1" style="width:100%;height:400px;margin:0 auto;">
         <script>alert(1);</script>
-        <p>ÎÒÊÇÒôÀÖ£º</p>
+        <p>æˆ‘æ˜¯éŸ³ä¹ï¼š</p>
 
         <object height="37"
                 align=""
@@ -36,10 +37,10 @@
                    src="../plugins/music/niftyplayer.swf?file=../plugins/music/betty.mp3&amp;as=0">
         </object>
 
-        <p> 1 2 3 4 5 6 7 78 <a href="http://www.g.cn">ÎÒÊÇgoogle</a> 1 1 1 12234 3 45</p>
-        <p>ÎÒÊÇ¶ÎÂä <span style="background-color: red;"> ÎÒÊÇ¶ÎÂä ÎÒÊÇ¶ÎÂä </span> ÎÒÊÇ¶ÎÂä <img src="http://img05.taobaocdn.com/tps/i5/T117hGXndsXXXXXXXX-15-13.gif"> ÎÒÊÇ¶ÎÂä ÎÒÊÇ¶ÎÂä </p>  <p> ÎÒÊÇ¶ÎÂä ÎÒÊÇ¶ÎÂä <br></p>
+        <p> 1 2 3 4 5 6 7 78 <a href="http://www.g.cn">æˆ‘æ˜¯google</a> 1 1 1 12234 3 45</p>
+        <p>æˆ‘æ˜¯æ®µè½ <span style="background-color: red;"> æˆ‘æ˜¯æ®µè½ æˆ‘æ˜¯æ®µè½ </span> æˆ‘æ˜¯æ®µè½ <img src="http://img05.taobaocdn.com/tps/i5/T117hGXndsXXXXXXXX-15-13.gif"> æˆ‘æ˜¯æ®µè½ æˆ‘æ˜¯æ®µè½ </p>  <p> æˆ‘æ˜¯æ®µè½ æˆ‘æ˜¯æ®µè½ <br></p>
 
-        <p>ÎÒÊÇ±í¸ñ£¬Ö§³ÖÓÒ¼ü</p>
+        <p>æˆ‘æ˜¯è¡¨æ ¼ï¼Œæ”¯æŒå³é”®</p>
         <table style="width: 200px;" border="1" cellpadding="1" cellspacing="1">
             <tbody>
             <tr>
@@ -55,9 +56,9 @@
             </tbody>
         </table>
 
-        <p>ÎÒÊÇ¶ÎÂä <span style="background-color: red;"> ÎÒÊÇ¶ÎÂä ÎÒÊÇ¶ÎÂä </span> ÎÒÊÇ¶ÎÂä <img src="http://img05.taobaocdn.com/tps/i5/T117hGXndsXXXXXXXX-15-13.gif"> ÎÒÊÇ¶ÎÂä ÎÒÊÇ¶ÎÂä </p>  <p> ÎÒÊÇ¶ÎÂä ÎÒÊÇ¶ÎÂä <br></p>
+        <p>æˆ‘æ˜¯æ®µè½ <span style="background-color: red;"> æˆ‘æ˜¯æ®µè½ æˆ‘æ˜¯æ®µè½ </span> æˆ‘æ˜¯æ®µè½ <img src="http://img05.taobaocdn.com/tps/i5/T117hGXndsXXXXXXXX-15-13.gif"> æˆ‘æ˜¯æ®µè½ æˆ‘æ˜¯æ®µè½ </p>  <p> æˆ‘æ˜¯æ®µè½ æˆ‘æ˜¯æ®µè½ <br></p>
 
-        <p>ÎÒÊÇflash£º</p>
+        <p>æˆ‘æ˜¯flashï¼š</p>
         <object class="holiday-logo"
                 classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
                 height="68" width="300">
@@ -73,37 +74,37 @@
                        value="transparent"/>
                 <a href="http://www.taobao.com/"
                    style="height: 43px; margin-left: 56px;" target="_top">
-                    ÌÔ±¦Íø
-                    <img alt="ÌÔ±¦Íø" height="110" src="http://www.taobao.com/"
-                         title="Taobao.com - °¢Àï°Í°ÍÆìÏÂÍøÕ¾" width="167"/>
+                    æ·˜å®ç½‘
+                    <img alt="æ·˜å®ç½‘" height="110" src="http://www.taobao.com/"
+                         title="Taobao.com - é˜¿é‡Œå·´å·´æ——ä¸‹ç½‘ç«™" width="167"/>
                 </a>
             </object>
         </object>
         <ul>
-            <li> ÎÒÊÇÁĞ±í1</li>
-            <li> ÎÒÊÇÁĞ±í2
+            <li> æˆ‘æ˜¯åˆ—è¡¨1</li>
+            <li> æˆ‘æ˜¯åˆ—è¡¨2
                 <ul>
-                    <li><p>ÎÒÊÇÁĞ±í2.1</p></li>
-                    <li> ÎÒÊÇÁĞ±í2.2</li>
-                    <li> ÎÒÊÇÁĞ±í2.3</li>
+                    <li><p>æˆ‘æ˜¯åˆ—è¡¨2.1</p></li>
+                    <li> æˆ‘æ˜¯åˆ—è¡¨2.2</li>
+                    <li> æˆ‘æ˜¯åˆ—è¡¨2.3</li>
                 </ul>
             </li>
-            <li> ÎÒÊÇÁĞ±í3</li>
+            <li> æˆ‘æ˜¯åˆ—è¡¨3</li>
         </ul>
         <p>1</p>
         <p>2</p>
         <p>3</p>
         <p>4</p>
         <ul>
-            <li> ÎÒÊÇÁĞ±í1</li>
-            <li> ÎÒÊÇÁĞ±í2
+            <li> æˆ‘æ˜¯åˆ—è¡¨1</li>
+            <li> æˆ‘æ˜¯åˆ—è¡¨2
                 <ul>
-                    <li><p>ÎÒÊÇÁĞ±í2.1</p></li>
-                    <li> ÎÒÊÇÁĞ±í2.2</li>
-                    <li> ÎÒÊÇÁĞ±í2.3</li>
+                    <li><p>æˆ‘æ˜¯åˆ—è¡¨2.1</p></li>
+                    <li> æˆ‘æ˜¯åˆ—è¡¨2.2</li>
+                    <li> æˆ‘æ˜¯åˆ—è¡¨2.3</li>
                 </ul>
             </li>
-            <li><p>ÎÒÊÇÁĞ±í3</p></li>
+            <li><p>æˆ‘æ˜¯åˆ—è¡¨3</p></li>
         </ul>
 
         <p>1</p>
@@ -114,52 +115,45 @@
     </textarea>
 </div>
 
-<button id="t" style="visibility:hidden;">parse</button>
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-<div style="width:60%;margin:0 auto;">
-    <textarea id="edit2" style="width:100%;height:400px;margin:0 auto;"></textarea>
+<div style="width: 60%; margin: 50px auto">
+    <label for="editor2">Editor Instance 2:</label>
+    <textarea id="editor2" style="width:100%;height:400px;margin:0 auto;"></textarea>
 </div>
-<script type="text/javascript"
-        src="http://10.13.16.23/kissy/build/kissy.js" charset="utf-8"></script>
-<!--<script type="text/javascript"-->
-<!--src="../../../base/javascript/kissy.js?t=20100819b" charset="utf-8"></script>-->
-<script type="text/javascript"
-        src="../../../base/javascript/attribute.js?t=20100819b"></script>
-<script>
-    //temperary
-    var base = window.location.href.substring(0,
-            window.location.href.indexOf("/editor/") + "/editor/".length);
-    KISSY.Config.base = base;
 
-    KISSY.add({
+<script src="http://github.com/kissyteam/kissy/raw/master/build/kissy-min.js"></script>
+<!--<script src="../../kissy/src/kissy/loader.js"></script>-->
+<script src="http://github.com/kissyteam/kissy-sandbox/raw/master/attribute/attribute.js"></script>
+
+<script>
+    // just for test
+    var base = location.href.replace(/^(.*kissy-editor\/).*$/i, '$1'),
+        S = KISSY;
+
+    //S.Config.debug = true;
+    S.Config.base = base;
+
+    S.add({
         'editor': {
-            path:'editor-pkg.js?t=20100819b',
-            csspath:"assets/editor.css?t=20100819b"
+            path: 'build/editor-core-pkg.js',
+            csspath: "assets/editor.css"
         }
     });
 
+    S.use('editor', function() {
 
-</script>
-
-<script type="text/javascript">
-
-    KISSY.use("editor", function(S) {
-        //return;
-        var KE = KISSY.Editor,
-                Node = S.Node;
+        var KE = KISSY.Editor;
         KE.Config.base = base;
-/*
-        window.editor = KE("#edit", {
-            pluginConfig:{
-                "templates":[
+
+        KE("#editor", {
+            pluginConfig: {
+                "templates": [
                     {
-                        demo:"Ä£°å1Ğ§¹ûÑİÊ¾html"  ,
-                        html:"<div style='border:1px solid red'>Ä£°å1Ğ§¹ûÑİÊ¾html</div><p>fine?</p>"
+                        demo: "æ¨¡æ¿1",
+                        html: "<div style='border: 1px solid #999'>è¾¹æ¡†çº¿æ•ˆæœ</div>"
                     },
                     {
-                        demo:"Ä£°å2Ğ§¹ûÑİÊ¾html",
-                        html  :"<div style='border:1px solid red'>Ä£°å2Ğ§¹ûÑİÊ¾html</div>"
+                        demo: "æ¨¡æ¿2",
+                        html: "<div style='background: #ffc'>èƒŒæ™¯è‰²æ•ˆæœ</div>"
                     }
                 ]
             }
@@ -168,9 +162,8 @@
                 "list,indent,justify,link,image,flash,music," +
                 "table,smiley,maximize"
                 );
-*/
-        //debugger
-        window.editor2 = KE("#edit2").use("font,flash");
+
+        KE("#editor2").use("htmldataprocessor,elementpaths,sourcearea,undo,font");
     });
 
 </script>

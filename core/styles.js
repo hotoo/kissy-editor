@@ -1,6 +1,6 @@
 /**
  * modified from ckeditor for kissy editor,use style to gen element and wrap range's elements
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @modifier: <yiminghe@gmail.com(chengyu)>
  */
 KISSY.Editor.add("styles", function(KE) {
 
@@ -15,11 +15,10 @@ KISSY.Editor.add("styles", function(KE) {
         //Walker = KE.Walker,
         Node = S.Node,
         UA = S.UA,
-        DOM = S.DOM,
         ElementPath = KE.ElementPath,
         blockElements = { address:1,div:1,h1:1,h2:1,h3:1,h4:1,h5:1,h6:1,p:1,pre:1 },
         objectElements = {
-            //why? a should be same to inline? µ«ÊÇ²»ÄÜ»¥ÏàÇ¶Ì×
+            //why? a should be same to inline? ä½†æ˜¯ä¸èƒ½äº’ç›¸åµŒå¥—
             //a:1,
             embed:1,hr:1,img:1,li:1,object:1,ol:1,table:1,td:1,tr:1,th:1,ul:1,dl:1,dt:1,dd:1,form:1},
         semicolonFixRegex = /\s*(?:;\s*|$)/,
@@ -62,11 +61,11 @@ KISSY.Editor.add("styles", function(KE) {
 
         var func = remove ? this.removeFromRange : this.applyToRange,self = this;
         // Apply the style to the ranges.
-        //ie select Ñ¡ÖĞÆÚ¼ädocumentµÃ²»µ½range
+        //ie select é€‰ä¸­æœŸé—´documentå¾—ä¸åˆ°range
         document.body.focus();
         var selection = new KESelection(document),ranges = selection.getRanges();
         for (var i = 0; i < ranges.length; i++)
-            //¸ñÊ½»¯ºó£¬range½øÈë¸ñÊ½±êÇ©ÄÚ
+            //æ ¼å¼åŒ–åï¼Œrangeè¿›å…¥æ ¼å¼æ ‡ç­¾å†…
             func.call(self, ranges[ i ]);
         // Select the ranges again.
         selection.selectRanges(ranges);
@@ -590,7 +589,7 @@ KISSY.Editor.add("styles", function(KE) {
                         }
                         //bug notice add by yiminghe@gmail.com
                         //<span style="font-size:70px"><span style="font-size:30px">xcxx</span></span>
-                        //ÏÂÒ»´Î¸ñÊ½xxxÎª70px
+                        //ä¸‹ä¸€æ¬¡æ ¼å¼xxxä¸º70px
                         //var exit = false;
                         for (var styleName in def.styles) {
                             if (styleNode._4e_style(styleName) == parent._4e_style(styleName)) {

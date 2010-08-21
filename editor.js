@@ -1,72 +1,76 @@
 /**
- * constructor for kissy editor and event,editor instances holder
- * @author:yiminghe@gmail.com
+ * Constructor for kissy editor and event, editor instances holder
+ * @author: yiminghe@gmail.com, lifesinger@gmail.com
  */
-KISSY.add("editor", function(S) {
+KISSY.add("editor", function(S, undefined) {
+    
     function Editor(textarea, cfg) {
         var self = this;
+        
         if (!(self instanceof Editor)) {
             return new Editor(textarea, cfg);
         }
+        
         if (S.isString(textarea)) {
             textarea = S.one(textarea);
         }
         if (!textarea[0]) textarea = new Node(textarea);
-        S.app(self, S.EventTarget);
+
         self.cfg = cfg;
-        self.use = function(plugins) {
-            //debugger
-            S.use.call(self, plugins, function() {
+        
+        S.app(self, S.EventTarget);
+        self.use = function(mods) {
+            S.use.call(self, mods, function() {
                 self.on("dataReady", function() {
                     self.setData(textarea.val());
                 });
-            }, {
-                order:true,
-                global:Editor
-            });
+            }, { order:  true, global:  Editor });
         };
+        
         self.init(textarea);
     }
 
     S.app(Editor, S.EventTarget);
-
     Editor.Config.base = S.Config.base + "editor/";
-    var cores = {},
-        plugins = {
-            "htmlparser":{
-                attach:false,
-                path:"plugins/htmldataprocessor/htmlparser/htmlparser.js"
+    
+    var mods = {
+            "htmlparser": {
+                attach: false,
+                path: "plugins/htmldataprocessor/htmlparser/htmlparser.js"
             }
         },
-        core_names = [
+        core_mods = [
             "utils","focusmanager","definition",
             "dtd","dom", "elementpath",
             "walker","range","domiterator",
             "selection","styles"
         ],
-        plugin_names = [
+        plugin_mods = [
             "clipboard",
             {
-                name:"color",
-                useCss:true
+                name: "color",
+                useCss: true
             },
             {
-                name:"elementpaths",
-                useCss:true
+                name: "elementpaths",
+                useCss: true
             },
             "enterkey",
             "fakeobjects",
             {
-                name:"flash",
-                requires:["fakeobjects","overlay"]
+                name: "flash",
+                requires: ["fakeobjects","overlay"]
             },
             "font",
             "format",
             {
-                name:"htmldataprocessor",
-                requires:["htmlparser-text"]
+                name: "htmldataprocessor",
+                requires: ["htmlparser-text"]
             },
-            "image",
+            {
+                name: "image",
+                requires: ["overlay"]
+            },
             "indent",
             "justify",
             "link",
@@ -76,114 +80,123 @@ KISSY.add("editor", function(S) {
             "preview",
             "removeformat",
             {
-                name:"smiley",
-                useCss:true
+                name: "smiley",
+                useCss: true
             },
             "sourcearea",
             {
-                name:"table",
-                useCss:true,
-                requires:["overlay",
+                name: "table",
+                useCss: true,
+                requires: ["overlay",
                     "contextmenu"]
             },
             {
-                name:"templates",
-                useCss:true
+                name: "templates",
+                requires: ["overlay"],
+                useCss: true
             },
             "undo"
         ],
-        htmlparser_names = [
+        htmlparser_mods = [
             {
-                name:"htmlparser-basicwriter",
-                requires:["htmlparser"]
+                name: "htmlparser-basicwriter",
+                requires: ["htmlparser"]
             },
             {
-                name:"htmlparser-element",
-                requires:["htmlparser-fragment"]
+                name: "htmlparser-element",
+                requires: ["htmlparser-fragment"]
             },
             {
-                name:"htmlparser-filter",
-                requires:["htmlparser-element"]
+                name: "htmlparser-filter",
+                requires: ["htmlparser-element"]
             },
             {
-                name:"htmlparser-fragment",
-                requires:["htmlparser-htmlwriter"]
+                name: "htmlparser-fragment",
+                requires: ["htmlparser-htmlwriter"]
             },
             {
-                name:"htmlparser-htmlwriter",
-                requires:["htmlparser-basicwriter"]
+                name: "htmlparser-htmlwriter",
+                requires: ["htmlparser-basicwriter"]
             },
             {
-                name:"htmlparser-text",
-                requires:["htmlparser-filter"]
+                name: "htmlparser-text",
+                requires: ["htmlparser-filter"]
             }
         ],
-        n,
-        name,
-        i,
-        requires,
-        uis = [
-            "button","overlay",
+        ui_mods = [
+            "button", "overlay",
             {
-                name:"contextmenu",
-                requires:["overlay"]
+                name: "contextmenu",
+                requires: ["overlay"]
             }
-        ];
-    for (i = 0; i < uis.length; i++) {
-        n = uis[i];
-        requires = null;
-        if (!S.isString(n)) {
-            requires = n.requires;
-            n = n.name;
-        }
-        plugins[n] = {
-            attach:false,
-            requires:requires,
-            path:"ui/" + n + ".js",
-            csspath:"ui/" + n + ".css"
-        };
+        ],
+        i, len, mod, name, requires;
 
+    // ui modules
+    for (i = 0, len = ui_mods.length; i < len; i++) {
+        mod = ui_mods[i];
+        requires = undefined;
+
+        if (!S.isString(mod)) {
+            requires = mod.requires;
+            mod = mod.name;
+        }
+
+        mods[mod] = {
+            attach: false,
+            requires: requires,
+            path: "ui/" + mod + ".js",
+            csspath: "ui/" + mod + ".css"
+        };
     }
-    for (i = 0; i < plugin_names.length; i++) {
-        n = plugin_names[i];
-        name = n;
+
+    // plugins modules
+    for (i = 0, len = plugin_mods.length; i < len; i++) {
+        mod = plugin_mods[i];
+        name = mod;
         requires = ["button"];
-        if (!S.isString(n)) {
-            n.requires && (requires = requires.concat(n.requires));
-            name = n.name;
+
+        if (!S.isString(mod)) {
+            mod.requires && (requires = requires.concat(mod.requires));
+            name = mod.name;
         }
-        plugins[name] = {
-            attach:false,
-            requires:requires,
-            csspath:(n.useCss ? "plugins/" + name + "/plugin.css" : null),
-            path:"plugins/" + name + "/plugin.js"
-        };
-    }
-    for (i = 0; i < htmlparser_names.length; i++) {
-        n = htmlparser_names[i];
-        requires = null;
-        if (!S.isString(n)) {
-            requires = n.requires;
-            n = n.name;
-        }
-        plugins[n] = {
-            attach:false,
-            requires:requires,
-            path:"plugins/htmldataprocessor/htmlparser/" + n.substring(11) + ".js"
+
+        mods[name] = {
+            attach: false,
+            requires: requires,
+            csspath: (mod.useCss ? "plugins/" + name + "/plugin.css" :  undefined),
+            path: "plugins/" + name + "/plugin.js"
         };
     }
 
-    //debugger
-    Editor.add(plugins);
-    var last = null;
-    for (i = 0; i < core_names.length; i++) {
-        n = core_names[i];
-        cores[n] = {
-            host:"editor",
-            requires:last || []
+    // htmlparser
+    for (i = 0, len = htmlparser_mods.length; i < len; i++) {
+        mod = htmlparser_mods[i];
+        requires = undefined;
+
+        if (!S.isString(mod)) {
+            requires = mod.requires;
+            mod = mod.name;
+        }
+
+        mods[mod] = {
+            attach: false,
+            requires: requires,
+            path: "plugins/htmldataprocessor/htmlparser/" + mod.substring(11) + ".js"
         };
-        last = [n];
     }
-    Editor.add(cores);
+
+    Editor.add(mods);
+
+    mods = { };
+    for (i = 0, len = core_mods.length; i < len; i++) {
+        mod = core_mods[i];
+        mods[mod] = {
+            host: "editor",
+            requires: i > 0 ? core_mods[i - 1] : []
+        };
+    }
+    Editor.add(mods);
+
     S.Editor = Editor;
 });

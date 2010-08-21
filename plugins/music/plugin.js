@@ -1,6 +1,6 @@
 /**
  * insert music for kissy editor
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("music", function(editor) {
     var KE = KISSY.Editor;
@@ -22,12 +22,12 @@ KISSY.Editor.add("music", function(editor) {
                 html = "<div class='ke-popup-wrap' " +
                     "style='width:250px;padding:10px;'>" +
                     "<p style='margin:0 0 10px'>" +
-                    "<label>ÇëÊäÈëÒôÀÖµØÖ·£º<br/>" +
+                    "<label>è¯·è¾“å…¥éŸ³ä¹åœ°å€ï¼š<br/>" +
                     "<input value='http://' style='width: 250px;' class='ke-music-url'/>" +
                     "</label></p>" +
                     "<p>" +
-                    "<button class='ke-music-insert'>²åÈë</button>&nbsp;" +
-                    "<a href='#' class='ke-music-cancel'>È¡Ïû</a>" +
+                    "<button class='ke-music-insert'>æ’å…¥</button>&nbsp;" +
+                    "<a href='#' class='ke-music-cancel'>å–æ¶ˆ</a>" +
                     "</p>" +
                     "</div>",
                 MUSIC_MARKUP = '<object ' +
@@ -65,7 +65,7 @@ KISSY.Editor.add("music", function(editor) {
                     this.el = new TripleButton({
                         //text:"music",
                         contentCls:"ke-toolbar-music",
-                        title:"·ÖÏíÒôÀÖ",
+                        title:"åˆ†äº«éŸ³ä¹",
                         container:toolBarDiv
                     });
 

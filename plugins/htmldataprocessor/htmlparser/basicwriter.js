@@ -1,6 +1,6 @@
 /**
  * modified from ckeditor,html generator for kissy editor
- * @modifier:yiminghe@gmail.com
+ * @modifier: yiminghe@gmail.com
  */
 KISSY.Editor.add("htmlparser-basicwriter", function(editor) {
     var KE = KISSY.Editor,S = KISSY,Utils = KE.Utils;

@@ -1,6 +1,6 @@
 /**
  * link editor support for kissy editor ,innovation from google doc and ckeditor
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("link", function(editor) {
     var KE = KISSY.Editor,
@@ -45,12 +45,12 @@ KISSY.Editor.add("link", function(editor) {
 
 
             /**
-             * ËùÓĞ±à¼­Æ÷ÊµÀı¹²ÏíÍ¬Ò»¹¦ÄÜ´°¿Ú
+             * æ‰€æœ‰ç¼–è¾‘å™¨å®ä¾‹å…±äº«åŒä¸€åŠŸèƒ½çª—å£
              */
             Link.init = function() {
                 var self = this;
                 self.d = new Overlay({
-                    title:"±à¼­³¬Á´½Ó",
+                    title:"ç¼–è¾‘è¶…é“¾æ¥",
                     mask:true,
                     width:"300px"
                 });
@@ -71,13 +71,13 @@ KISSY.Editor.add("link", function(editor) {
                 Link.init = null;
             };
             /**
-             * tip³õÊ¼»¯£¬ËùÓĞ¹²ÏíÒ»¸ötip
+             * tipåˆå§‹åŒ–ï¼Œæ‰€æœ‰å…±äº«ä¸€ä¸ªtip
              */
-            var tipHtml = '<div class="ke-bubbleview-bubble" onmousedown="return false;">Ç°ÍùÁ´½Ó£º '
+            var tipHtml = '<div class="ke-bubbleview-bubble" onmousedown="return false;">å‰å¾€é“¾æ¥ï¼š '
                 + ' <a href="" '
                 + ' target="_blank" class="ke-bubbleview-url"></a> - '
-                + '    <span class="ke-bubbleview-link ke-bubbleview-change">±à¼­</span> - '
-                + '    <span class="ke-bubbleview-link ke-bubbleview-remove">È¥³ı</span>'
+                + '    <span class="ke-bubbleview-link ke-bubbleview-change">ç¼–è¾‘</span> - '
+                + '    <span class="ke-bubbleview-link ke-bubbleview-remove">å»é™¤</span>'
                 + '</div>';
             Link.tip = function() {
                 var el = new Node(tipHtml);
@@ -101,14 +101,14 @@ KISSY.Editor.add("link", function(editor) {
 
             var html = "<div style='padding: 10px;'>" +
                 "<p>" +
-                "<label>URL£º<input class='ke-link-url' style='width:230px' value='http://'/></label>" +
+                "<label>URLï¼š<input class='ke-link-url' style='width:230px' value='http://'/></label>" +
                 "</p>" +
                 "<p style='margin-top: 5px;padding-left:35px'>" +
-                "<label><input class='ke-link-blank' type='checkbox'/> &nbsp; ÔÚĞÂ´°¿Ú´ò¿ªÁ´½Ó</label>" +
+                "<label><input class='ke-link-blank' type='checkbox'/> &nbsp; åœ¨æ–°çª—å£æ‰“å¼€é“¾æ¥</label>" +
                 "</p>" +
                 "<p style='margin-top: 5px;'>" +
-                "<label><button class='ke-link-ok'>È·¶¨</button>&nbsp;" +
-                "<a href='#' class='ke-link-cancel'>È¡Ïû</a></label>" +
+                "<label><button class='ke-link-ok'>ç¡®å®š</button>&nbsp;" +
+                "<a href='#' class='ke-link-cancel'>å–æ¶ˆ</a></label>" +
                 "</p>" +
                 "</div>";
             S.augment(Link, {
@@ -118,7 +118,7 @@ KISSY.Editor.add("link", function(editor) {
                         container:editor.toolBarDiv,
                         contentCls:"ke-toolbar-link",
                         //text:'link',
-                        title:'²åÈë±à¼­³¬Á´½Ó'
+                        title:'æ’å…¥ç¼–è¾‘è¶…é“¾æ¥'
                     });
                     self.el.on("click", self.show, self);
                     editor.on("selectionChange", self._selectionChange, self);
@@ -145,7 +145,7 @@ KISSY.Editor.add("link", function(editor) {
 
                 _removeLink:function() {
                     var a = this._a,editor = this.editor;
-                    //ie6ÏÈÒªfocus
+                    //ie6å…ˆè¦focus
                     editor.focus();
                     var attr = {
                         href:a.attr("href")
@@ -161,7 +161,7 @@ KISSY.Editor.add("link", function(editor) {
                     editor.focus();
                     editor.notifySelectionChange();
                 },
-                //½è¼øgoogle doc tipÌáÊ¾ÏÔÊ¾
+                //å€Ÿé‰´google doc tipæç¤ºæ˜¾ç¤º
                 _selectionChange:function(ev) {
                     var elementPath = ev.path,
                         //editor = this.editor,
@@ -185,7 +185,7 @@ KISSY.Editor.add("link", function(editor) {
                     Link.d.hide();
                 },
 
-                //µÃµ½µ±Ç°Ñ¡ÖĞµÄ link a
+                //å¾—åˆ°å½“å‰é€‰ä¸­çš„ link a
                 _getSelectedLink:function() {
                     var self = this;
                     var editor = this.editor;
@@ -204,13 +204,13 @@ KISSY.Editor.add("link", function(editor) {
                 _link:function() {
                     var self = this;
                     var editor = this.editor,url = Link.urlEl.val();
-                    //ie6 ÏÈÒªfocus
+                    //ie6 å…ˆè¦focus
                     editor.focus();
                     if (!S.trim(url)) {
                         return;
                     }
                     var link = self._getSelectedLink();
-                    //ÊÇĞŞ¸ÄĞĞÎª
+                    //æ˜¯ä¿®æ”¹è¡Œä¸º
                     if (link) {
                         var range = new KERange(editor.document);
                         range.selectNodeContents(link);
@@ -242,7 +242,7 @@ KISSY.Editor.add("link", function(editor) {
                     Link.d.link = this;
 
                     var link = self._getSelectedLink();
-                    //ÊÇĞŞ¸ÄĞĞÎª
+                    //æ˜¯ä¿®æ”¹è¡Œä¸º
 
                     if (link) {
                         Link.urlEl.val(link.attr("href"));

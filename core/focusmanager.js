@@ -1,6 +1,6 @@
 /**
- * ¶àÊµÀıµÄ½¹µã¿ØÖÆ£¬Ö÷ÒªÊÇÎªÁËfirefox½¹µãÊ§È¥bug£¬¼ÇÂ¼µ±Ç°×´Ì¬
- * @author:yiminghe@gmail.com
+ * å¤šå®ä¾‹çš„ç„¦ç‚¹æ§åˆ¶ï¼Œä¸»è¦æ˜¯ä¸ºäº†firefoxç„¦ç‚¹å¤±å»bugï¼Œè®°å½•å½“å‰çŠ¶æ€
+ * @author: <yiminghe@gmail.com>
  */
 KISSY.Editor.add("focusmanager", function(KE) {
     var S = KISSY,

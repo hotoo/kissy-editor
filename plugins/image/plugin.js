@@ -1,6 +1,6 @@
 /**
  * insert image for kissy editor
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("image", function(editor) {
     var KE = KISSY.Editor,
@@ -17,11 +17,11 @@ KISSY.Editor.add("image", function(editor) {
             }
 
             var TripleButton = KE.TripleButton,html = "<div class='ke-popup-wrap' style='width:250px;padding:10px;'>" +
-                "<p style='margin:0 0 10px'><label>ÇëÊäÈëÍ¼Æ¬µØÖ·£º<br/>" +
+                "<p style='margin:0 0 10px'><label>è¯·è¾“å…¥å›¾ç‰‡åœ°å€ï¼š<br/>" +
                 "<input value='http://' style='width: 250px;' class='ke-img-url'/>" +
                 "</label></p>" +
                 "<p>" +
-                "<button class='ke-img-insert'>²åÈë</button>&nbsp;<a href='#' class='ke-img-cancel'>È¡Ïû</a>" +
+                "<button class='ke-img-insert'>æ’å…¥</button>&nbsp;<a href='#' class='ke-img-cancel'>å–æ¶ˆ</a>" +
                 "</p>" +
                 "</div>";
 
@@ -36,7 +36,7 @@ KISSY.Editor.add("image", function(editor) {
                     this.el = new TripleButton({
                         contentCls:"ke-toolbar-image",
                         //text:"img",
-                        title:"Í¼Ïñ",
+                        title:"å›¾åƒ",
                         container:toolBarDiv
                     });
 

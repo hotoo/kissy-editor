@@ -1,6 +1,6 @@
 /**
  * modified from ckeditor,range implementation across browsers for kissy editor
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @modifier: <yiminghe@gmail.com(chengyu)>
  */
 KISSY.Editor.add("range", function(KE) {
     KE.RANGE = {
@@ -333,7 +333,7 @@ KISSY.Editor.add("range", function(KE) {
 
                     currentNode = currentSibling;
                 }
-                //ckeditorÕâÀï´íÁË£¬µ±Ç°½ÚµãµÄÂ·¾¶ËùÔÚ¸¸½Úµã²»ÄÜclone(true)£¬ÒªÔÚºóÃæÉîÈë×Ó½Úµã´¦Àí
+                //ckeditorè¿™é‡Œé”™äº†ï¼Œå½“å‰èŠ‚ç‚¹çš„è·¯å¾„æ‰€åœ¨çˆ¶èŠ‚ç‚¹ä¸èƒ½clone(true)ï¼Œè¦åœ¨åé¢æ·±å…¥å­èŠ‚ç‚¹å¤„ç†
                 if (levelClone)
                     clone = levelClone;
             }
@@ -390,7 +390,7 @@ KISSY.Editor.add("range", function(KE) {
                 var startTextNode = self.startContainer[0];
                 if (startTextNode.nodeType == KEN.NODE_TEXT
                     && startTextNode.nextSibling
-                    //yiminghe note:careful,nextsilbling should be text node 
+                    //yiminghe note:careful,nextsilbling should be text node
                     && startTextNode.nextSibling.nodeType == KEN.NODE_TEXT) {
                     startTextNode.data += startTextNode.nextSibling.data;
                     startTextNode.parentNode.removeChild(startTextNode.nextSibling);
@@ -1536,12 +1536,12 @@ KISSY.Editor.add("range", function(KE) {
     function elementBoundaryEval(node) {
         // Reject any text node unless it's being bookmark
         // OR it's spaces. (#3883)
-        //Èç¹û²»ÊÇÎÄ±¾½Úµã²¢ÇÒÊÇ¿ÕµÄ£¬¿ÉÒÔ¼ÌĞøÈ¡ÏÂÒ»¸öÅĞ¶Ï±ß½ç
+        //å¦‚æœä¸æ˜¯æ–‡æœ¬èŠ‚ç‚¹å¹¶ä¸”æ˜¯ç©ºçš„ï¼Œå¯ä»¥ç»§ç»­å–ä¸‹ä¸€ä¸ªåˆ¤æ–­è¾¹ç•Œ
         var c1 = node[0].nodeType != KEN.NODE_TEXT
             && node._4e_name() in dtd.$removeEmpty,
-            //ÎÄ±¾Îª¿Õ£¬¿ÉÒÔ¼ÌĞøÈ¡ÏÂÒ»¸öÅĞ¶Ï±ß½ç
+            //æ–‡æœ¬ä¸ºç©ºï¼Œå¯ä»¥ç»§ç»­å–ä¸‹ä¸€ä¸ªåˆ¤æ–­è¾¹ç•Œ
             c2 = !S.trim(node[0].nodeValue),
-            //¶÷£¬½øÈ¥ÁËÊéÇ©£¬¿ÉÒÔ¼ÌĞøÈ¡ÏÂÒ»¸öÅĞ¶Ï±ß½ç
+            //æ©ï¼Œè¿›å»äº†ä¹¦ç­¾ï¼Œå¯ä»¥ç»§ç»­å–ä¸‹ä¸€ä¸ªåˆ¤æ–­è¾¹ç•Œ
             c3 = !!node.parent().attr('_ke_bookmark');
         return c1 || c2 || c3;
     }

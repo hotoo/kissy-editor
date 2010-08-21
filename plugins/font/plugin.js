@@ -1,6 +1,6 @@
 /**
  * font formatting for kissy editor
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("font", function(editor) {
     var KE = KISSY.Editor,
@@ -12,7 +12,7 @@ KISSY.Editor.add("font", function(editor) {
         FONT_SIZES = ["8px","10px","12px",
             "14px","18px","24px","36px","48px","60px","72px","84px","96px","108px"],
         FONT_SIZE_STYLES = {},
-        FONT_SIZE_SELECTION_HTML = "<select title='¥Û–°'><option value=''>¥Û–° / «Â≥˝</option>",
+        FONT_SIZE_SELECTION_HTML = "<select title='Â§ßÂ∞è'><option value=''>Â§ßÂ∞è / Ê∏ÖÈô§</option>",
         fontSize_style = {
             element        : 'span',
             styles        : { 'font-size' : '#(size)' },
@@ -20,11 +20,11 @@ KISSY.Editor.add("font", function(editor) {
                 { element : 'font', attributes : { 'size' : null } }
             ]
         },
-        FONT_FAMILIES = ["ÀŒÃÂ","∫⁄ÃÂ","¡• È",
-            "ø¨ÃÂ_GB2312","Œ¢»Ì—≈∫⁄","Georgia","Times New Roman",
+        FONT_FAMILIES = ["ÂÆã‰Ωì","Èªë‰Ωì","Èö∂‰π¶",
+            "Ê•∑‰Ωì_GB2312","ÂæÆËΩØÈõÖÈªë","Georgia","Times New Roman",
             "Impact","Courier New","Arial","Verdana","Tahoma"],
         FONT_FAMILY_STYLES = {},
-        FONT_FAMILY_SELECTION_HTML = "<select title='◊÷ÃÂ'><option value=''>◊÷ÃÂ / «Â≥˝</option>",
+        FONT_FAMILY_SELECTION_HTML = "<select title='Â≠ó‰Ωì'><option value=''>Â≠ó‰Ωì / Ê∏ÖÈô§</option>",
         fontFamily_style = {
             element        : 'span',
             styles        : { 'font-family' : '#(family)' },
@@ -222,7 +222,7 @@ KISSY.Editor.add("font", function(editor) {
 
         new KE.Font.SingleFont({
             contentCls:"ke-toolbar-bold",
-            title:"¥÷ÃÂ",
+            title:"Á≤ó‰Ωì",
             editor:editor,
             style:new KEStyle({
                 element : 'strong'
@@ -231,7 +231,7 @@ KISSY.Editor.add("font", function(editor) {
 
         new KE.Font.SingleFont({
             contentCls:"ke-toolbar-italic",
-            title:"–±ÃÂ",
+            title:"Êñú‰Ωì",
             editor:editor,
             style:new KEStyle({
                 element : 'em'
@@ -240,7 +240,7 @@ KISSY.Editor.add("font", function(editor) {
 
         new KE.Font.SingleFont({
             contentCls:"ke-toolbar-underline",
-            title:"œ¬ªÆœﬂ",
+            title:"‰∏ãÂàíÁ∫ø",
             editor:editor,
             style:new KEStyle({
                 element : 'u'
@@ -249,7 +249,7 @@ KISSY.Editor.add("font", function(editor) {
 
         new KE.Font.SingleFont({
             contentCls:"ke-toolbar-strikeThrough",
-            title:"…æ≥˝œﬂ",
+            title:"Âà†Èô§Á∫ø",
             editor:editor,
             style:new KEStyle({
                 element : 'del'
