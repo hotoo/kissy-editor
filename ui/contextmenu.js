@@ -110,5 +110,5 @@ KISSY.Editor.add("contextmenu", function(editor) {
 
 
     KE.ContextMenu = ContextMenu;
-    console.log("contexmenu loaded!");
+    //console.log("contexmenu loaded!");
 });

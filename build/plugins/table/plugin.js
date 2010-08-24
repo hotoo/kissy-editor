@@ -3,7 +3,7 @@
  * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("table", function(editor, undefined) {
-    console.log("table loaded!");
+    //console.log("table loaded!");
     var KE = KISSY.Editor,
         S = KISSY,
         Node = S.Node,

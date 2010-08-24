@@ -6695,7 +6695,7 @@ KISSY.Editor.add("contextmenu", function(editor) {
 
 
     KE.ContextMenu = ContextMenu;
-    console.log("contexmenu loaded!");
+    //console.log("contexmenu loaded!");
 });
 /**
  * simple overlay for kissy editor using lazyRun
@@ -9919,7 +9919,7 @@ KISSY.Editor.add("image", function(editor) {
                 _real:function() {
                     var xy = this.el.el.offset();
                     xy.top += this.el.el.height() + 5;
-                    console.log(this.content.width(), xy.left, DOM.viewportWidth());
+                    //console.log(this.content.width(), xy.left, DOM.viewportWidth());
                     if (xy.left + this.content.width() > DOM.viewportWidth() - 60) {
                         xy.left = DOM.viewportWidth() - this.content.width() - 60;
                     }
@@ -11913,7 +11913,7 @@ KISSY.Editor.add("sourcearea", function(editor) {
  * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("table", function(editor, undefined) {
-    console.log("table loaded!");
+    //console.log("table loaded!");
     var KE = KISSY.Editor,
         S = KISSY,
         Node = S.Node,
