@@ -1,5 +1,7 @@
 
 KISSY Editor - 富文本编辑器 An Editor for Internet!
 
+静态载入：
 http://kissyteam.github.com/kissy-editor/tests/static-min-test.html
-http://kissyteam.github.com/kissy-editor/tests/loader-test.html
+动态按需载入：
+http://kissyteam.github.com/kissy-editor/tests/loader-min-test.html
