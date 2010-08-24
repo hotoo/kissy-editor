@@ -28,6 +28,7 @@ KISSY.add("editor", function(S, undefined) {
         };
 
         self.init(textarea);
+        return undefined;
     }
 
     S.app(Editor, S.EventTarget);
@@ -131,10 +132,15 @@ KISSY.add("editor", function(S, undefined) {
             }
         ],
         ui_mods = [
-            "button", "overlay",
+            {name:"button"},
+            {
+                name:"overlay",
+                useCss:true
+            },
             {
                 name: "contextmenu",
-                requires: ["overlay"]
+                requires: ["overlay"]   ,
+                useCss:true
             }
         ],
         i, len, mod, name, requires;
@@ -142,18 +148,19 @@ KISSY.add("editor", function(S, undefined) {
     // ui modules
     for (i = 0,len = ui_mods.length; i < len; i++) {
         mod = ui_mods[i];
+        name = mod;
         requires = undefined;
 
         if (!S.isString(mod)) {
             requires = mod.requires;
-            mod = mod.name;
+            name = mod.name;
         }
 
-        mods[mod] = {
+        mods[name] = {
             attach: false,
             requires: requires,
-            path: debugUrl("ui/" + mod + ".js"),
-            csspath: debugUrl("ui/" + mod + ".css")
+            path: debugUrl("ui/" + name + ".js"),
+            csspath: mod.useCss ? debugUrl("ui/" + name + ".css") : ""
         };
     }
 
