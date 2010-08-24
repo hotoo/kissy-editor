@@ -4,11 +4,16 @@
  */
 KISSY.Editor.add("utils", function(KE) {
 
-    var S = KISSY,Node = S.Node,DOM = S.DOM;
+    var S = KISSY,Node = S.Node,DOM = S.DOM,debug=S.Config.debug;
     KE.Utils = {
         debugUrl:function (url) {
-            return !S.Config.debug ? ("build/" + url) : url;
-        },
+            if (!debug) return "build/" + url.replace(/\.(js|css)/i, "-min.$1");
+            if (debug === "dev") {
+                return url;
+            }
+            return "build/" + url;
+        }
+        ,
         /**
          * 懒惰一下
          * @param obj
@@ -22,7 +27,8 @@ KISSY.Editor.add("utils", function(KE) {
                 obj[before] = obj[after];
                 return a.apply(this, arguments);
             };
-        },
+        }
+        ,
 
 
         getXY:function(x, y, srcDoc, destDoc) {
@@ -41,7 +47,8 @@ KISSY.Editor.add("utils", function(KE) {
                 }
             }
             return {left:x,top:y};
-        },
+        }
+        ,
 
         tryThese : function() {
 
@@ -106,25 +113,31 @@ KISSY.Editor.add("utils", function(KE) {
             }
 
             return $ ? new Node($) : null;
-        },
+        }
+        ,
 
         clearAllMarkers:function(database) {
             for (var i in database)
                 database[i]._4e_clearMarkers(database, true);
-        },
+        }
+        ,
         htmlEncodeAttr : function(text) {
             return text.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/, '&gt;');
-        },
+        }
+        ,
         ltrim:function(str) {
             return str.replace(/^\s+/, "");
-        },
+        }
+        ,
 
         rtrim:function(str) {
             return str.replace(/\s+$/, "");
-        },
+        }
+        ,
         trim:function(str) {
             return this.ltrim(this.rtrim(str));
-        },
+        }
+        ,
         mix:function() {
             var r = {};
             for (var i = 0; i < arguments.length; i++) {
@@ -134,4 +147,5 @@ KISSY.Editor.add("utils", function(KE) {
             return r;
         }
     };
-});
+})
+    ;

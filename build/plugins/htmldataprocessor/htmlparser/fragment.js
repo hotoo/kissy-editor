@@ -1,7 +1,480 @@
-KISSY.Editor.add("htmlparser-fragment",function(){function r(){this.children=[];this.parent=null;this._={isBlockLike:true,hasInlineStarted:false}}var j=KISSY.Editor;if(!j.HtmlParser.Fragment){var A={colgroup:1,dd:1,dt:1,li:1,option:1,p:1,td:1,tfoot:1,th:1,thead:1,tr:1},B=KISSY,s=j.Utils,v=j.NODE,h=j.XHTML_DTD,C=s.mix({table:1,ul:1,ol:1,dl:1},h.table,h.ul,h.ol,h.dl),y=h.$list,D=h.$listItem;r.FromHtml=function(f,e){function n(b){var g;if(k.length>0)for(var i=0;i<k.length;i++){var d=k[i],c=d.name,l=
-h[c],p=a.name&&h[a.name];if((!p||p[c])&&(!b||!l||l[b]||!h[b])){if(!g){m();g=1}d=d.clone();d.parent=a;a=d;k.splice(i,1);i--}}}function m(){for(;w.length;)a.add(w.shift())}function q(b,g,i){g=g||a||x;if(e&&!g.type){var d,c;if((d=b.attributes&&(c=b.attributes._ke_real_element_type)?c:b.name)&&!(d in h.$body)&&!(d in h.$nonBodyContent)){d=a;a=g;o.onTagOpen(e,{});g=a;if(i)a=d}}if(b._.isBlockLike&&b.name!="pre"){i=b.children.length;if((d=b.children[i-1])&&d.type==v.NODE_TEXT)if(c=s.rtrim(d.value))d.value=
-c;else b.children.length=i-1}g.add(b);if(b.returnPoint){a=b.returnPoint;delete b.returnPoint}}var o=new j.HtmlParser,x=new r,k=[],w=[],a=x,t=false,u;o.onTagOpen=function(b,g,i){var d=new j.HtmlParser.Element(b,g);if(d.isUnknown&&i)d.isEmpty=true;if(h.$removeEmpty[b])k.push(d);else{if(b=="pre")t=true;else if(b=="br"&&t){a.add(new j.HtmlParser.Text("\n"));return}if(b=="br")w.push(d);else{var c=a.name,l=c&&(h[c]||(a._.isBlockLike?h.div:h.span));if(l&&!d.isUnknown&&!a.isUnknown&&!l[b]){l=false;var p;
-if(b in y&&c in y){c=a.children;(c=c[c.length-1])&&c.name in D||q(c=new j.HtmlParser.Element("li"),a);u=a;p=c}else if(b==c)q(a,a.parent);else{if(C[c])u||(u=a);else{q(a,a.parent,true);A[c]||k.unshift(a)}l=true}a=p?p:a.returnPoint||a.parent;if(l){o.onTagOpen.apply(this,arguments);return}}n(b);m();d.parent=a;d.returnPoint=u;u=0;if(d.isEmpty)q(d);else a=d}}};o.onTagClose=function(b){for(var g=k.length-1;g>=0;g--)if(b==k[g].name){k.splice(g,1);return}for(var i=[],d=[],c=a;c.type&&c.name!=b;){c._.isBlockLike||
-d.unshift(c);i.push(c);c=c.parent}if(c.type){for(g=0;g<i.length;g++){var l=i[g];q(l,l.parent)}a=c;if(a.name=="pre")t=false;c._.isBlockLike&&m();q(c,c.parent);if(c==a)a=a.parent;k=k.concat(d)}if(b=="body")e=false};o.onText=function(b){if(!a._.hasInlineStarted&&!t){b=s.ltrim(b);if(b.length===0)return}m();n();if(e&&(!a.type||a.name=="body")&&s.trim(b))this.onTagOpen(e,{});t||(b=b.replace(/[\t\r\n ]{2,}|[\t\r\n]/g," "));a.add(new j.HtmlParser.Text(b))};o.onCDATA=function(){};o.onComment=function(){};
-o.parse(f);for(m();a.type;){f=a.parent;var z=a;if(e&&(!f.type||f.name=="body")&&!h.$body[z.name]){a=f;o.onTagOpen(e,{});f=a}f.add(z);a=f}return x};B.augment(r,{add:function(f){var e=this.children.length;if(e=e>0&&this.children[e-1]||null){if(f._.isBlockLike&&e.type==v.NODE_TEXT){e.value=s.rtrim(e.value);if(e.value.length===0){this.children.pop();this.add(f);return}}e.next=f}f.previous=e;f.parent=this;this.children.push(f);this._.hasInlineStarted=f.type==v.NODE_TEXT||f.type==v.NODE_ELEMENT&&!f._.isBlockLike},
-writeHtml:function(f,e){var n;this.filterChildren=function(){var m=new j.HtmlParser.BasicWriter;this.writeChildrenHtml.call(this,m,e,true);m=m.getHtml();this.children=(new r.FromHtml(m)).children;n=1};!this.name&&e&&e.onFragment(this);this.writeChildrenHtml(f,n?null:e)},writeChildrenHtml:function(f,e){for(var n=0;n<this.children.length;n++)this.children[n].writeHtml(f,e)}});j.HtmlParser.Fragment=r}});
+KISSY.Editor.add("htmlparser-fragment", function(
+    //editor
+    ) {
+    var KE = KISSY.Editor;
+    if (KE.HtmlParser.Fragment) return;
+    /**
+     * A lightweight representation of an HTML DOM structure.
+     * @constructor
+     * @example
+     */
+    function Fragment() {
+        /**
+         * The nodes contained in the root of this fragment.
+         * @type Array
+         * @example
+         * var fragment = Fragment.fromHtml( '<b>Sample</b> Text' );
+         * alert( fragment.children.length );  "2"
+         */
+        this.children = [];
+
+        /**
+         * Get the fragment parent. Should always be null.
+         * @type Object
+         * @default null
+         * @example
+         */
+        this.parent = null;
+
+        /** @private */
+        this._ = {
+            isBlockLike : true,
+            hasInlineStarted : false
+        };
+    }
+
+    // Elements which the end tag is marked as optional in the HTML 4.01 DTD
+    // (expect empty elements).
+    var optionalClose = {colgroup:1,dd:1,dt:1,li:1,option:1,p:1,td:1,tfoot:1,th:1,thead:1,tr:1};
+
+    // Block-level elements whose internal structure should be respected during
+    // parser fixing.
+    var S = KISSY,
+        Utils = KE.Utils,
+        KEN = KE.NODE,
+        XHTML_DTD = KE.XHTML_DTD,
+        nonBreakingBlocks = Utils.mix({table:1,ul:1,ol:1,dl:1},
+            XHTML_DTD.table, XHTML_DTD.ul, XHTML_DTD.ol, XHTML_DTD.dl),
+        listBlocks = XHTML_DTD.$list,
+        listItems = XHTML_DTD.$listItem;
+
+    /**
+     * Creates a  Fragment from an HTML string.
+     * @param {String} fragmentHtml The HTML to be parsed, filling the fragment.
+     * @param {Number} [fixForBody=false] Wrap body with specified element if needed.
+     * @returns Fragment The fragment created.
+     * @example
+     * var fragment = Fragment.fromHtml( '<b>Sample</b> Text' );
+     * alert( fragment.children[0].name );  "b"
+     * alert( fragment.children[1].value );  " Text"
+     * 特例：
+     * 自动加p，自动处理标签嵌套规则
+     * "<img src='xx'><span>5<div>6</div>7</span>"
+     * ="<p><img><span>5</span></p><div><span>6</span></div><p><span>7</span></p>"
+     * 自动处理ul嵌套，以及li ie不闭合
+     * "<ul><ul><li>xxx</ul><li>1<li>2<ul>");
+     */
+    Fragment.FromHtml = function(fragmentHtml, fixForBody) {
+        var parser = new KE.HtmlParser(),
+            //html = [],
+            fragment = new Fragment(),
+            pendingInline = [],
+            pendingBRs = [],
+            currentNode = fragment,
+            // Indicate we're inside a <pre> element, spaces should be touched differently.
+            inPre = false,
+            returnPoint;
+
+        function checkPending(newTagName) {
+            var pendingBRsSent;
+
+            if (pendingInline.length > 0) {
+                for (var i = 0; i < pendingInline.length; i++) {
+                    var pendingElement = pendingInline[ i ],
+                        pendingName = pendingElement.name,
+                        pendingDtd = XHTML_DTD[ pendingName ],
+                        currentDtd = currentNode.name && XHTML_DTD[ currentNode.name ];
+
+                    if (( !currentDtd || currentDtd[ pendingName ] ) && ( !newTagName || !pendingDtd || pendingDtd[ newTagName ] || !XHTML_DTD[ newTagName ] )) {
+                        if (!pendingBRsSent) {
+                            sendPendingBRs();
+                            pendingBRsSent = 1;
+                        }
+
+                        // Get a clone for the pending element.
+                        pendingElement = pendingElement.clone();
+
+                        // Add it to the current node and make it the current,
+                        // so the new element will be added inside of it.
+                        pendingElement.parent = currentNode;
+                        currentNode = pendingElement;
+
+                        // Remove the pending element (back the index by one
+                        // to properly process the next entry).
+                        pendingInline.splice(i, 1);
+                        i--;
+                    }
+                }
+            }
+        }
+
+        function sendPendingBRs() {
+            while (pendingBRs.length)
+                currentNode.add(pendingBRs.shift());
+        }
+
+        function addElement(element, target, enforceCurrent) {
+            target = target || currentNode || fragment;
+
+            // If the target is the fragment and this element can't go inside
+            // body (if fixForBody).
+            if (fixForBody && !target.type) {
+                var elementName, realElementName;
+                if (element.attributes
+                    && ( realElementName =
+                    element.attributes[ '_ke_real_element_type' ] ))
+                    elementName = realElementName;
+                else
+                    elementName = element.name;
+                if (elementName
+                    && !( elementName in XHTML_DTD.$body )
+                    && !( elementName in XHTML_DTD.$nonBodyContent )) {
+                    var savedCurrent = currentNode;
+
+                    // Create a <p> in the fragment.
+                    currentNode = target;
+                    parser.onTagOpen(fixForBody, {});
+
+                    // The new target now is the <p>.
+                    target = currentNode;
+
+                    if (enforceCurrent)
+                        currentNode = savedCurrent;
+                }
+            }
+
+            // Rtrim empty spaces on block end boundary. (#3585)
+            if (element._.isBlockLike
+                && element.name != 'pre') {
+
+                var length = element.children.length,
+                    lastChild = element.children[ length - 1 ],
+                    text;
+                if (lastChild && lastChild.type == KEN.NODE_TEXT) {
+                    if (!( text = Utils.rtrim(lastChild.value) ))
+                        element.children.length = length - 1;
+                    else
+                        lastChild.value = text;
+                }
+            }
+
+            target.add(element);
+
+            //<ul><ul></ul></ul> -> <ul><li><ul></ul></li></ul>
+            //跳过隐形添加的li直接到ul
+            if (element.returnPoint) {
+                currentNode = element.returnPoint;
+                delete element.returnPoint;
+            }
+        }
+
+        /**
+         * 遇到标签开始建立节点和父亲关联 ==  node.parent=parent
+         * @param tagName
+         * @param attributes
+         * @param selfClosing
+         */
+        parser.onTagOpen = function(tagName, attributes, selfClosing) {
+            var element = new KE.HtmlParser.Element(tagName, attributes);
+
+            // "isEmpty" will be always "false" for unknown elements, so we
+            // must force it if the parser has identified it as a selfClosing tag.
+            if (element.isUnknown && selfClosing)
+                element.isEmpty = true;
+
+            // This is a tag to be removed if empty, so do not add it immediately.
+            if (XHTML_DTD.$removeEmpty[ tagName ]) {
+                pendingInline.push(element);
+                return;
+            }
+            else if (tagName == 'pre')
+                inPre = true;
+            else if (tagName == 'br' && inPre) {
+                currentNode.add(new KE.HtmlParser.Text('\n'));
+                return;
+            }
+
+            if (tagName == 'br') {
+                pendingBRs.push(element);
+                return;
+            }
+
+            var currentName = currentNode.name;
+
+            var currentDtd = currentName
+                && ( XHTML_DTD[ currentName ]
+                || ( currentNode._.isBlockLike ? XHTML_DTD.div : XHTML_DTD.span ) );
+
+            // If the element cannot be child of the current element.
+            if (currentDtd   // Fragment could receive any elements.
+                && !element.isUnknown && !currentNode.isUnknown && !currentDtd[ tagName ]) {
+
+                var reApply = false,
+                    addPoint;   // New position to start adding nodes.
+
+                // Fixing malformed nested lists by moving it into a previous list item. (#3828)
+                if (tagName in listBlocks
+                    && currentName in listBlocks) {
+                    var children = currentNode.children,
+                        lastChild = children[ children.length - 1 ];
+
+                    // Establish the list item if it's not existed.
+                    if (!( lastChild && lastChild.name in listItems ))
+                    //直接添加到父亲
+                        addElement(( lastChild = new KE.HtmlParser.Element('li') ), currentNode);
+                    //以后直接跳到父亲不用再向父亲添加
+                    returnPoint = currentNode,addPoint = lastChild;
+                }
+                // If the element name is the same as the current element name,
+                // then just close the current one and append the new one to the
+                // parent. This situation usually happens with <p>, <li>, <dt> and
+                // <dd>, specially in IE. Do not enter in this if block in this case.
+                else if (tagName == currentName) {
+                    //直接把上一个<p>,<li>结束掉，不要再等待</p>,</li>执行此项操作了
+                    addElement(currentNode, currentNode.parent);
+                }
+                else {
+                    if (nonBreakingBlocks[ currentName ]) {
+                        if (!returnPoint)
+                            returnPoint = currentNode;
+                    }
+                    else {
+                        //拆分，闭合掉
+                        addElement(currentNode, currentNode.parent, true);
+                        //li,p等现在就闭合，以后都不用再管了
+                        if (!optionalClose[ currentName ]) {
+                            // The current element is an inline element, which
+                            // cannot hold the new one. Put it in the pending list,
+                            // and try adding the new one after it.
+                            pendingInline.unshift(currentNode);
+                        }
+                    }
+
+                    reApply = true;
+                }
+
+                if (addPoint)
+                    currentNode = addPoint;
+                // Try adding it to the return point, or the parent element.
+                else
+                //前面都调用 addElement 将当前节点闭合了，只能往 parent 添加了
+                    currentNode = currentNode.returnPoint || currentNode.parent;
+
+                if (reApply) {
+                    parser.onTagOpen.apply(this, arguments);
+                    return;
+                }
+            }
+
+            checkPending(tagName);
+            sendPendingBRs();
+
+            element.parent = currentNode;
+            element.returnPoint = returnPoint;
+            returnPoint = 0;
+
+            //自闭合的，不等结束标签，立即加到父亲
+            if (element.isEmpty)
+                addElement(element);
+            else
+                currentNode = element;
+        };
+
+        /**
+         * 遇到标签结束，将open生成的节点添加到dom树中 == 父亲接纳自己 node.parent.add(node)
+         * @param tagName
+         */
+        parser.onTagClose = function(tagName) {
+            // Check if there is any pending tag to be closed.
+            for (var i = pendingInline.length - 1; i >= 0; i--) {
+                // If found, just remove it from the list.
+                if (tagName == pendingInline[ i ].name) {
+                    pendingInline.splice(i, 1);
+                    return;
+                }
+            }
+
+            var pendingAdd = [],
+                newPendingInline = [],
+                candidate = currentNode;
+
+            while (candidate.type && candidate.name != tagName) {
+                // If this is an inline element, add it to the pending list, if we're
+                // really closing one of the parents element later, they will continue
+                // after it.
+                if (!candidate._.isBlockLike)
+                    newPendingInline.unshift(candidate);
+
+                // This node should be added to it's parent at this point. But,
+                // it should happen only if the closing tag is really closing
+                // one of the nodes. So, for now, we just cache it.
+                pendingAdd.push(candidate);
+
+                candidate = candidate.parent;
+            }
+
+            if (candidate.type) {
+                // Add all elements that have been found in the above loop.
+                for (i = 0; i < pendingAdd.length; i++) {
+                    var node = pendingAdd[ i ];
+                    addElement(node, node.parent);
+                }
+
+                currentNode = candidate;
+
+                if (currentNode.name == 'pre')
+                    inPre = false;
+
+                if (candidate._.isBlockLike)
+                    sendPendingBRs();
+
+                addElement(candidate, candidate.parent);
+
+                // The parent should start receiving new nodes now, except if
+                // addElement changed the currentNode.
+                if (candidate == currentNode)
+                    currentNode = currentNode.parent;
+
+                pendingInline = pendingInline.concat(newPendingInline);
+            }
+
+            if (tagName == 'body')
+                fixForBody = false;
+        };
+
+        parser.onText = function(text) {
+            // Trim empty spaces at beginning of element contents except <pre>.
+            if (!currentNode._.hasInlineStarted && !inPre) {
+                text = Utils.ltrim(text);
+
+                if (text.length === 0)
+                    return;
+            }
+
+            sendPendingBRs();
+            checkPending();
+
+            if (fixForBody
+                && ( !currentNode.type || currentNode.name == 'body' )
+                && Utils.trim(text)) {
+                this.onTagOpen(fixForBody, {});
+            }
+
+            // Shrinking consequential spaces into one single for all elements
+            // text contents.
+            if (!inPre)
+                text = text.replace(/[\t\r\n ]{2,}|[\t\r\n]/g, ' ');
+
+            currentNode.add(new KE.HtmlParser.Text(text));
+        };
+
+        parser.onCDATA = function(
+            //cdata
+            ) {
+            //不做
+            //currentNode.add(new KE.HtmlParser.cdata(cdata));
+        };
+
+        parser.onComment = function(
+            //comment
+            ) {
+            //currentNode.add(new KE.HtmlParser.comment(comment));
+        };
+
+        // Parse it.
+        parser.parse(fragmentHtml);
+
+        sendPendingBRs();
+
+        // Close all pending nodes.
+        //<p>xxxxxxxxxxxxx
+        //到最后也灭有结束标签
+        while (currentNode.type) {
+            var parent = currentNode.parent,
+                node = currentNode;
+
+            if (fixForBody
+                && ( !parent.type || parent.name == 'body' )
+                && !XHTML_DTD.$body[ node.name ]) {
+                currentNode = parent;
+                parser.onTagOpen(fixForBody, {});
+                parent = currentNode;
+            }
+
+            parent.add(node);
+            currentNode = parent;
+        }
+
+        return fragment;
+    };
+
+    S.augment(Fragment, {
+        /**
+         * Adds a node to this fragment.
+         * @param {Object} node The node to be added. It can be any of of the
+         *        following types: {@link Element},
+         *        {@link Text}
+         * @example
+         */
+        add : function(node) {
+            var len = this.children.length,
+                previous = len > 0 && this.children[ len - 1 ] || null;
+
+            if (previous) {
+                // If the block to be appended is following text, trim spaces at
+                // the right of it.
+                if (node._.isBlockLike && previous.type == KEN.NODE_TEXT) {
+                    previous.value = Utils.rtrim(previous.value);
+                    // If we have completely cleared the previous node.
+                    if (previous.value.length === 0) {
+                        // Remove it from the list and add the node again.
+                        this.children.pop();
+                        this.add(node);
+                        return;
+                    }
+                }
+
+                previous.next = node;
+            }
+
+            node.previous = previous;
+            node.parent = this;
+
+            this.children.push(node);
+            this._.hasInlineStarted = node.type == KEN.NODE_TEXT || ( node.type == KEN.NODE_ELEMENT && !node._.isBlockLike );
+        },
+
+        /**
+         * Writes the fragment HTML to a CKEDITOR.htmlWriter.
+         * @param writer The writer to which write the HTML.
+         * @example
+         * var writer = new HtmlWriter();
+         * var fragment = Fragment.fromHtml( '&lt;P&gt;&lt;B&gt;Example' );
+         * fragment.writeHtml( writer )
+         * alert( writer.getHtml() );  "&lt;p&gt;&lt;b&gt;Example&lt;/b&gt;&lt;/p&gt;"
+         */
+        writeHtml : function(writer, filter) {
+            var isChildrenFiltered;
+            this.filterChildren = function() {
+                var writer = new KE.HtmlParser.BasicWriter();
+                this.writeChildrenHtml.call(this, writer, filter, true);
+                var html = writer.getHtml();
+                this.children = new Fragment.FromHtml(html).children;
+                isChildrenFiltered = 1;
+            };
+
+            // Filtering the root fragment before anything else.
+            !this.name && filter && filter.onFragment(this);
+
+            this.writeChildrenHtml(writer, isChildrenFiltered ? null : filter);
+        },
+
+        writeChildrenHtml : function(writer, filter) {
+            for (var i = 0; i < this.children.length; i++)
+                this.children[i].writeHtml(writer, filter);
+        }
+    });
+
+    KE.HtmlParser.Fragment = Fragment;
+
+});

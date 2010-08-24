@@ -1,15 +1,579 @@
-KISSY.Editor.add("list",function(x){var n=KISSY.Editor,r={ol:1,ul:1},z=["ol","ul"],s=KISSY,A=n.RANGE,F=n.ElementPath,B=n.Walker,o=n.NODE,C=s.UA,p=s.Node,m=s.DOM;n.List||function(){function D(a){this.type=a}function w(a){w.superclass.constructor.call(this,a);a=this.get("editor").toolBarDiv;this.el=new y({contentCls:this.get("contentCls"),title:this.get("title"),container:a});this.listCommand=new D(this.get("type"));this.listCommand.state=this.get("status");this._init()}var q={listToArray:function(a,
-h,c,j,g){if(!r[a._4e_name()])return[];j||(j=0);c||(c=[]);for(var f=0,b=a[0].childNodes.length;f<b;f++){var d=new p(a[0].childNodes[f]);if(d._4e_name()=="li"){var e={parent:a,indent:j,element:d,contents:[]};if(g)e.grandparent=g;else{e.grandparent=a.parent();if(e.grandparent&&e.grandparent._4e_name()=="li")e.grandparent=e.grandparent.parent()}h&&d._4e_setMarker(h,"listarray_index",c.length);c.push(e);for(var i=0,k=d[0].childNodes.length,l;i<k;i++){l=new p(d[0].childNodes[i]);l[0].nodeType==o.NODE_ELEMENT&&
-r[l._4e_name()]?q.listToArray(l,h,c,j+1,e.grandparent):e.contents.push(l)}}}return c},arrayToList:function(a,h,c,j){c||(c=0);if(!a||a.length<c+1)return null;for(var g=a[c].parent[0].ownerDocument,f=g.createDocumentFragment(),b=null,d=c,e=Math.max(a[c].indent,0),i=null;;){var k=a[d];if(k.indent==e){if(!b||a[d].parent._4e_name()!=b._4e_name()){b=a[d].parent._4e_clone(false,true);f.appendChild(b[0])}i=b[0].appendChild(k.element._4e_clone(false,true)[0]);for(var l=0;l<k.contents.length;l++)i.appendChild(k.contents[l]._4e_clone(true,
-true)[0]);d++}else if(k.indent==Math.max(e,0)+1){d=q.arrayToList(a,null,d,j);i.appendChild(d.listNode);d=d.nextIndex}else if(k.indent==-1&&!c&&k.grandparent){i=r[k.grandparent._4e_name()]?k.element._4e_clone(false,true)[0]:k.grandparent._4e_name()!="td"?g.createElement(j):g.createDocumentFragment();for(l=0;l<k.contents.length;l++)i.appendChild(k.contents[l]._4e_clone(true,true)[0]);if(i.nodeType==o.NODE_DOCUMENT_FRAGMENT&&d!=a.length-1){i.lastChild&&i.lastChild.nodeType==o.NODE_ELEMENT&&i.lastChild.getAttribute("type")==
-"_moz"&&m._4e_remove(i.lastChild);m._4e_appendBogus(i)}if(i.nodeType==o.NODE_ELEMENT&&m._4e_name(i)==j&&i.firstChild){m._4e_trim(i);b=i.firstChild;if(b.nodeType==o.NODE_ELEMENT&&m._4e_isBlockBoundary(b)){b=g.createDocumentFragment();m._4e_moveChildren(i,b);i=b}}b=m._4e_name(i);if(!C.ie&&(b=="div"||b=="p"))m._4e_appendBogus(i);f.appendChild(i);b=null;d++}else return null;if(a.length<=d||Math.max(a[d].indent,0)<e)break}if(h)for(a=new p(f.firstChild);a&&a[0];){a[0].nodeType==o.NODE_ELEMENT&&a._4e_clearMarkers(h,
-true);a=a._4e_nextSourceNode()}return{listNode:f,nextIndex:d}}},G=/^h[1-6]$/;D.prototype={changeListType:function(a,h,c,j){var g=q.listToArray(h.root,c),f=[];for(a=0;a<h.contents.length;a++){var b=h.contents[a];b=b._4e_ascendant("li",true);if(!(!b||!b[0]||b._4e_getData("list_item_processed"))){f.push(b);b._4e_setMarker(c,"list_item_processed",true)}}b=new p(h.root[0].ownerDocument.createElement(this.type));for(a=0;a<f.length;a++){var d=f[a]._4e_getData("listarray_index");g[d].parent=b}c=q.arrayToList(g,
-c,null,"p");var e;g=c.listNode.childNodes.length;for(a=0;a<g&&(e=new p(c.listNode.childNodes[a]));a++)e._4e_name()==this.type&&j.push(e);m.insertBefore(c.listNode,h.root[0]);h.root._4e_remove()},createList:function(a,h,c){var j=h.contents;a=h.root[0].ownerDocument;var g=[];if(j.length==1&&j[0][0]===h.root[0]){var f=new p(a.createElement("div"));j[0][0].nodeType!=o.NODE_TEXT&&j[0]._4e_moveChildren(f);j[0][0].appendChild(f[0]);j[0]=f}h=h.contents[0].parent();for(f=0;f<j.length;f++)h=h._4e_commonAncestor(j[f].parent());
-for(f=0;f<j.length;f++)for(var b=j[f],d;d=b.parent();){if(d[0]===h[0]){g.push(b);break}b=d}if(!(g.length<1)){j=new p(g[g.length-1][0].nextSibling);f=new p(a.createElement(this.type));for(c.push(f);g.length;){c=g.shift();b=new p(a.createElement("li"));if(G.test(c._4e_name()))b[0].appendChild(c[0]);else{c._4e_copyAttributes(b);c._4e_moveChildren(b);c._4e_remove()}f[0].appendChild(b[0]);C.ie||b._4e_appendBogus()}j[0]?m.insertBefore(f[0],j[0]):h[0].appendChild(f[0])}},removeList:function(a,h,c){function j(l){if((i=
-new p(e[l?"firstChild":"lastChild"]))&&!(i[0].nodeType==o.NODE_ELEMENT&&i._4e_isBlockBoundary())&&(k=h.root[l?"_4e_previous":"_4e_next"](B.whitespaces(true)))&&!(i[0].nodeType==o.NODE_ELEMENT&&k._4e_isBlockBoundary({br:1})))m[l?"insertBefore":"insertAfter"](a.document.createElement("br"),i[0])}for(var g=q.listToArray(h.root,c),f=[],b=0;b<h.contents.length;b++){var d=h.contents[b];d=d._4e_ascendant("li",true);if(!(!d||d._4e_getData("list_item_processed"))){f.push(d);d._4e_setMarker(c,"list_item_processed",
-true)}}d=null;for(b=0;b<f.length;b++){d=f[b]._4e_getData("listarray_index");g[d].indent=-1;d=d}for(b=d+1;b<g.length;b++)if(g[b].indent>Math.max(g[b-1].indent,0)){f=g[b-1].indent+1-g[b].indent;for(d=g[b].indent;g[b]&&g[b].indent>=d;){g[b].indent+=f;b++}b--}var e=q.arrayToList(g,c,null,"p").listNode,i,k;j(true);j();m.insertBefore(e,h.root);h.root._4e_remove()},exec:function(a){a.focus();var h=a.getSelection(),c=h&&h.getRanges();if(!(!c||c.length<1)){for(var j=h.createBookmarks(true),g=[],f={};c.length>
-0;){var b=c.shift(),d=b.getBoundaryNodes(),e=d.startNode,i=d.endNode;e[0].nodeType==o.NODE_ELEMENT&&e._4e_name()=="td"&&b.setStartAt(d.startNode,A.POSITION_AFTER_START);i[0].nodeType==o.NODE_ELEMENT&&i._4e_name()=="td"&&b.setEndAt(d.endNode,A.POSITION_BEFORE_END);b=b.createIterator();for(b.forceBrBreak=false;d=b.getNextParagraph();){e=new F(d);i=e.elements;var k=null,l=false,t=e.blockLimit,u;for(e=i.length-1;e>=0&&(u=i[e]);e--)if(r[u._4e_name()]&&t.contains(u)){t._4e_removeData("list_group_object");
-if(e=u._4e_getData("list_group_object"))e.contents.push(d);else{e={root:u,contents:[d]};g.push(e);u._4e_setMarker(f,"list_group_object",e)}l=true;break}if(!l)if(t._4e_getData("list_group_object"))t._4e_getData("list_group_object").contents.push(d);else{e={root:t,contents:[d]};t._4e_setMarker(f,"list_group_object",e);g.push(e)}}}for(c=[];g.length>0;){e=g.shift();if(this.state=="off")r[e.root._4e_name()]?this.changeListType(a,e,f,c):this.createList(a,e,c);else this.state=="on"&&r[e.root._4e_name()]&&
-this.removeList(a,e,f)}for(e=0;e<c.length;e++){k=c[e];var H=this;(g=function(E){var v=k[E?"_4e_previous":"_4e_next"](B.whitespaces(true));if(v&&v[0]&&v._4e_name()==H.type){v._4e_remove();v._4e_moveChildren(k,E?true:false)}})();g(true)}n.Utils.clearAllMarkers(f);h.selectBookmarks(j);a.focus()}}};var y=n.TripleButton;w.ATTRS={editor:{},type:{},contentCls:{}};s.extend(w,s.Base,{_init:function(){var a=this.get("editor");this.el.on("click",this._change,this);a.on("selectionChange",this._selectionChange,
-this)},_change:function(){var a=this.get("editor"),h=this.get("type"),c=this.el,j=this;a.focus();a.fire("save");setTimeout(function(){j.listCommand.state=c.get("state");j.listCommand.exec(a);a.fire("save");a.fire(h+"Change")},10)},_selectionChange:function(a){this.get("editor");var h=this.get("type"),c=a.path,j;a=this.el;var g=c.blockLimit;if(c=c.elements)for(var f=0;f<c.length&&(j=c[f])&&j[0]!==g[0];f++){var b=s.indexOf(c[f]._4e_name(),z);if(b!==-1)if(z[b]===h){a.set("state",y.ON);return}else break}a.set("state",
-y.OFF)}});n.ListUtils=q;n.List=w}();x.addPlugin(function(){new n.List({editor:x,title:"\u9879\u76ee\u5217\u8868",contentCls:"ke-toolbar-ul",type:"ul"});new n.List({editor:x,title:"\u7f16\u53f7\u5217\u8868",contentCls:"ke-toolbar-ol",type:"ol"})})});
+/**
+ * list formatting,modified from ckeditor
+ * @modifier: yiminghe@gmail.com
+ */
+KISSY.Editor.add("list", function(editor) {
+    var KE = KISSY.Editor,
+        listNodeNames = {"ol":1,"ul":1},
+        listNodeNames_arr = ["ol","ul"],
+        S = KISSY,
+        KER = KE.RANGE,
+        KEP = KE.POSITION,
+        ElementPath = KE.ElementPath,
+        Walker = KE.Walker,
+        KEN = KE.NODE,
+        UA = S.UA,
+        Node = S.Node,
+        DOM = S.DOM;
+    if (!KE.List) {
+        (function() {
+
+
+            var list = {
+                /*
+                 * Convert a DOM list tree into a data structure that is easier to
+                 * manipulate. This operation should be non-intrusive in the sense that it
+                 * does not change the DOM tree, with the exception that it may add some
+                 * markers to the list item nodes when database is specified.
+                 * 扁平化处理，深度遍历，利用 indent 和顺序来表示一棵树
+                 */
+                listToArray : function(listNode, database, baseArray, baseIndentLevel, grandparentNode) {
+                    if (!listNodeNames[ listNode._4e_name() ])
+                        return [];
+
+                    if (!baseIndentLevel)
+                        baseIndentLevel = 0;
+                    if (!baseArray)
+                        baseArray = [];
+
+                    // Iterate over all list items to and look for inner lists.
+                    for (var i = 0, count = listNode[0].childNodes.length; i < count; i++) {
+                        var listItem = new Node(listNode[0].childNodes[i]);
+
+                        // It may be a text node or some funny stuff.
+                        if (listItem._4e_name() != 'li')
+                            continue;
+
+                        var itemObj = { 'parent' : listNode, indent : baseIndentLevel, element : listItem, contents : [] };
+                        if (!grandparentNode) {
+                            itemObj.grandparent = listNode.parent();
+                            if (itemObj.grandparent && itemObj.grandparent._4e_name() == 'li')
+                                itemObj.grandparent = itemObj.grandparent.parent();
+                        }
+                        else
+                            itemObj.grandparent = grandparentNode;
+
+                        if (database)
+                            listItem._4e_setMarker(database, 'listarray_index', baseArray.length);
+                        baseArray.push(itemObj);
+
+                        for (var j = 0, itemChildCount = listItem[0].childNodes.length, child; j < itemChildCount; j++) {
+                            child = new Node(listItem[0].childNodes[j]);
+                            if (child[0].nodeType == KEN.NODE_ELEMENT && listNodeNames[ child._4e_name() ])
+                            // Note the recursion here, it pushes inner list items with
+                            // +1 indentation in the correct order.
+                                list.listToArray(child, database, baseArray, baseIndentLevel + 1, itemObj.grandparent);
+                            else
+                                itemObj.contents.push(child);
+                        }
+                    }
+                    return baseArray;
+                },
+
+                // Convert our internal representation of a list back to a DOM forest.
+                //根据包含indent属性的元素数组来生成树
+                arrayToList : function(listArray, database, baseIndex, paragraphMode) {
+                    if (!baseIndex)
+                        baseIndex = 0;
+                    if (!listArray || listArray.length < baseIndex + 1)
+                        return null;
+                    var doc = listArray[ baseIndex ].parent[0].ownerDocument,
+                        retval = doc.createDocumentFragment(),
+                        rootNode = null,
+                        currentIndex = baseIndex,
+                        indentLevel = Math.max(listArray[ baseIndex ].indent, 0),
+                        currentListItem = null,
+                        paragraphName = paragraphMode;
+                    while (true) {
+                        var item = listArray[ currentIndex ];
+                        if (item.indent == indentLevel) {
+                            if (!rootNode
+                                ||
+                                //用于替换标签,ul->ol ,ol->ul
+                                listArray[ currentIndex ].parent._4e_name() != rootNode._4e_name()) {
+
+                                rootNode = listArray[ currentIndex ].parent._4e_clone(false, true);
+                                retval.appendChild(rootNode[0]);
+                            }
+                            currentListItem = rootNode[0].appendChild(item.element._4e_clone(false, true)[0]);
+                            for (var i = 0; i < item.contents.length; i++)
+                                currentListItem.appendChild(item.contents[i]._4e_clone(true, true)[0]);
+                            currentIndex++;
+                        } else if (item.indent == Math.max(indentLevel, 0) + 1) {
+                            //进入一个li里面，里面的嵌套li递归构造父亲ul/ol
+                            var listData = list.arrayToList(listArray, null, currentIndex, paragraphMode);
+                            currentListItem.appendChild(listData.listNode);
+                            currentIndex = listData.nextIndex;
+                        } else if (item.indent == -1 && !baseIndex && item.grandparent) {
+                            currentListItem;
+                            if (listNodeNames[ item.grandparent._4e_name() ])
+                                currentListItem = item.element._4e_clone(false, true)[0];
+                            else {
+                                // Create completely new blocks here, attributes are dropped.
+                                if (item.grandparent._4e_name() != 'td')
+                                    currentListItem = doc.createElement(paragraphName);
+                                else
+                                    currentListItem = doc.createDocumentFragment();
+                            }
+
+                            for (i = 0; i < item.contents.length; i++)
+                                currentListItem.appendChild(item.contents[i]._4e_clone(true, true)[0]);
+
+                            if (currentListItem.nodeType == KEN.NODE_DOCUMENT_FRAGMENT
+                                && currentIndex != listArray.length - 1) {
+                                if (currentListItem.lastChild
+                                    && currentListItem.lastChild.nodeType == KEN.NODE_ELEMENT
+                                    && currentListItem.lastChild.getAttribute('type') == '_moz')
+                                    DOM._4e_remove(currentListItem.lastChild);
+                                DOM._4e_appendBogus(currentListItem);
+                            }
+
+                            if (currentListItem.nodeType == KEN.NODE_ELEMENT &&
+                                DOM._4e_name(currentListItem) == paragraphName &&
+                                currentListItem.firstChild) {
+                                DOM._4e_trim(currentListItem);
+                                var firstChild = currentListItem.firstChild;
+                                if (firstChild.nodeType == KEN.NODE_ELEMENT &&
+                                    DOM._4e_isBlockBoundary(firstChild)
+                                    ) {
+                                    var tmp = doc.createDocumentFragment();
+                                    DOM._4e_moveChildren(currentListItem, tmp);
+                                    currentListItem = tmp;
+                                }
+                            }
+
+                            var currentListItemName = DOM._4e_name(currentListItem);
+                            if (!UA.ie && ( currentListItemName == 'div' || currentListItemName == 'p' ))
+                                DOM._4e_appendBogus(currentListItem);
+                            retval.appendChild(currentListItem);
+                            rootNode = null;
+                            currentIndex++;
+                        }
+                        else
+                            return null;
+
+                        if (listArray.length <= currentIndex || Math.max(listArray[ currentIndex ].indent, 0) < indentLevel)
+                            break;
+                    }
+
+                    // Clear marker attributes for the new list tree made of cloned nodes, if any.
+                    if (database) {
+                        var currentNode = new Node(retval.firstChild);
+                        while (currentNode && currentNode[0]) {
+                            if (currentNode[0].nodeType == KEN.NODE_ELEMENT) {
+                                currentNode._4e_clearMarkers(database, true);
+                                //add by yiminghe:no need _ke_expando copied!
+
+                            }
+                            currentNode = currentNode._4e_nextSourceNode();
+                        }
+                    }
+
+                    return { listNode : retval, nextIndex : currentIndex };
+                }
+            };
+
+
+            var headerTagRegex = /^h[1-6]$/;
+
+
+            function listCommand(type) {
+                this.type = type;
+            }
+
+            listCommand.prototype = {
+                changeListType:function(editor, groupObj, database, listsCreated) {
+                    // This case is easy...
+                    // 1. Convert the whole list into a one-dimensional array.
+                    // 2. Change the list type by modifying the array.
+                    // 3. Recreate the whole list by converting the array to a list.
+                    // 4. Replace the original list with the recreated list.
+                    var listArray = list.listToArray(groupObj.root, database),
+                        selectedListItems = [];
+
+                    for (var i = 0; i < groupObj.contents.length; i++) {
+                        var itemNode = groupObj.contents[i];
+                        itemNode = itemNode._4e_ascendant('li', true);
+                        if ((!itemNode || !itemNode[0]) || itemNode._4e_getData('list_item_processed'))
+                            continue;
+                        selectedListItems.push(itemNode);
+                        itemNode._4e_setMarker(database, 'list_item_processed', true);
+                    }
+
+                    var fakeParent = new Node(groupObj.root[0].ownerDocument.createElement(this.type));
+                    for (i = 0; i < selectedListItems.length; i++) {
+                        var listIndex = selectedListItems[i]._4e_getData('listarray_index');
+                        listArray[listIndex].parent = fakeParent;
+                    }
+                    var newList = list.arrayToList(listArray, database, null, "p");
+                    var child, length = newList.listNode.childNodes.length;
+                    for (i = 0; i < length && ( child = new Node(newList.listNode.childNodes[i]) ); i++) {
+                        if (child._4e_name() == this.type)
+                            listsCreated.push(child);
+                    }
+                    DOM.insertBefore(newList.listNode, groupObj.root[0]);
+                    groupObj.root._4e_remove();
+                },
+                createList:function(editor, groupObj, listsCreated) {
+                    var contents = groupObj.contents,
+                        doc = groupObj.root[0].ownerDocument,
+                        listContents = [];
+
+                    // It is possible to have the contents returned by DomRangeIterator to be the same as the root.
+                    // e.g. when we're running into table cells.
+                    // In such a case, enclose the childNodes of contents[0] into a <div>.
+                    if (contents.length == 1 && contents[0][0] === groupObj.root[0]) {
+                        var divBlock = new Node(doc.createElement('div'));
+                        contents[0][0].nodeType != KEN.NODE_TEXT && contents[0]._4e_moveChildren(divBlock);
+                        contents[0][0].appendChild(divBlock[0]);
+                        contents[0] = divBlock;
+                    }
+
+                    // Calculate the common parent node of all content blocks.
+                    var commonParent = groupObj.contents[0].parent();
+                    for (var i = 0; i < contents.length; i++)
+                        commonParent = commonParent._4e_commonAncestor(contents[i].parent());
+
+                    // We want to insert things that are in the same tree level only, so calculate the contents again
+                    // by expanding the selected blocks to the same tree level.
+                    for (i = 0; i < contents.length; i++) {
+                        var contentNode = contents[i],
+                            parentNode;
+                        while (( parentNode = contentNode.parent() )) {
+                            if (parentNode[0] === commonParent[0]) {
+                                listContents.push(contentNode);
+                                break;
+                            }
+                            contentNode = parentNode;
+                        }
+                    }
+
+                    if (listContents.length < 1)
+                        return;
+
+                    // Insert the list to the DOM tree.
+                    var insertAnchor = new Node(listContents[ listContents.length - 1 ][0].nextSibling),
+                        listNode = new Node(doc.createElement(this.type));
+
+                    listsCreated.push(listNode);
+                    while (listContents.length) {
+                        var contentBlock = listContents.shift(),
+                            listItem = new Node(doc.createElement('li'));
+
+                        // Preserve heading structure when converting to list item. (#5271)
+                        if (headerTagRegex.test(contentBlock._4e_name())) {
+                            listItem[0].appendChild(contentBlock[0]);
+                        } else {
+                            contentBlock._4e_copyAttributes(listItem);
+                            contentBlock._4e_moveChildren(listItem);
+                            contentBlock._4e_remove();
+                        }
+                        listNode[0].appendChild(listItem[0]);
+
+                        // Append a bogus BR to force the LI to render at full height
+                        if (!UA.ie)
+                            listItem._4e_appendBogus();
+                    }
+                    if (insertAnchor[0])
+                        DOM.insertBefore(listNode[0], insertAnchor[0]);
+                    else
+                        commonParent[0].appendChild(listNode[0]);
+                },
+                removeList:function(editor, groupObj, database) {
+                    // This is very much like the change list type operation.
+                    // Except that we're changing the selected items' indent to -1 in the list array.
+                    var listArray = list.listToArray(groupObj.root, database),
+                        selectedListItems = [];
+
+                    for (var i = 0; i < groupObj.contents.length; i++) {
+                        var itemNode = groupObj.contents[i];
+                        itemNode = itemNode._4e_ascendant('li', true);
+                        if (!itemNode || itemNode._4e_getData('list_item_processed'))
+                            continue;
+                        selectedListItems.push(itemNode);
+                        itemNode._4e_setMarker(database, 'list_item_processed', true);
+                    }
+
+                    var lastListIndex = null;
+                    for (i = 0; i < selectedListItems.length; i++) {
+                        var listIndex = selectedListItems[i]._4e_getData('listarray_index');
+                        listArray[listIndex].indent = -1;
+                        lastListIndex = listIndex;
+                    }
+
+                    // After cutting parts of the list out with indent=-1, we still have to maintain the array list
+                    // model's nextItem.indent <= currentItem.indent + 1 invariant. Otherwise the array model of the
+                    // list cannot be converted back to a real DOM list.
+                    for (i = lastListIndex + 1; i < listArray.length; i++) {
+                        //if (listArray[i].indent > listArray[i - 1].indent + 1) {
+                        //modified by yiminghe
+                        if (listArray[i].indent > Math.max(listArray[i - 1].indent, 0)) {
+                            var indentOffset = listArray[i - 1].indent + 1 - listArray[i].indent;
+                            var oldIndent = listArray[i].indent;
+                            while (listArray[i]
+                                && listArray[i].indent >= oldIndent) {
+                                listArray[i].indent += indentOffset;
+                                i++;
+                            }
+                            i--;
+                        }
+                    }
+
+                    var newList = list.arrayToList(listArray, database, null, "p");
+
+                    // Compensate <br> before/after the list node if the surrounds are non-blocks.(#3836)
+                    var docFragment = newList.listNode, boundaryNode, siblingNode;
+
+                    function compensateBrs(isStart) {
+                        if (( boundaryNode = new Node(docFragment[ isStart ? 'firstChild' : 'lastChild' ]) )
+                            && !( boundaryNode[0].nodeType == KEN.NODE_ELEMENT && boundaryNode._4e_isBlockBoundary() )
+                            && ( siblingNode = groupObj.root[ isStart ? '_4e_previous' : '_4e_next' ]
+                            (Walker.whitespaces(true)) )
+                            && !( boundaryNode[0].nodeType == KEN.NODE_ELEMENT && siblingNode._4e_isBlockBoundary({ br : 1 }) ))
+
+                            DOM[ isStart ? 'insertBefore' : 'insertAfter' ](editor.document.createElement('br'), boundaryNode[0]);
+                    }
+
+                    compensateBrs(true);
+                    compensateBrs();
+
+                    DOM.insertBefore(docFragment, groupObj.root);
+                    groupObj.root._4e_remove();
+                },
+
+                exec : function(editor) {
+                    editor.focus();
+                    var doc = editor.document,
+                        selection = editor.getSelection(),
+                        ranges = selection && selection.getRanges();
+
+                    // There should be at least one selected range.
+                    if (!ranges || ranges.length < 1)
+                        return;
+
+                    var bookmarks = selection.createBookmarks(true);
+
+                    // Group the blocks up because there are many cases where multiple lists have to be created,
+                    // or multiple lists have to be cancelled.
+                    var listGroups = [],
+                        database = {};
+
+                    while (ranges.length > 0) {
+                        var range = ranges.shift();
+
+                        var boundaryNodes = range.getBoundaryNodes(),
+                            startNode = boundaryNodes.startNode,
+                            endNode = boundaryNodes.endNode;
+
+                        if (startNode[0].nodeType == KEN.NODE_ELEMENT && startNode._4e_name() == 'td')
+                            range.setStartAt(boundaryNodes.startNode, KER.POSITION_AFTER_START);
+
+                        if (endNode[0].nodeType == KEN.NODE_ELEMENT && endNode._4e_name() == 'td')
+                            range.setEndAt(boundaryNodes.endNode, KER.POSITION_BEFORE_END);
+
+                        var iterator = range.createIterator(),
+                            block;
+
+                        iterator.forceBrBreak = false;
+
+                        while (( block = iterator.getNextParagraph() )) {
+                            var path = new ElementPath(block),
+                                pathElements = path.elements,
+                                pathElementsCount = pathElements.length,
+                                listNode = null,
+                                processedFlag = false,
+                                blockLimit = path.blockLimit,
+                                element;
+
+                            // First, try to group by a list ancestor.
+                            for (var i = pathElementsCount - 1; i >= 0 && ( element = pathElements[ i ] ); i--) {
+                                if (listNodeNames[ element._4e_name() ]
+                                    && blockLimit.contains(element))     // Don't leak outside block limit (#3940).
+                                {
+                                    // If we've encountered a list inside a block limit
+                                    // The last group object of the block limit element should
+                                    // no longer be valid. Since paragraphs after the list
+                                    // should belong to a different group of paragraphs before
+                                    // the list. (Bug #1309)
+                                    blockLimit._4e_removeData('list_group_object');
+
+                                    var groupObj = element._4e_getData('list_group_object');
+                                    if (groupObj)
+                                        groupObj.contents.push(block);
+                                    else {
+                                        groupObj = { root : element, contents : [ block ] };
+                                        listGroups.push(groupObj);
+                                        element._4e_setMarker(database, 'list_group_object', groupObj);
+                                    }
+                                    processedFlag = true;
+                                    break;
+                                }
+                            }
+
+                            if (processedFlag)
+                                continue;
+
+                            // No list ancestor? Group by block limit.
+                            var root = blockLimit;
+                            if (root._4e_getData('list_group_object'))
+                                root._4e_getData('list_group_object').contents.push(block);
+                            else {
+                                groupObj = { root : root, contents : [ block ] };
+                                root._4e_setMarker(database, 'list_group_object', groupObj);
+                                listGroups.push(groupObj);
+                            }
+                        }
+                    }
+
+                    // Now we have two kinds of list groups, groups rooted at a list, and groups rooted at a block limit element.
+                    // We either have to build lists or remove lists, for removing a list does not makes sense when we are looking
+                    // at the group that's not rooted at lists. So we have three cases to handle.
+                    var listsCreated = [];
+                    while (listGroups.length > 0) {
+                        groupObj = listGroups.shift();
+                        if (this.state == "off") {
+                            if (listNodeNames[ groupObj.root._4e_name() ])
+                                this.changeListType(editor, groupObj, database, listsCreated);
+                            else
+                                this.createList(editor, groupObj, listsCreated);
+                        }
+                        else if (this.state == "on" && listNodeNames[ groupObj.root._4e_name() ])
+                            this.removeList(editor, groupObj, database);
+                    }
+
+                    // For all new lists created, merge adjacent, same type lists.
+                    for (i = 0; i < listsCreated.length; i++) {
+                        listNode = listsCreated[i];
+                        //note by yiminghe,why not use merge sibling directly
+                        //listNode._4e_mergeSiblings();
+
+                        var mergeSibling, listCommand = this;
+                        ( mergeSibling = function(rtl) {
+
+                            var sibling = listNode[ rtl ?
+                                '_4e_previous' : '_4e_next' ](Walker.whitespaces(true));
+                            if (sibling && sibling[0] &&
+                                sibling._4e_name() == listCommand.type) {
+                                sibling._4e_remove();
+                                // Move children order by merge direction.(#3820)
+                                sibling._4e_moveChildren(listNode, rtl ? true : false);
+                            }
+                        } )();
+                        mergeSibling(true);
+
+                    }
+
+                    // Clean up, restore selection and update toolbar button states.
+                    KE.Utils.clearAllMarkers(database);
+
+                    selection.selectBookmarks(bookmarks);
+                    editor.focus();
+                }
+            };
+
+
+            var TripleButton = KE.TripleButton;
+
+            /**
+             * 用到了按钮三状态的两个状态：off:点击后格式化，on:点击后清除格式化
+             * @param cfg
+             */
+            function List(cfg) {
+                List.superclass.constructor.call(this, cfg);
+                var editor = this.get("editor"),toolBarDiv = editor.toolBarDiv,
+                    el = this.el;
+                var self = this;
+                self.el = new TripleButton({
+                    //text:this.get("type"),
+                    contentCls:this.get("contentCls"),
+                    title:this.get("title"),
+                    container:toolBarDiv
+                });
+                this.listCommand = new listCommand(this.get("type"));
+                this.listCommand.state = this.get("status");
+                //this._selectionChange({path:1});
+                this._init();
+            }
+
+            List.ATTRS = {
+                editor:{},
+                type:{},
+                contentCls:{}
+            };
+
+            S.extend(List, S.Base, {
+
+                _init:function() {
+                    var editor = this.get("editor"),
+                        toolBarDiv = editor.toolBarDiv,
+                        el = this.el;
+                    var self = this;
+                    el.on("click", this._change, this);
+                    editor.on("selectionChange", this._selectionChange, this);
+                },
+
+
+                _change:function() {
+                    var editor = this.get("editor"),
+                        type = this.get("type"),
+                        el = this.el,
+                        self = this;
+                    //ie要等会才能获得焦点窗口的选择区域
+                    editor.focus();
+                    editor.fire("save");
+                    setTimeout(function() {
+                        self.listCommand.state = el.get("state");
+                        self.listCommand.exec(editor);
+                        editor.fire("save");
+                        editor.fire(type + "Change");
+                    }, 10);
+                },
+
+                _selectionChange:function(ev) {
+                    var editor = this.get("editor"),
+                        type = this.get("type"),
+                        elementPath = ev.path,
+                        element,
+                        el = this.el,
+                        blockLimit = elementPath.blockLimit,
+                        elements = elementPath.elements;
+
+                    // Grouping should only happen under blockLimit.(#3940).
+                    if (elements)
+                        for (var i = 0; i < elements.length && ( element = elements[ i ] )
+                            && element[0] !== blockLimit[0]; i++) {
+                            var ind = S.indexOf(elements[i]._4e_name(), listNodeNames_arr);
+                            //ul,ol一个生效后，另一个就失效
+                            if (ind !== -1) {
+                                if (listNodeNames_arr[ind] === type) {
+                                    el.set("state", TripleButton.ON);
+                                    return;
+                                } else {
+                                    break;
+                                }
+
+                            }
+                        }
+                    el.set("state", TripleButton.OFF);
+                }
+            });
+
+            KE.ListUtils = list;
+            KE.List = List
+        })();
+    }
+    editor.addPlugin(function() {
+        new KE.List({
+            editor:editor,
+            title:"项目列表",
+            contentCls:"ke-toolbar-ul",
+            type:"ul"
+        });
+        new KE.List({
+            editor:editor,
+            title:"编号列表",
+            contentCls:"ke-toolbar-ol",
+            type:"ol"
+        });
+    });
+});

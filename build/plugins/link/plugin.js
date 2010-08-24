@@ -1,8 +1,270 @@
-KISSY.Editor.add("link",function(g){var e=KISSY.Editor,f=KISSY,n=f.DOM,o=f.Event,p=e.TripleButton,h=e.Style,q=f.Node,r=e.Range,i=e.SimpleOverlay,j=e.HtmlDataProcessor,k=j&&j.dataFilter;e.Link||function(){function b(a){this.editor=a;this._init()}k&&k.addRules({elements:{a:function(a){for(var c in a.attributes)c=="href"||c=="target"||delete a.attributes[c]}}});var l={element:"a",attributes:{href:"#(href)",target:"#(target)"}};b.init=function(){var a=this;a.d=new i({title:"\u7f16\u8f91\u8d85\u94fe\u63a5",
-mask:true,width:"300px"});a.d.body.html(s);a.urlEl=a.d.body.one(".ke-link-url");a.targetEl=a.d.body.one(".ke-link-blank");var c=a.d.body.one(".ke-link-cancel");a.ok=a.d.body.one(".ke-link-ok");b.ok.on("click",function(d){b.d.link._link();d.halt()},this);c.on("click",function(d){a.d.hide();d.halt()},a);b.init=null};b.tip=function(){var a=new q('<div class="ke-bubbleview-bubble" onmousedown="return false;">\u524d\u5f80\u94fe\u63a5\uff1a  <a href=""  target="_blank" class="ke-bubbleview-url"></a> -     <span class="ke-bubbleview-link ke-bubbleview-change">\u7f16\u8f91</span> -     <span class="ke-bubbleview-link ke-bubbleview-remove">\u53bb\u9664</span></div>');
-a._4e_unselectable();this.tipwin=new i({el:a});document.body.appendChild(a[0]);this.tipurl=a.one(".ke-bubbleview-url");var c=a.one(".ke-bubbleview-change");a=a.one(".ke-bubbleview-remove");c.on("click",function(d){b.tipwin.link.show();d.halt()});a.on("click",function(d){b.tipwin.link._removeLink();d.halt()});b.tip=null};var s="<div style='padding: 10px;'><p><label>URL\uff1a<input class='ke-link-url' style='width:230px' value='http://'/></label></p><p style='margin-top: 5px;padding-left:35px'><label><input class='ke-link-blank' type='checkbox'/> &nbsp; \u5728\u65b0\u7a97\u53e3\u6253\u5f00\u94fe\u63a5</label></p><p style='margin-top: 5px;'><label><button class='ke-link-ok'>\u786e\u5b9a</button>&nbsp;<a href='#' class='ke-link-cancel'>\u53d6\u6d88</a></label></p></div>";
-f.augment(b,{_init:function(){var a=this.editor;this.el=new p({container:a.toolBarDiv,contentCls:"ke-toolbar-link",title:"\u63d2\u5165\u7f16\u8f91\u8d85\u94fe\u63a5"});this.el.on("click",this.show,this);a.on("selectionChange",this._selectionChange,this)},_prepareTip:function(){b.tip&&b.tip()},_realTip:function(a){var c=a._4e_getOffset(document);c.top+=a.height()+5;b.tipwin.show(c);this._a=a;b.tipwin.link=this;b.tipurl.html(a.attr("href"));b.tipurl.attr("href",a.attr("href"))},_showTip:function(a){this._prepareTip(a)},
-_hideTip:function(){b.tipwin&&b.tipwin.hide()},_removeLink:function(){var a=this._a,c=this.editor;c.focus();var d={href:a.attr("href")};if(a._4e_hasAttribute("target"))d.target=a.attr("target");a=new h(l,d);c.fire("save");a.remove(c.document);c.fire("save");this._hideTip();c.focus();c.notifySelectionChange()},_selectionChange:function(a){a=a.path;var c=a.elements;if(a&&c)if(a=a.lastElement)(a=a._4e_ascendant(function(d){return d._4e_name()==="a"&&!!d.attr("href")},true))?this._showTip(a):this._hideTip()},
-hide:function(){b.d.hide()},_getSelectedLink:function(){var a=this.editor;if(b.tipwin&&b.tipwin.get("visible")){(a=a.getSelection().getRanges()[0].getCommonAncestor())&&(a=a._4e_ascendant(function(c){return c._4e_name()=="a"&&!!c.attr("href")},true));if(a&&a[0]==b.tipwin.link._a[0])return a}},_link:function(){var a=this.editor,c=b.urlEl.val();a.focus();if(f.trim(c)){var d=this._getSelectedLink();if(d){var m=new r(a.document);m.selectNodeContents(d);a.getSelection().selectRanges([m]);this._removeLink()}c=
-{href:c};c.target=b.targetEl[0].checked?"_blank":"_self";c=new h(l,c);a.fire("save");c.apply(a.document);a.fire("save");this.hide();a.focus();a.notifySelectionChange()}},_prepare:function(){b.init&&b.init()},_real:function(){b.d.link=this;var a=this._getSelectedLink();if(a){b.urlEl.val(a.attr("href"));b.targetEl[0].checked=a.attr("target")=="_blank"}b.d.show()},show:function(){this._prepare()}});e.Utils.lazyRun(b.prototype,"_prepare","_real");e.Utils.lazyRun(b.prototype,"_prepareTip","_realTip");
-e.Link=b}();g.addPlugin(function(){new e.Link(g);var b=n._4e_getWin(g.document);o.on(b,"scroll",function(){e.Link.tipwin&&e.Link.tipwin.hide()})})});
+/**
+ * link editor support for kissy editor ,innovation from google doc and ckeditor
+ * @author: yiminghe@gmail.com
+ */
+KISSY.Editor.add("link", function(editor) {
+    var KE = KISSY.Editor,
+        S = KISSY,
+        DOM = S.DOM,
+        Event = S.Event,
+        TripleButton = KE.TripleButton,
+        KEStyle = KE.Style,
+        Node = S.Node,
+        KERange = KE.Range,
+        Overlay = KE.SimpleOverlay ,
+        dataProcessor = KE.HtmlDataProcessor,
+        //htmlFilter = dataProcessor && dataProcessor.htmlFilter,
+        dataFilter = dataProcessor && dataProcessor.dataFilter;
+    if (!KE.Link) {
+        (function() {
+            dataFilter && dataFilter.addRules({
+                elements : {
+                    a:function(element) {
+                        for (var a in element.attributes) {
+                            if (a == "href" || a == "target") continue;
+                            delete element.attributes[a];
+                        }
+                    }
+                }
+            });
+
+
+            var link_Style = {
+                element : 'a',
+                attributes:{
+                    "href":"#(href)",
+                    target:"#(target)"
+                }
+            };
+
+
+            function Link(editor) {
+                this.editor = editor;
+                this._init();
+            }
+
+
+            /**
+             * 所有编辑器实例共享同一功能窗口
+             */
+            Link.init = function() {
+                var self = this;
+                self.d = new Overlay({
+                    title:"编辑超链接",
+                    mask:true,
+                    width:"300px"
+                });
+                self.d.body.html(html);
+                self.urlEl = self.d.body.one(".ke-link-url");
+                self.targetEl = self.d.body.one(".ke-link-blank");
+                var cancel = self.d.body.one(".ke-link-cancel");
+                self.ok = self.d.body.one(".ke-link-ok");
+                Link.ok.on("click", function(ev) {
+                    var link = Link.d.link;
+                    link._link();
+                    ev.halt();
+                }, this);
+                cancel.on("click", function(ev) {
+                    self.d.hide();
+                    ev.halt();
+                }, self);
+                Link.init = null;
+            };
+            /**
+             * tip初始化，所有共享一个tip
+             */
+            var tipHtml = '<div class="ke-bubbleview-bubble" onmousedown="return false;">前往链接： '
+                + ' <a href="" '
+                + ' target="_blank" class="ke-bubbleview-url"></a> - '
+                + '    <span class="ke-bubbleview-link ke-bubbleview-change">编辑</span> - '
+                + '    <span class="ke-bubbleview-link ke-bubbleview-remove">去除</span>'
+                + '</div>';
+            Link.tip = function() {
+                var el = new Node(tipHtml);
+                el._4e_unselectable();
+                this.tipwin = new Overlay({el:el});
+                document.body.appendChild(el[0]);
+                this.tipurl = el.one(".ke-bubbleview-url");
+                var tipchange = el.one(".ke-bubbleview-change");
+                var tipremove = el.one(".ke-bubbleview-remove");
+                tipchange.on("click", function(ev) {
+                    Link.tipwin.link.show();
+                    ev.halt();
+                });
+                tipremove.on("click", function(ev) {
+                    var link = Link.tipwin.link;
+                    link._removeLink();
+                    ev.halt();
+                });
+                Link.tip = null;
+            };
+
+            var html = "<div style='padding: 10px;'>" +
+                "<p>" +
+                "<label>URL：<input class='ke-link-url' style='width:230px' value='http://'/></label>" +
+                "</p>" +
+                "<p style='margin-top: 5px;padding-left:35px'>" +
+                "<label><input class='ke-link-blank' type='checkbox'/> &nbsp; 在新窗口打开链接</label>" +
+                "</p>" +
+                "<p style='margin-top: 5px;'>" +
+                "<label><button class='ke-link-ok'>确定</button>&nbsp;" +
+                "<a href='#' class='ke-link-cancel'>取消</a></label>" +
+                "</p>" +
+                "</div>";
+            S.augment(Link, {
+                _init:function() {
+                    var self = this,editor = self.editor;
+                    self.el = new TripleButton({
+                        container:editor.toolBarDiv,
+                        contentCls:"ke-toolbar-link",
+                        //text:'link',
+                        title:'插入编辑超链接'
+                    });
+                    self.el.on("click", self.show, self);
+                    editor.on("selectionChange", self._selectionChange, self);
+
+                },
+                _prepareTip:function() {
+                    Link.tip && Link.tip();
+                },
+                _realTip:function(a) {
+                    var xy = a._4e_getOffset(document);
+                    xy.top += a.height() + 5;
+                    Link.tipwin.show(xy);
+                    this._a = a;
+                    Link.tipwin.link = this;
+                    Link.tipurl.html(a.attr("href"));
+                    Link.tipurl.attr("href", a.attr("href"));
+                },
+                _showTip:function(a) {
+                    this._prepareTip(a);
+                },
+                _hideTip:function() {
+                    Link.tipwin && Link.tipwin.hide();
+                },
+
+                _removeLink:function() {
+                    var a = this._a,editor = this.editor;
+                    //ie6先要focus
+                    editor.focus();
+                    var attr = {
+                        href:a.attr("href")
+                    };
+                    if (a._4e_hasAttribute("target")) {
+                        attr.target = a.attr("target");
+                    }
+                    var linkStyle = new KEStyle(link_Style, attr);
+                    editor.fire("save");
+                    linkStyle.remove(editor.document);
+                    editor.fire("save");
+                    this._hideTip();
+                    editor.focus();
+                    editor.notifySelectionChange();
+                },
+                //借鉴google doc tip提示显示
+                _selectionChange:function(ev) {
+                    var elementPath = ev.path,
+                        //editor = this.editor,
+                        elements = elementPath.elements;
+
+                    if (elementPath && elements) {
+                        var lastElement = elementPath.lastElement;
+                        if (!lastElement) return;
+                        var a = lastElement._4e_ascendant(function(node) {
+                            return node._4e_name() === 'a' && (!!node.attr("href"));
+                        }, true);
+
+                        if (a) {
+                            this._showTip(a);
+                        } else {
+                            this._hideTip();
+                        }
+                    }
+                },
+                hide:function() {
+                    Link.d.hide();
+                },
+
+                //得到当前选中的 link a
+                _getSelectedLink:function() {
+                    var self = this;
+                    var editor = this.editor;
+                    if (Link.tipwin && Link.tipwin.get("visible")) {
+                        var range = editor.getSelection().getRanges()[0];
+                        var common = range.getCommonAncestor();
+                        common && (common = common._4e_ascendant(function(node) {
+                            return node._4e_name() == 'a' && (!!node.attr("href"));
+                        }, true));
+                        if (common && common[0] == Link.tipwin.link._a[0]) {
+                            return common;
+                        }
+                    }
+                },
+
+                _link:function() {
+                    var self = this;
+                    var editor = this.editor,url = Link.urlEl.val();
+                    //ie6 先要focus
+                    editor.focus();
+                    if (!S.trim(url)) {
+                        return;
+                    }
+                    var link = self._getSelectedLink();
+                    //是修改行为
+                    if (link) {
+                        var range = new KERange(editor.document);
+                        range.selectNodeContents(link);
+                        editor.getSelection().selectRanges([range]);
+                        self._removeLink();
+                    }
+                    var attr = {
+                        href:url
+                    };
+                    if (Link.targetEl[0].checked) {
+                        attr.target = "_blank";
+                    } else {
+                        attr.target = "_self";
+                    }
+                    var linkStyle = new KEStyle(link_Style, attr);
+                    editor.fire("save");
+                    linkStyle.apply(editor.document);
+                    editor.fire("save");
+                    self.hide();
+                    editor.focus();
+                    editor.notifySelectionChange();
+                },
+                _prepare:function() {
+                    var self = this;
+                    Link.init && Link.init();
+                },
+                _real:function() {
+                    var self = this;
+                    Link.d.link = this;
+
+                    var link = self._getSelectedLink();
+                    //是修改行为
+
+                    if (link) {
+                        Link.urlEl.val(link.attr("href"));
+                        Link.targetEl[0].checked = link.attr("target") == "_blank";
+                    }
+                    Link.d.show();
+                },
+                show:function() {
+                    var self = this;
+                    self._prepare();
+                }
+            });
+            KE.Utils.lazyRun(Link.prototype, "_prepare", "_real");
+            KE.Utils.lazyRun(Link.prototype, "_prepareTip", "_realTip");
+            KE.Link = Link;
+        })();
+    }
+    editor.addPlugin(function() {
+        new KE.Link(editor);
+        var win = DOM._4e_getWin(editor.document);
+        Event.on(win, "scroll", function() {
+            KE.Link.tipwin && KE.Link.tipwin.hide();
+        });
+    });
+});

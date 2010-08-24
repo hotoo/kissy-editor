@@ -1,3 +1,93 @@
-KISSY.Editor.add("button",function(){function b(a){b.superclass.constructor.call(this,a);this._init()}var d=KISSY.Editor,c=KISSY,e=c.Node;b.ON="on";b.OFF="off";b.DISABLED="disabled";b.ON_CLASS="ke-triplebutton-on";b.OFF_CLASS="ke-triplebutton-off";b.DISABLED_CLASS="ke-triplebutton-disabled";b.ATTRS={state:{value:"off"},container:{},text:{},contentCls:{},cls:{}};c.extend(b,c.Base,{_init:function(){var a=this.get("container")[0]||this.get("container");this.el=new e("<a class='ke-triplebutton ke-triplebutton-off' href='#' role=\"button\"></a>");
-this.el._4e_unselectable();this._attachCls();if(this.get("text"))this.el.html(this.get("text"));else if(this.get("contentCls")){this.el.html("<span class='ke-toolbar-item "+this.get("contentCls")+"'></span>");this.el.one("span")._4e_unselectable()}this.get("title")&&this.el.attr("title",this.get("title"));a.appendChild(this.el[0]);this.el.on("click",this._action,this);this.on("afterStateChange",this._stateChange,this)},_attachCls:function(){var a=this.get("cls");a&&this.el.addClass(a)},_stateChange:function(a){this["_"+
-a.newVal]();this._attachCls()},_action:function(a){this.fire(this.get("state")+"Click",a);this.fire("click",a);a.preventDefault()},_on:function(){this.el[0].className="ke-triplebutton ke-triplebutton-on"},_off:function(){this.el[0].className="ke-triplebutton ke-triplebutton-off"},_disabled:function(){this.el[0].className="ke-triplebutton ke-triplebutton-disabled"}});d.TripleButton=b});
+/**
+ * triple state button for kissy editor
+ * @author: yiminghe@gmail.com
+ */
+KISSY.Editor.add("button", function(editor) {
+    var KE=KISSY.Editor,
+        S = KISSY,
+        ON = "on",
+        OFF = "off",
+        DISABLED = "disabled",
+        Node = S.Node;
+    var BUTTON_CLASS = "ke-triplebutton",
+        ON_CLASS = "ke-triplebutton-on",
+        OFF_CLASS = "ke-triplebutton-off",
+        DISABLED_CLASS = "ke-triplebutton-disabled",
+        BUTTON_HTML = "<a class='" +
+            [BUTTON_CLASS,OFF_CLASS].join(" ")
+            + "' href='#'" +
+            "" +
+            //' tabindex="-1"' +
+            //' hidefocus="true"' +
+            ' role="button"' +
+            //' onblur="this.style.cssText = this.style.cssText;"' +
+            //' onfocus="event&&event.preventBubble();return false;"' +
+            "></a>";
+
+    function TripleButton(cfg) {
+        TripleButton.superclass.constructor.call(this, cfg);
+        this._init();
+    }
+
+    TripleButton.ON = ON;
+    TripleButton.OFF = OFF;
+    TripleButton.DISABLED = DISABLED;
+
+    TripleButton.ON_CLASS = ON_CLASS;
+    TripleButton.OFF_CLASS = OFF_CLASS;
+    TripleButton.DISABLED_CLASS = DISABLED_CLASS;
+
+    TripleButton.ATTRS = {
+        state: {value:OFF},
+        container:{},
+        text:{},
+        contentCls:{},
+        cls:{}
+    };
+
+
+    S.extend(TripleButton, S.Base, {
+        _init:function() {
+            var self = this,container = self.get("container")[0] || self.get("container");
+            self.el = new Node(BUTTON_HTML);
+            self.el._4e_unselectable();
+            self._attachCls();
+            if (this.get("text"))
+                self.el.html(this.get("text"));
+            else if (this.get("contentCls")) {
+                self.el.html("<span class='ke-toolbar-item " + this.get("contentCls") + "'></span>");
+                self.el.one("span")._4e_unselectable();
+            }
+            if (self.get("title")) self.el.attr("title", self.get("title"));
+            container.appendChild(self.el[0]);
+            self.el.on("click", self._action, self);
+            self.on("afterStateChange", self._stateChange, self);
+        },
+        _attachCls:function() {
+            var cls = this.get("cls");
+            if (cls) this.el.addClass(cls);
+        },
+
+        _stateChange:function(ev) {
+            var n = ev.newVal;
+            this["_" + n]();
+            this._attachCls();
+        },
+
+        _action:function(ev) {
+            this.fire(this.get("state") + "Click", ev);
+            this.fire("click", ev);
+            ev.preventDefault();
+        },
+        _on:function() {
+            this.el[0].className = [BUTTON_CLASS,ON_CLASS].join(" ");
+        },
+        _off:function() {
+            this.el[0].className = [BUTTON_CLASS,OFF_CLASS].join(" ");
+        },
+        _disabled:function() {
+            this.el[0].className = [BUTTON_CLASS,DISABLED_CLASS].join(" ");
+        }
+    });
+    KE.TripleButton = TripleButton;
+});

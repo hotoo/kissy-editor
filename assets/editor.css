@@ -1,3 +1,7 @@
+/**
+kissy editor default theme 
+@author :yiminghe@gmail.com
+**/
 .ke-editor-wrap {
     background: white;
     border: 1px solid #DFDFDF;
@@ -24,6 +28,10 @@
     line-height: 1;
     overflow: hidden;
     padding: 3px 3px 2px;
+}
+
+.ke-editor-tools select {
+    margin: 0 5px;
 }
 
 .ke-editor-status {
@@ -219,7 +227,7 @@ button from google wave
 }
 
 /**
-ke-post 样式
+ke-post
 from : resource://gre/res/html.css
 **/
 
@@ -231,28 +239,28 @@ from : resource://gre/res/html.css
 .ke-post h6,
 .ke-post hr,
 .ke-post p,
-.ke-post blockquote, /* structural elements 结构元素 */
+.ke-post blockquote, /* structural elements  */
 .ke-post dl,
 .ke-post dt,
 .ke-post dd,
 .ke-post ul,
 .ke-post ol,
-.ke-post li, /* list elements 列表元素 */
-.ke-post pre, /* text formatting elements 文本格式元素 */
+.ke-post li, /* list elements */
+.ke-post pre, /* text formatting elements */
 .ke-post form,
 .ke-post fieldset,
 .ke-post legend,
 .ke-post button,
 .ke-post input,
-.ke-post textarea, /* form elements 表单元素 */
+.ke-post textarea, /* form elements*/
 .ke-post th,
-.ke-post td /* table elements 表格元素 */
+.ke-post td /* table elements  */
 {
     margin: 0;
     padding: 0;
 }
 
-/** 设置默认字体 **/
+/** 锟斤拷锟斤拷默锟斤拷锟斤拷锟斤拷 **/
 .ke-post,
 .ke-post button,
 .ke-post input,
@@ -330,12 +338,10 @@ from : resource://gre/res/html.css
     color: gray;
 }
 
-/* 将斜体扶正 */
 .ke-post code, .ke-post kbd, .ke-post pre, .ke-post samp {
     font-family: courier new, courier, monospace;
 }
 
-/* 统一等宽字体 */
 .ke-post small {
     font-size: 12px;
 }
@@ -344,12 +350,10 @@ from : resource://gre/res/html.css
     vertical-align: text-top;
 }
 
-/* 重置，减少对行高的影响 */
 .ke-post sub {
     vertical-align: text-bottom;
 }
 
-/** 重置表单元素 **/
 .ke-post legend {
     color: #000;
 }
@@ -401,7 +405,6 @@ from : resource://gre/res/html.css
     margin-bottom: .5em;
 }
 
-/*编辑器内p不要有间隔了，两个p来出间隔。p,*/
 .ke-post fieldset, .ke-post table, .ke-post  pre {
 /* so things don't run into each other */
     margin-bottom: 1em;

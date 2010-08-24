@@ -1,3 +1,93 @@
-KISSY.Editor.add("smiley",function(i){var b=KISSY.Editor,f=KISSY,d=f.DOM,j=f.Event,k=f.Node,m=b.SimpleOverlay,n=b.TripleButton;b.Smiley||function(){function l(a){this.editor=a;this._init()}for(var g="<div class='ke-popup-wrap'><div class='ke-smiley-sprite'>",h=0;h<=98;h++)g+="<a href='#' data-icon='http://a.tbcdn.cn/sys/wangwang/smiley/48x48/"+h+".gif'></a>";g+="</div></div>";f.augment(l,{_init:function(){this.el=new n({contentCls:"ke-toolbar-smiley",title:"\u63d2\u5165\u8868\u60c5",container:this.editor.toolBarDiv});
-this.el.on("offClick",this._show,this);b.Utils.lazyRun(this,"_prepare","_real")},_hidePanel:function(a){var e=this;d._4e_ascendant(a.target,function(c){return c[0]===e.el.el[0]})||this.smileyWin.hide()},_selectSmiley:function(a){a.halt();var e=this.editor;a=a.target;var c;if(d._4e_name(a)=="a"&&(c=d.attr(a,"data-icon"))){c=new k("<img src='"+c+"'/>",null,e.document);e.insertElement(c);e.focus();this.smileyWin.hide()}},_prepare:function(){var a=this.editor;this.smileyPanel=new k(g);this.smileyWin=
-new m({el:this.smileyPanel,mask:false});document.body.appendChild(this.smileyPanel[0]);this.smileyPanel.on("click",this._selectSmiley,this);j.on(document,"click",this._hidePanel,this);j.on(a.document,"click",this._hidePanel,this)},_real:function(){var a=this.el.el.offset();a.top+=this.el.el.height()+5;if(a.left+this.smileyPanel.width()>d.viewportWidth()-60)a.left=d.viewportWidth()-this.smileyPanel.width()-60;this.smileyWin.show(a)},_show:function(a){this._prepare(a)}});b.Smiley=l}();i.addPlugin(function(){new b.Smiley(i)})});
+/**
+ * smiley icon from wangwang for kissy editor
+ * @author: yiminghe@gmail.com
+ */
+KISSY.Editor.add("smiley", function(editor) {
+    var KE = KISSY.Editor,
+        S = KISSY,
+        DOM = S.DOM,
+        Event = S.Event,
+        Node = S.Node,
+        Overlay = KE.SimpleOverlay,
+        TripleButton = KE.TripleButton;
+    if (!KE.Smiley) {
+        (function() {
+            var
+                smiley_markup = "<div class='ke-popup-wrap'>" +
+                    "<div class='ke-smiley-sprite'>";
+
+            for (var i = 0; i <= 98; i++) {
+                smiley_markup += "<a href='#' data-icon='http://a.tbcdn.cn/sys/wangwang/smiley/48x48/" + i + ".gif'></a>"
+            }
+
+            smiley_markup += "</div></div>";
+
+            function Smiley(editor) {
+                this.editor = editor;
+                this._init();
+            }
+
+            S.augment(Smiley, {
+                _init:function() {
+                    var self = this,editor = self.editor;
+                    self.el = new TripleButton({
+                        //text:"smiley",
+                        contentCls:"ke-toolbar-smiley",
+                        title:"插入表情",
+                        container:editor.toolBarDiv
+                    });
+                    self.el.on("offClick", this._show, this);
+                    KE.Utils.lazyRun(this, "_prepare", "_real");
+                },
+                _hidePanel:function(ev) {
+                    var self = this,t = ev.target;
+                    //多窗口管理
+                    if (DOM._4e_ascendant(ev.target, function(node) {
+                        return  node[0] === self.el.el[0];
+                    }))return;
+
+                    this.smileyWin.hide();
+                },
+                _selectSmiley:function(ev) {
+                    ev.halt();
+                    var self = this,editor = self.editor;
+                    var t = ev.target,icon;
+                    if (DOM._4e_name(t) == "a" && (icon = DOM.attr(t, "data-icon"))) {
+                        var img = new Node("<img src='" + icon + "'/>", null, editor.document);
+                        editor.insertElement(img);
+                        editor.focus();
+                        this.smileyWin.hide();
+                    }
+                },
+                _prepare:function() {
+                    var self = this,editor = self.editor;
+                    this.smileyPanel = new Node(smiley_markup);
+                    this.smileyWin = new Overlay({
+                        el:this.smileyPanel,
+                        mask:false
+                    });
+                    document.body.appendChild(this.smileyPanel[0]);
+                    this.smileyPanel.on("click", this._selectSmiley, this);
+                    Event.on(document, "click", this._hidePanel, this);
+                    Event.on(editor.document, "click", this._hidePanel, this);
+                },
+                _real:function() {
+                    var xy = this.el.el.offset();
+                    xy.top += this.el.el.height() + 5;
+                    if (xy.left + this.smileyPanel.width() > DOM.viewportWidth() - 60) {
+                        xy.left = DOM.viewportWidth() - this.smileyPanel.width() - 60;
+                    }
+                    this.smileyWin.show(xy);
+                },
+                _show:function(ev) {
+                    var self = this;
+                    self._prepare(ev);
+                }
+            });
+            KE.Smiley = Smiley;
+        })();
+    }
+    editor.addPlugin(function() {
+        new KE.Smiley(editor);
+    });
+});

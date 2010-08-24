@@ -1,7 +1,261 @@
-KISSY.Editor.add("font",function(f){var d=KISSY.Editor,j=KISSY,h=d.Style,o=d.TripleButton,v=j.Node,g=["8px","10px","12px","14px","18px","24px","36px","48px","60px","72px","84px","96px","108px"],r={},p="<select title='\u5927\u5c0f'><option value=''>\u5927\u5c0f / \u6e05\u9664</option>",w={element:"span",styles:{"font-size":"#(size)"},overrides:[{element:"font",attributes:{size:null}}]},s=["\u5b8b\u4f53","\u9ed1\u4f53","\u96b6\u4e66","\u6977\u4f53_GB2312","\u5fae\u8f6f\u96c5\u9ed1","Georgia","Times New Roman",
-"Impact","Courier New","Arial","Verdana","Tahoma"],t={},q="<select title='\u5b57\u4f53'><option value=''>\u5b57\u4f53 / \u6e05\u9664</option>",x={element:"span",styles:{"font-family":"#(family)"},overrides:[{element:"font",attributes:{face:null}}]},e;for(e=0;e<g.length;e++){var l=g[e];r[l]=new h(w,{size:l});p+="<option value='"+l+"'>"+l+"</option>"}p+="</select>";for(e=0;e<s.length;e++){g=s[e];t[g]=new h(x,{family:g});q+="<option value='"+g+"'>"+g+"</option>"}q+="</select>";d.Font||function(){function k(a){k.superclass.constructor.call(this,
-a);this._init()}function m(a){m.superclass.constructor.call(this,a);this._init()}k.ATTRS={v:{value:""},html:{},styles:{},editor:{}};j.extend(k,j.Base,{_init:function(){var a=this.get("editor"),b=a.toolBarDiv,c=this.get("html");this.el=new v(c);b[0].appendChild(this.el[0]);this.el.on("change",this._change,this);a.on("selectionChange",this._selectionChange,this);this.on("afterVChange",this._vChange,this)},_vChange:function(a){var b=this.get("editor"),c=a.newVal;a=a.preVal;var i=this.get("styles");b.focus();
-b.fire("save");if(c)i[c].apply(b.document);else{c=a;i[c].remove(b.document)}b.fire("save")},_change:function(){this.set("v",this.el.val())},_selectionChange:function(a){this.get("editor");var b=this.get("v");a=a.path.elements;for(var c=this.get("styles"),i=0,u;i<a.length;i++){u=a[i];for(var n in c)if(c[n].checkElementRemovable(u,true)){if(n!=b){this._set("v",n);this.el.val(n)}return}}if(b!=""){this._set("v","");this.el.val("")}}});m.ATTRS={editor:{},text:{},contentCls:{},title:{},style:{}};j.extend(m,
-j.Base,{_init:function(){var a=this.get("editor"),b=this.get("text");this.get("style");var c=this.get("title");this.el=new o({text:b,title:c,contentCls:this.get("contentCls"),container:a.toolBarDiv});this.el.on("offClick",this._on,this);this.el.on("onClick",this._off,this);a.on("selectionChange",this._selectionChange,this)},_on:function(){var a=this.get("editor");this.get("text");var b=this.get("style");this.get("title");b.apply(a.document);a.notifySelectionChange();a.focus()},_off:function(){var a=
-this.get("editor");this.get("text");var b=this.get("style");this.get("title");b.remove(a.document);a.notifySelectionChange();a.focus()},_selectionChange:function(a){this.get("editor");this.get("text");var b=this.get("style");this.get("title");b.checkActive(a.path)?this.el.set("state",o.ON):this.el.set("state",o.OFF)}});k.SingleFont=m;d.Font=k}();f.addPlugin(function(){new d.Font({editor:f,styles:r,html:p});new d.Font({editor:f,styles:t,html:q});new d.Font.SingleFont({contentCls:"ke-toolbar-bold",
-title:"\u7c97\u4f53",editor:f,style:new h({element:"strong"})});new d.Font.SingleFont({contentCls:"ke-toolbar-italic",title:"\u659c\u4f53",editor:f,style:new h({element:"em"})});new d.Font.SingleFont({contentCls:"ke-toolbar-underline",title:"\u4e0b\u5212\u7ebf",editor:f,style:new h({element:"u"})});new d.Font.SingleFont({contentCls:"ke-toolbar-strikeThrough",title:"\u5220\u9664\u7ebf",editor:f,style:new h({element:"del"})})})});
+/**
+ * font formatting for kissy editor
+ * @author: yiminghe@gmail.com
+ */
+KISSY.Editor.add("font", function(editor) {
+    var KE = KISSY.Editor,
+        S = KISSY,
+        KEStyle = KE.Style,
+        TripleButton = KE.TripleButton,
+        Node = S.Node;
+    var
+        FONT_SIZES = ["8px","10px","12px",
+            "14px","18px","24px","36px","48px","60px","72px","84px","96px","108px"],
+        FONT_SIZE_STYLES = {},
+        FONT_SIZE_SELECTION_HTML = "<select title='大小'><option value=''>大小 / 清除</option>",
+        fontSize_style = {
+            element        : 'span',
+            styles        : { 'font-size' : '#(size)' },
+            overrides    : [
+                { element : 'font', attributes : { 'size' : null } }
+            ]
+        },
+        FONT_FAMILIES = ["宋体","黑体","隶书",
+            "楷体_GB2312","微软雅黑","Georgia","Times New Roman",
+            "Impact","Courier New","Arial","Verdana","Tahoma"],
+        FONT_FAMILY_STYLES = {},
+        FONT_FAMILY_SELECTION_HTML = "<select title='字体'><option value=''>字体 / 清除</option>",
+        fontFamily_style = {
+            element        : 'span',
+            styles        : { 'font-family' : '#(family)' },
+            overrides    : [
+                { element : 'font', attributes : { 'face' : null } }
+            ]
+        },i;
+
+    for (i = 0; i < FONT_SIZES.length; i++) {
+        var size = FONT_SIZES[i];
+        FONT_SIZE_STYLES[size] = new KEStyle(fontSize_style, {
+            size:size
+        });
+        FONT_SIZE_SELECTION_HTML += "<option value='" + size + "'>" + size + "</option>"
+    }
+    FONT_SIZE_SELECTION_HTML += "</select>";
+
+    for (i = 0; i < FONT_FAMILIES.length; i++) {
+        var family = FONT_FAMILIES[i];
+        FONT_FAMILY_STYLES[family] = new KEStyle(fontFamily_style, {
+            family:family
+        });
+        FONT_FAMILY_SELECTION_HTML += "<option value='" + family + "'>" + family + "</option>"
+    }
+    FONT_FAMILY_SELECTION_HTML += "</select>";
+
+    if (!KE.Font) {
+        (function() {
+
+
+            function Font(cfg) {
+                Font.superclass.constructor.call(this, cfg);
+                var self = this;
+                self._init();
+            }
+
+            Font.ATTRS = {
+                v:{
+                    value:""
+                },
+                html:{},
+                styles:{},
+                editor:{}
+            };
+
+            S.extend(Font, S.Base, {
+
+                _init:function() {
+                    var editor = this.get("editor"),
+                        toolBarDiv = editor.toolBarDiv,
+                        html = this.get("html");
+                    var self = this;
+                    self.el = new Node(html);
+                    toolBarDiv[0].appendChild(this.el[0]);
+                    self.el.on("change", this._change, this);
+                    editor.on("selectionChange", this._selectionChange, this);
+                    this.on("afterVChange", this._vChange, this);
+                },
+
+                _vChange:function(ev) {
+                    var editor = this.get("editor"),
+                        v = ev.newVal,
+                        pre = ev.preVal,
+                        styles = this.get("styles");
+                    editor.focus();
+                    editor.fire("save");
+                    if (!v) {
+                        v = pre;
+                        styles[v].remove(editor.document);
+                    } else {
+                        styles[v].apply(editor.document);
+                    }
+                    editor.fire("save");
+                    //editor.fire("fontSizeChange", this.get("v"));
+                },
+
+                _change:function() {
+                    var el = this.el;
+                    this.set("v", el.val());
+                },
+
+                _selectionChange:function(ev) {
+                    var editor = this.get("editor");
+                    var currentValue = this.get("v");
+                    var elementPath = ev.path,
+                        elements = elementPath.elements,
+                        styles = this.get("styles");
+                    // For each element into the elements path.
+                    for (var i = 0, element; i < elements.length; i++) {
+                        element = elements[i];
+                        // Check if the element is removable by any of
+                        // the styles.
+                        for (var value in styles) {
+                            if (styles[ value ].checkElementRemovable(element, true)) {
+                                if (value != currentValue) {
+                                    this._set("v", value);
+                                    this.el.val(value);
+                                }
+                                return;
+                            }
+                        }
+                    }
+
+                    // If no styles match, just empty it.
+                    if (currentValue != '') {
+                        this._set("v", '');
+                        this.el.val("");
+                    }
+
+                }
+            });
+
+            function SingleFont(cfg) {
+                SingleFont.superclass.constructor.call(this, cfg);
+                var self = this;
+                self._init();
+            }
+
+            SingleFont.ATTRS = {
+                editor:{},
+                text:{},
+                contentCls:{},
+                title:{},
+                style:{}
+            };
+
+            S.extend(SingleFont, S.Base, {
+                _init:function() {
+                    var self = this,
+                        editor = self.get("editor"),
+                        text = self.get("text"),
+                        style = self.get("style"),
+                        title = self.get("title");
+                    self.el = new TripleButton({
+                        text:text,
+                        title:title,
+                        contentCls:this.get("contentCls"),
+                        container:editor.toolBarDiv
+                    });
+                    self.el.on("offClick", self._on, self);
+                    self.el.on("onClick", self._off, self);
+                    editor.on("selectionChange", self._selectionChange, self);
+                },
+                _on:function() {
+                    var self = this,
+                        editor = self.get("editor"),
+                        text = self.get("text"),
+                        style = self.get("style"),
+                        title = self.get("title");
+                    style.apply(editor.document);
+                    editor.notifySelectionChange();
+                    editor.focus();
+                },
+                _off:function() {
+                    var self = this,
+                        editor = self.get("editor"),
+                        text = self.get("text"),
+                        style = self.get("style"),
+                        title = self.get("title");
+                    style.remove(editor.document);
+                    editor.notifySelectionChange();
+                    editor.focus();
+                },
+                _selectionChange:function(ev) {
+                    var self = this,
+                        editor = self.get("editor"),
+                        text = self.get("text"),
+                        style = self.get("style"),
+                        title = self.get("title"),
+                        elementPath = ev.path;
+                    if (style.checkActive(elementPath)) {
+                        self.el.set("state", TripleButton.ON);
+                    } else {
+                        self.el.set("state", TripleButton.OFF);
+                    }
+
+                }
+            });
+            Font.SingleFont = SingleFont;
+            KE.Font = Font;
+        })();
+    }
+    editor.addPlugin(function() {
+        new KE.Font({
+            editor:editor,
+            styles:FONT_SIZE_STYLES,
+            html:FONT_SIZE_SELECTION_HTML
+        });
+
+        new KE.Font({
+            editor:editor,
+            styles:FONT_FAMILY_STYLES,
+            html:FONT_FAMILY_SELECTION_HTML
+        });
+
+        new KE.Font.SingleFont({
+            contentCls:"ke-toolbar-bold",
+            title:"粗体",
+            editor:editor,
+            style:new KEStyle({
+                element : 'strong'
+            })
+        });
+
+        new KE.Font.SingleFont({
+            contentCls:"ke-toolbar-italic",
+            title:"斜体",
+            editor:editor,
+            style:new KEStyle({
+                element : 'em'
+            })
+        });
+
+        new KE.Font.SingleFont({
+            contentCls:"ke-toolbar-underline",
+            title:"下划线",
+            editor:editor,
+            style:new KEStyle({
+                element : 'u'
+            })
+        });
+
+        new KE.Font.SingleFont({
+            contentCls:"ke-toolbar-strikeThrough",
+            title:"删除线",
+            editor:editor,
+            style:new KEStyle({
+                element : 'del'
+            })
+        });
+
+    });
+
+});

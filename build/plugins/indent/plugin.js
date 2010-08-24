@@ -1,8 +1,316 @@
-KISSY.Editor.add("indent",function(l){var h=KISSY.Editor,j={ol:1,ul:1},k=KISSY,n=h.Walker,r=k.DOM,s=k.Node,y=k.UA,p=h.NODE;h.Indent||function(){function t(a){this.type=a;this.indentCssProperty="margin-left";this.indentOffset=40;this.indentUnit="px"}function u(a){return a.type=CKEDITOR.NODE_ELEMENT&&a.is("li")}function z(a,c,d){var b=c.startContainer;for(a=c.endContainer;b&&b.parent()[0]!==d[0];)b=b.parent();for(;a&&a.parent()[0]!==d[0];)a=a.parent();if(b&&a){var e=b;b=[];for(var f=false;!f;){if(e[0]===
-a[0])f=true;b.push(e);e=e.next()}if(!(b.length<1)){e=d._4e_parents(true);for(a=0;a<e.length;a++)if(j[e[a]._4e_name()]){d=e[a];break}e=this.type=="indent"?1:-1;a=b[0];f=b[b.length-1];b={};var g=h.ListUtils.listToArray(d,b),A=g[f._4e_getData("listarray_index")].indent;for(a=a._4e_getData("listarray_index");a<=f._4e_getData("listarray_index");a++){g[a].indent+=e;var v=g[a].parent;g[a].parent=new s(v[0].ownerDocument.createElement(v._4e_name()))}for(a=f._4e_getData("listarray_index")+1;a<g.length&&g[a].indent>
-A;a++)g[a].indent+=e;f=h.ListUtils.arrayToList(g,b,null,"p",0);e=[];if(this.type=="outdent"){var q;if((q=d.parent())&&q._4e_name()=="li"){g=f.listNode.childNodes;var i;for(a=g.length-1;a>=0;a--)if((i=new s(g[a]))&&i._4e_name()=="li")e.push(i)}}if(f){r.insertBefore(f.listNode,d[0]);d._4e_remove()}if(e&&e.length)for(a=0;a<e.length;a++){for(i=d=e[a];(i=i.next())&&i._4e_name()in j;){y.ie&&!d._4e_first(function(w){return B(w)&&C(w)})&&d[0].appendChild(c.document.createTextNode("\u00a0"));d[0].appendChild(i[0])}r.insertAfter(d[0],
-q[0])}for(a in b)b[a]._4e_clearMarkers(b,true)}}}function D(a,c){c=c.createIterator();c.enforceRealBlocks=true;c.enlargeBr=true;for(var d;d=c.getNextParagraph();)x.call(this,a,d)}function x(a,c){a=parseInt(c._4e_style(this.indentCssProperty),10);if(isNaN(a))a=0;a+=(this.type=="indent"?1:-1)*this.indentOffset;if(a<0)return false;a=Math.max(a,0);a=Math.ceil(a/this.indentOffset)*this.indentOffset;c.css(this.indentCssProperty,a?a+this.indentUnit:"");c[0].style.cssText===""&&c[0].removeAttribute("style");
-return true}function o(a){o.superclass.constructor.call(this,a);a=this.get("editor").toolBarDiv;this.el=new m({container:a,contentCls:this.get("contentCls"),title:this.get("title")});this.indentCommand=new t(this.get("type"));this._init()}var B=n.whitespaces(true),C=n.bookmark(false,true);k.augment(t,{exec:function(a){a.focus();for(var c=a.getSelection(),d=c&&c.getRanges()[0],b=d.startContainer,e=d.endContainer,f=d.getCommonAncestor();f&&!(f[0].nodeType==p.NODE_ELEMENT&&j[f._4e_name()]);)f=f.parent();
-if(f&&b[0].nodeType==p.NODE_ELEMENT&&b._4e_name()in j){b=new n(d);b.evaluator=u;d.startContainer=b.next()}if(f&&e[0].nodeType==p.NODE_ELEMENT&&e._4e_name()in j){b=new n(d);b.evaluator=u;d.endContainer=b.previous()}e=c.createBookmarks(true);if(f){for(b=f._4e_first();b&&b[0]&&b._4e_name()!="li";)b=b.next();var g=d.startContainer;(b[0]==g[0]||b._4e_contains(g))&&x.call(this,a,f)||z.call(this,a,d,f)}else D.call(this,a,d);a.focus();c.selectBookmarks(e)}});var m=h.TripleButton;o.ATTRS={type:{},contentCls:{},
-editor:{}};k.extend(o,k.Base,{_init:function(){var a=this.get("editor"),c=this.el;c.on("offClick",this.exec,this);this.get("type")=="outdent"?a.on("selectionChange",this._selectionChange,this):c.set("state",m.OFF)},exec:function(){var a=this.get("editor"),c=this;a.focus();a.fire("save");setTimeout(function(){c.indentCommand.exec(a);a.fire("save");a.notifySelectionChange()},10)},_selectionChange:function(a){this.get("editor");this.get("type");var c=a.path,d=c.blockLimit;a=this.el;if(c.contains(j))a.set("state",
-m.OFF);else(c=c.block||d)&&c._4e_style(this.indentCommand.indentCssProperty)?a.set("state",m.OFF):a.set("state",m.DISABLED)}});h.Indent=o}();l.addPlugin(function(){l.addCommand("outdent",new h.Indent({editor:l,title:"\u51cf\u5c11\u7f29\u8fdb\u91cf",contentCls:"ke-toolbar-outdent",type:"outdent"}));l.addCommand("indent",new h.Indent({editor:l,title:"\u589e\u52a0\u7f29\u8fdb\u91cf",contentCls:"ke-toolbar-indent",type:"indent"}))})});
+/**
+ * indent formatting,modified from ckeditor
+ * @modifier: yiminghe@gmail.com
+ */
+KISSY.Editor.add("indent", function(editor) {
+    var KE = KISSY.Editor,
+        listNodeNames = {ol:1,ul:1},
+        S = KISSY,
+        Walker = KE.Walker,
+        DOM = S.DOM,
+        Node = S.Node,
+        UA = S.UA,
+        KEN = KE.NODE;
+    if (!KE.Indent) {
+        (function() {
+            var isNotWhitespaces = Walker.whitespaces(true),
+                isNotBookmark = Walker.bookmark(false, true);
+
+            function IndentCommand(type) {
+                this.type = type;
+                this.indentCssProperty = "margin-left";
+                this.indentOffset = 40;
+                this.indentUnit = "px";
+            }
+
+            function isListItem(node) {
+                return node.type = CKEDITOR.NODE_ELEMENT && node.is('li');
+            }
+
+            function indentList(editor, range, listNode) {
+                // Our starting and ending points of the range might be inside some blocks under a list item...
+                // So before playing with the iterator, we need to expand the block to include the list items.
+                var startContainer = range.startContainer,
+                    endContainer = range.endContainer;
+                while (startContainer && startContainer.parent()[0] !== listNode[0])
+                    startContainer = startContainer.parent();
+                while (endContainer && endContainer.parent()[0] !== listNode[0])
+                    endContainer = endContainer.parent();
+
+                if (!startContainer || !endContainer)
+                    return;
+
+                // Now we can iterate over the individual items on the same tree depth.
+                var block = startContainer,
+                    itemsToMove = [],
+                    stopFlag = false;
+                while (!stopFlag) {
+                    if (block[0] === endContainer[0])
+                        stopFlag = true;
+                    itemsToMove.push(block);
+                    block = block.next();
+                }
+                if (itemsToMove.length < 1)
+                    return;
+
+                // Do indent or outdent operations on the array model of the list, not the
+                // list's DOM tree itself. The array model demands that it knows as much as
+                // possible about the surrounding lists, we need to feed it the further
+                // ancestor node that is still a list.
+                var listParents = listNode._4e_parents(true);
+                for (var i = 0; i < listParents.length; i++) {
+                    if (listNodeNames[ listParents[i]._4e_name() ]) {
+                        listNode = listParents[i];
+                        break;
+                    }
+                }
+                var indentOffset = this.type == 'indent' ? 1 : -1,
+                    startItem = itemsToMove[0],
+                    lastItem = itemsToMove[ itemsToMove.length - 1 ],
+                    database = {};
+
+                // Convert the list DOM tree into a one dimensional array.
+                var listArray = KE.ListUtils.listToArray(listNode, database);
+
+                // Apply indenting or outdenting on the array.
+                var baseIndent = listArray[ lastItem._4e_getData('listarray_index') ].indent;
+                for (i = startItem._4e_getData('listarray_index'); i <= lastItem._4e_getData('listarray_index'); i++) {
+                    listArray[ i ].indent += indentOffset;
+                    // Make sure the newly created sublist get a brand-new element of the same type. (#5372)
+                    var listRoot = listArray[ i ].parent;
+                    listArray[ i ].parent = new Node(listRoot[0].ownerDocument.createElement(listRoot._4e_name()));
+                }
+
+                for (i = lastItem._4e_getData('listarray_index') + 1;
+                     i < listArray.length && listArray[i].indent > baseIndent; i++)
+                    listArray[i].indent += indentOffset;
+
+                // Convert the array back to a DOM forest (yes we might have a few subtrees now).
+                // And replace the old list with the new forest.
+                var newList = KE.ListUtils.arrayToList(listArray, database, null, "p", 0);
+
+                // Avoid nested <li> after outdent even they're visually same,
+                // recording them for later refactoring.(#3982)
+                var pendingList = [];
+                if (this.type == 'outdent') {
+                    var parentLiElement;
+                    if (( parentLiElement = listNode.parent() ) && parentLiElement._4e_name() == ('li')) {
+                        var children = newList.listNode.childNodes
+                            ,count = children.length,
+                            child;
+
+                        for (i = count - 1; i >= 0; i--) {
+                            if (( child = new Node(children[i]) ) && child._4e_name() == 'li')
+                                pendingList.push(child);
+                        }
+                    }
+                }
+
+                if (newList) {
+                    DOM.insertBefore(newList.listNode, listNode[0]);
+                    listNode._4e_remove();
+                }
+                // Move the nested <li> to be appeared after the parent.
+                if (pendingList && pendingList.length) {
+                    for (i = 0; i < pendingList.length; i++) {
+                        var li = pendingList[ i ],
+                            followingList = li;
+
+                        // Nest preceding <ul>/<ol> inside current <li> if any.
+                        while (( followingList = followingList.next() ) &&
+
+                            followingList._4e_name() in listNodeNames) {
+                            // IE requires a filler NBSP for nested list inside empty list item,
+                            // otherwise the list item will be inaccessiable. (#4476)
+                            if (UA.ie && !li._4e_first(function(node) {
+                                return isNotWhitespaces(node) && isNotBookmark(node);
+                            }))
+                                li[0].appendChild(range.document.createTextNode('\u00a0'));
+
+                            li[0].appendChild(followingList[0]);
+                        }
+                        DOM.insertAfter(li[0], parentLiElement[0]);
+                    }
+                }
+
+                // Clean up the markers.
+                for (var i in database)
+                    database[i]._4e_clearMarkers(database, true);
+            }
+
+            function indentBlock(editor, range) {
+                var iterator = range.createIterator(),
+                    enterMode = "p";
+                iterator.enforceRealBlocks = true;
+                iterator.enlargeBr = true;
+                var block;
+                while (( block = iterator.getNextParagraph() ))
+                    indentElement.call(this, editor, block);
+            }
+
+            function indentElement(editor, element) {
+
+                var currentOffset = parseInt(element._4e_style(this.indentCssProperty), 10);
+                if (isNaN(currentOffset))
+                    currentOffset = 0;
+                currentOffset += ( this.type == 'indent' ? 1 : -1 ) * this.indentOffset;
+
+                if (currentOffset < 0)
+                    return false;
+
+                currentOffset = Math.max(currentOffset, 0);
+                currentOffset = Math.ceil(currentOffset / this.indentOffset) * this.indentOffset;
+                element.css(this.indentCssProperty, currentOffset ? currentOffset + this.indentUnit : '');
+                if (element[0].style.cssText === '')
+                    element[0].removeAttribute('style');
+
+                return true;
+            }
+
+            S.augment(IndentCommand, {
+                exec:function(editor) {
+                    editor.focus();
+                    var selection = editor.getSelection(),
+                        range = selection && selection.getRanges()[0];
+                    var startContainer = range.startContainer,
+                        endContainer = range.endContainer,
+                        rangeRoot = range.getCommonAncestor(),
+                        nearestListBlock = rangeRoot;
+
+                    while (nearestListBlock && !( nearestListBlock[0].nodeType == KEN.NODE_ELEMENT &&
+                        listNodeNames[ nearestListBlock._4e_name() ] ))
+                        nearestListBlock = nearestListBlock.parent();
+
+                    // Avoid selection anchors under list root.
+                    // <ul>[<li>...</li>]</ul> =>	<ul><li>[...]</li></ul>
+                    if (nearestListBlock && startContainer[0].nodeType == KEN.NODE_ELEMENT
+                        && startContainer._4e_name() in listNodeNames) {
+                        var walker = new Walker(range);
+                        walker.evaluator = isListItem;
+                        range.startContainer = walker.next();
+                    }
+
+                    if (nearestListBlock && endContainer[0].nodeType == KEN.NODE_ELEMENT
+                        && endContainer._4e_name() in listNodeNames) {
+                        walker = new Walker(range);
+                        walker.evaluator = isListItem;
+                        range.endContainer = walker.previous();
+                    }
+
+                    var bookmarks = selection.createBookmarks(true);
+
+                    if (nearestListBlock) {
+                        var firstListItem = nearestListBlock._4e_first();
+                        while (firstListItem && firstListItem[0] && firstListItem._4e_name() != "li") {
+                            firstListItem = firstListItem.next();
+                        }
+                        var rangeStart = range.startContainer,
+                            indentWholeList = firstListItem[0] == rangeStart[0] || firstListItem._4e_contains(rangeStart);
+
+                        // Indent the entire list if  cursor is inside the first list item. (#3893)
+                        if (!( indentWholeList && indentElement.call(this, editor, nearestListBlock) ))
+                            indentList.call(this, editor, range, nearestListBlock);
+                    }
+                    else
+                        indentBlock.call(this, editor, range);
+
+                    editor.focus();
+                    selection.selectBookmarks(bookmarks);
+                }
+            });
+
+
+            var TripleButton = KE.TripleButton;
+
+            /**
+             * 用到了按钮三状态的两个状态：off可点击，disabled:不可点击
+             * @param cfg
+             */
+            function Indent(cfg) {
+                Indent.superclass.constructor.call(this, cfg);
+
+                var editor = this.get("editor"),toolBarDiv = editor.toolBarDiv,
+                    el = this.el;
+
+                var self = this;
+                self.el = new TripleButton({
+                    container:toolBarDiv,
+                    contentCls:this.get("contentCls"),
+                    //text:this.get("type"),
+                    title:this.get("title")
+                });
+                this.indentCommand = new IndentCommand(this.get("type"));
+                this._init();
+            }
+
+            Indent.ATTRS = {
+                type:{},
+                contentCls:{},
+                editor:{}
+            };
+
+            S.extend(Indent, S.Base, {
+
+                _init:function() {
+                    var editor = this.get("editor"),toolBarDiv = editor.toolBarDiv,
+                        el = this.el;
+                    var self = this;
+                    //off状态下触发捕获，注意没有on状态
+                    el.on("offClick", this.exec, this);
+                    if (this.get("type") == "outdent")
+                        editor.on("selectionChange", this._selectionChange, this);
+                    else
+                        el.set("state", TripleButton.OFF);
+                },
+
+
+                exec:function() {
+                    var editor = this.get("editor"),
+                        el = this.el,
+                        self = this;
+                    editor.focus();
+                    //ie要等会才能获得焦点窗口的选择区域
+                    editor.fire("save");
+                    setTimeout(function() {
+                        self.indentCommand.exec(editor);
+                        editor.fire("save");
+                        editor.notifySelectionChange();
+                    }, 10);
+                },
+
+                _selectionChange:function(ev) {
+                    var editor = this.get("editor"),type = this.get("type")
+                        , elementPath = ev.path,
+                        blockLimit = elementPath.blockLimit,
+                        el = this.el;
+
+                    if (elementPath.contains(listNodeNames)) {
+                        el.set("state", TripleButton.OFF);
+                    } else {
+                        var block = elementPath.block || blockLimit;
+                        if (block && block._4e_style(this.indentCommand.indentCssProperty)) {
+                            el.set("state", TripleButton.OFF);
+                        } else {
+                            el.set("state", TripleButton.DISABLED);
+                        }
+                    }
+                }
+            });
+            KE.Indent = Indent;
+        })();
+    }
+    editor.addPlugin(function() {
+        editor.addCommand("outdent", new KE.Indent({
+            editor:editor,
+            title:"减少缩进量",
+            contentCls:"ke-toolbar-outdent",
+            type:"outdent"
+        }));
+        editor.addCommand("indent", new KE.Indent({
+            editor:editor,
+            title:"增加缩进量",
+            contentCls:"ke-toolbar-indent",
+            type:"indent"
+        }));
+    });
+});

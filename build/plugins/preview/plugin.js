@@ -1,2 +1,60 @@
-KISSY.Editor.add("preview",function(e){var c=KISSY.Editor,i=KISSY,j=c.TripleButton;c.Preview||function(){function f(a){this.editor=a;this._init()}i.augment(f,{_init:function(){this.el=new j({container:this.editor.toolBarDiv,cls:"ke-tool-editor-source",title:"\u9884\u89c8",contentCls:"ke-toolbar-preview"});this.el.on("offClick",this._show,this)},_show:function(){var a=this.editor,b=640,g=420,h=80;try{var d=window.screen;b=Math.round(d.width*0.8);g=Math.round(d.height*0.7);h=Math.round(d.width*0.1)}catch(k){}a=
-a._prepareIFrameHtml().replace(/<body[^>]+>.+<\/body>/,"<body>\n"+a.getData()+"\n</body>");b=window.open("",null,"toolbar=yes,location=no,status=yes,menubar=yes,scrollbars=yes,resizable=yes,width="+b+",height="+g+",left="+h);b.document.open();b.document.write(a);b.document.close()}});c.Preview=f}();e.addPlugin(function(){new c.Preview(e)})});
+/**
+ * preview for kissy editor
+ * @author: yiminghe@gmail.com
+ */
+KISSY.Editor.add("preview", function(editor) {
+    var KE = KISSY.Editor,
+        S = KISSY,TripleButton = KE.TripleButton;
+    if (!KE.Preview) {
+        (function() {
+            function Preview(editor) {
+                this.editor = editor;
+                this._init();
+            }
+
+            S.augment(Preview, {
+                _init:function() {
+                    var self = this,editor = self.editor;
+                    self.el = new TripleButton({
+                        container:editor.toolBarDiv,
+                        cls:"ke-tool-editor-source",
+                        title:"预览",
+                        contentCls:"ke-toolbar-preview"
+                        //text:"preview"
+                    });
+                    self.el.on("offClick", this._show, this);
+                },
+                _show:function() {
+                    var self = this,editor = self.editor;
+                    //try {
+                    //editor will be unvisible
+                    //  editor.focus();
+                    //} catch(e) {
+                    // }
+                    var iWidth = 640,    // 800 * 0.8,
+                        iHeight = 420,    // 600 * 0.7,
+                        iLeft = 80;	// (800 - 0.8 * 800) /2 = 800 * 0.1.
+                    try {
+                        var screen = window.screen;
+                        iWidth = Math.round(screen.width * 0.8);
+                        iHeight = Math.round(screen.height * 0.7);
+                        iLeft = Math.round(screen.width * 0.1);
+                    } catch (e) {
+                    }
+                    var sHTML = editor._prepareIFrameHtml().replace(/<body[^>]+>.+<\/body>/, "<body>\n" + editor.getData() + "\n</body>");
+                    var sOpenUrl = '';
+                    var oWindow = window.open(sOpenUrl, null, 'toolbar=yes,location=no,status=yes,menubar=yes,scrollbars=yes,resizable=yes,width=' +
+                        iWidth + ',height=' + iHeight + ',left=' + iLeft);
+                    oWindow.document.open();
+                    oWindow.document.write(sHTML);
+                    oWindow.document.close();
+                }
+            });
+            KE.Preview = Preview;
+        })();
+    }
+
+    editor.addPlugin(function() {
+        new KE.Preview(editor);
+    });
+});

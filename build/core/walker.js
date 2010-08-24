@@ -1,6 +1,334 @@
-KISSY.Editor.add("walker",function(n){function k(a,c){if(this._.end)return null;var b=this.range,d,f=this.guard,i=this.type,o=a?"_4e_previousSourceNode":"_4e_nextSourceNode";if(!this._.start){this._.start=1;b.trim();if(b.collapsed){this.end();return null}}if(!a&&!this._.guardLTR){var p=b.endContainer,q=new l(p[0].childNodes[b.endOffset]);this._.guardLTR=function(e,g){return(!g||!v._4e_equals(p,e))&&(!q[0]||e[0]!==q[0])&&(e[0].nodeType!=j.NODE_ELEMENT||!g||e._4e_name()!="body")}}if(a&&!this._.guardRTL){var r=
-b.startContainer,s=b.startOffset>0&&new l(r[0].childNodes[b.startOffset-1]);this._.guardRTL=function(e,g){return e&&e[0]&&(!g||r[0]!==e[0])&&(!s[0]||e[0]!==s[0])&&(e[0].nodeType!=j.NODE_ELEMENT||!g||e._4e_name()!="body")}}var t=a?this._.guardRTL:this._.guardLTR;d=f?function(e,g){if(t(e,g)===false)return false;return f(e,g)}:t;if(this.current)a=this.current[o](false,i,d);else if(a){a=b.endContainer;if(b.endOffset>0){a=new l(a[0].childNodes[b.endOffset-1]);if(d(a)===false)a=null}else a=d(a,true)===
-false?null:a._4e_previousSourceNode(true,i,d)}else{a=b.startContainer;if((a=new l(a[0].childNodes[b.startOffset]))&&a[0]){if(d(a)===false)a=null}else a=d(b.startContainer,true)===false?null:b.startContainer._4e_nextSourceNode(true,i,d)}for(;a&&a[0]&&!this._.end;){this.current=a;if(!this.evaluator||this.evaluator(a)!==false){if(!c)return a}else if(c&&this.evaluator)return false;a=a[o](false,i,d)}this.end();return this.current=null}function u(a){for(var c,b=null;c=k.call(this,a);)b=c;return b}function h(a){this.range=
-a;this._={}}var m=KISSY,j=n.NODE,v=m.DOM,l=m.Node;m.augment(h,{end:function(){this._.end=1},next:function(){return k.call(this)},previous:function(){return k.call(this,true)},checkForward:function(){return k.call(this,false,true)!==false},checkBackward:function(){return k.call(this,true,true)!==false},lastForward:function(){return u.call(this)},lastBackward:function(){return u.call(this,true)},reset:function(){delete this.current;this._={}}});h.blockBoundary=function(a){return function(c){c[0]||(c=
-new l(c));return!(c[0].nodeType==j.NODE_ELEMENT&&c._4e_isBlockBoundary(a))}};h.listItemBoundary=function(){return this.blockBoundary({br:1})};h.bookmark=function(a,c){function b(d){return d&&d[0]&&d._4e_name()=="span"&&d.attr("_ke_bookmark")}return function(d){var f,i;f=d&&d[0]&&d[0].nodeType==j.NODE_TEXT&&(i=d.parent())&&b(i);f=a?f:f||b(d);return c^f}};h.whitespaces=function(a){return function(c){c=(c=c[0]||c)&&c.nodeType==j.NODE_TEXT&&!m.trim(c.nodeValue);return a^c}};h.invisible=function(a){var c=
-h.whitespaces();return function(b){b=c(b)||b[0].nodeType==j.NODE_ELEMENT&&!b[0].offsetHeight;return a^b}};n.Walker=h});
+/**
+ * modified from ckeditor for kissy editor ,walker implementation
+ * @refer: http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal#TreeWalker
+ * @modifier: yiminghe@gmail.com(chengyu)
+ */
+KISSY.Editor.add("walker", function(KE) {
+
+    var S = KISSY,
+        KEN = KE.NODE,
+        DOM = S.DOM,
+        Node = S.Node;
+    // This function is to be called under a "walker" instance scope.
+    function iterate(rtl, breakOnFalse) {
+        var self = this;
+        // Return null if we have reached the end.
+        if (this._.end)
+            return null;
+
+        var node,
+            range = self.range,
+            guard,
+            userGuard = self.guard,
+            type = self.type,
+            getSourceNodeFn = ( rtl ? '_4e_previousSourceNode' : '_4e_nextSourceNode' );
+
+        // This is the first call. Initialize it.
+        if (!self._.start) {
+            self._.start = 1;
+
+            // Trim text nodes and optmize the range boundaries. DOM changes
+            // may happen at this point.
+            range.trim();
+
+            // A collapsed range must return null at first call.
+            if (range.collapsed) {
+                self.end();
+                return null;
+            }
+        }
+
+        // Create the LTR guard function, if necessary.
+        if (!rtl && !self._.guardLTR) {
+            // Gets the node that stops the walker when going LTR.
+            var limitLTR = range.endContainer,
+                blockerLTR = new Node(limitLTR[0].childNodes[range.endOffset]);
+            //从左到右保证在 range 区间内获取 nextSourceNode
+            this._.guardLTR = function(node, movingOut) {
+                //从endContainer移出去，失败返回false
+                return (
+                    ( !movingOut
+                        ||
+                        ! DOM._4e_equals(limitLTR, node)
+                        )
+                        //到达深度遍历的最后一个节点，结束
+                        && ( !blockerLTR[0] || node[0] !== (blockerLTR[0]) )
+
+                        //从body移出也结束
+                        && ( node[0].nodeType != KEN.NODE_ELEMENT
+                        || !movingOut
+                        || node._4e_name() != 'body' ) );
+            };
+        }
+
+        // Create the RTL guard function, if necessary.
+        if (rtl && !self._.guardRTL) {
+            // Gets the node that stops the walker when going LTR.
+            var limitRTL = range.startContainer,
+                blockerRTL = ( range.startOffset > 0 ) && new Node(limitRTL[0].childNodes[range.startOffset - 1]);
+
+            self._.guardRTL = function(node, movingOut) {
+
+                return (
+                    node
+                        && node[0]
+                        && ( !movingOut || limitRTL[0] !== node[0] )
+                        && ( !blockerRTL[0] || node[0] !== blockerRTL[0] )
+                        && ( node[0].nodeType != KEN.NODE_ELEMENT || !movingOut || node._4e_name() != 'body' ) );
+            };
+        }
+
+        // Define which guard function to use.
+        var stopGuard = rtl ? self._.guardRTL : self._.guardLTR;
+
+        // Make the user defined guard function participate in the process,
+        // otherwise simply use the boundary guard.
+        if (userGuard) {
+            guard = function(node, movingOut) {
+                if (stopGuard(node, movingOut) === false)
+                    return false;
+
+                return userGuard(node, movingOut);
+            };
+        }
+        else
+            guard = stopGuard;
+
+        if (self.current)
+            node = this.current[ getSourceNodeFn ](false, type, guard);
+        else {
+            // Get the first node to be returned.
+
+            if (rtl) {
+                node = range.endContainer;
+
+                if (range.endOffset > 0) {
+                    node = new Node(node[0].childNodes[range.endOffset - 1]);
+                    if (guard(node) === false)
+                        node = null;
+                }
+                else
+                    node = ( guard(node, true) === false ) ?
+                        null : node._4e_previousSourceNode(true, type, guard);
+            }
+            else {
+                node = range.startContainer;
+                node = new Node(node[0].childNodes[range.startOffset]);
+
+                if (node && node[0]) {
+                    if (guard(node) === false)
+                        node = null;
+                }
+                else
+                    node = ( guard(range.startContainer, true) === false ) ?
+                        null : range.startContainer._4e_nextSourceNode(true, type, guard);
+            }
+        }
+
+        while (node && node[0] && !self._.end) {
+            self.current = node;
+
+            if (!this.evaluator || self.evaluator(node) !== false) {
+                if (!breakOnFalse)
+                    return node;
+            }
+            else if (breakOnFalse && self.evaluator)
+                return false;
+
+            node = node[ getSourceNodeFn ](false, type, guard);
+        }
+
+        self.end();
+        return self.current = null;
+    }
+
+    function iterateToLast(rtl) {
+        var node, last = null;
+
+        while (( node = iterate.call(this, rtl) ))
+            last = node;
+
+        return last;
+    }
+
+    function Walker(range) {
+        this.range = range;
+
+        /**
+         * A function executed for every matched node, to check whether
+         * it's to be considered into the walk or not. If not provided, all
+         * matched nodes are considered good.
+         * If the function returns "false" the node is ignored.
+         * @name CKEDITOR.dom.walker.prototype.evaluator
+         * @property
+         * @type Function
+         */
+        // this.evaluator = null;
+
+        /**
+         * A function executed for every node the walk pass by to check
+         * whether the walk is to be finished. It's called when both
+         * entering and exiting nodes, as well as for the matched nodes.
+         * If this function returns "false", the walking ends and no more
+         * nodes are evaluated.
+         * @name CKEDITOR.dom.walker.prototype.guard
+         * @property
+         * @type Function
+         */
+        // this.guard = null;
+
+        /** @private */
+        this._ = {};
+    }
+
+
+    S.augment(Walker, {
+        /**
+         * Stop walking. No more nodes are retrieved if this function gets
+         * called.
+         */
+        end : function() {
+            this._.end = 1;
+        },
+
+        /**
+         * Retrieves the next node (at right).
+         * @returns {Node} The next node or null if no more
+         *        nodes are available.
+         */
+        next : function() {
+            return iterate.call(this);
+        },
+
+        /**
+         * Retrieves the previous node (at left).
+         * @returns {Node} The previous node or null if no more
+         *        nodes are available.
+         */
+        previous : function() {
+            return iterate.call(this, true);
+        },
+
+        /**
+         * Check all nodes at right, executing the evaluation fuction.
+         * @returns {Boolean} "false" if the evaluator function returned
+         *        "false" for any of the matched nodes. Otherwise "true".
+         */
+        checkForward : function() {
+            return iterate.call(this, false, true) !== false;
+        },
+
+        /**
+         * Check all nodes at left, executing the evaluation fuction.
+         * 是不是 (不能后退了)
+         * @returns {Boolean} "false" if the evaluator function returned
+         *        "false" for any of the matched nodes. Otherwise "true".
+         */
+        checkBackward : function() {
+            return iterate.call(this, true, true) !== false;
+        },
+
+        /**
+         * Executes a full walk forward (to the right), until no more nodes
+         * are available, returning the last valid node.
+         * @returns {Node} The last node at the right or null
+         *        if no valid nodes are available.
+         */
+        lastForward : function() {
+            return iterateToLast.call(this);
+        },
+
+        /**
+         * Executes a full walk backwards (to the left), until no more nodes
+         * are available, returning the last valid node.
+         * @returns {Node} The last node at the left or null
+         *        if no valid nodes are available.
+         */
+        lastBackward : function() {
+            return iterateToLast.call(this, true);
+        },
+
+        reset : function() {
+            delete this.current;
+            this._ = {};
+        }
+
+    });
+
+
+    Walker.blockBoundary = function(customNodeNames) {
+        return function(node) {
+            if (!node[0]) node = new Node(node);
+            return ! ( node[0].nodeType == KEN.NODE_ELEMENT
+                && node._4e_isBlockBoundary(customNodeNames) );
+        };
+    };
+
+    Walker.listItemBoundary = function() {
+        return this.blockBoundary({ br : 1 });
+    };
+    /**
+     * Whether the node is a bookmark node's inner text node.
+     */
+    //Walker.bookmarkContents = function(node) {
+    // },
+
+    /**
+     * Whether the to-be-evaluated node is a bookmark node OR bookmark node
+     * inner contents.
+     * @param {Boolean} contentOnly Whether only test againt the text content of
+     * bookmark node instead of the element itself(default).
+     * @param {Boolean} isReject Whether should return 'false' for the bookmark
+     * node instead of 'true'(default).
+     */
+    Walker.bookmark = function(contentOnly, isReject) {
+        function isBookmarkNode(node) {
+            return ( node && node[0]
+                && node._4e_name() == 'span'
+                && node.attr('_ke_bookmark') );
+        }
+
+        return function(node) {
+            var isBookmark, parent;
+            // Is bookmark inner text node?
+            isBookmark = ( node && node[0] && node[0].nodeType == KEN.NODE_TEXT && ( parent = node.parent() )
+                && isBookmarkNode(parent) );
+            // Is bookmark node?
+            isBookmark = contentOnly ? isBookmark : isBookmark || isBookmarkNode(node);
+            return isReject ^ isBookmark;
+        };
+    };
+
+    /**
+     * Whether the node is a text node containing only whitespaces characters.
+     * @param isReject
+     */
+    Walker.whitespaces = function(isReject) {
+        return function(node) {
+            node = node[0] || node;
+            var isWhitespace = node && ( node.nodeType == KEN.NODE_TEXT )
+                && !S.trim(node.nodeValue);
+            return isReject ^ isWhitespace;
+        };
+    };
+
+    /**
+     * Whether the node is invisible in wysiwyg mode.
+     * @param isReject
+     */
+    Walker.invisible = function(isReject) {
+        var whitespace = Walker.whitespaces();
+        return function(node) {
+            // Nodes that take no spaces in wysiwyg:
+            // 1. White-spaces but not including NBSP;
+            // 2. Empty inline elements, e.g. <b></b> we're checking here
+            // 'offsetHeight' instead of 'offsetWidth' for properly excluding
+            // all sorts of empty paragraph, e.g. <br />.
+            var isInvisible = whitespace(node) || node[0].nodeType == KEN.NODE_ELEMENT && !node[0].offsetHeight;
+            return isReject ^ isInvisible;
+        };
+    };
+
+
+    KE.Walker = Walker;
+});

@@ -1,3 +1,114 @@
-KISSY.Editor.add("contextmenu",function(){function e(a){this.cfg=h.clone(a);j.Utils.lazyRun(this,"_prepareShow","_realShow")}var j=KISSY.Editor,h=KISSY,m=h.Node,n=h.Event,d=[];e.register=function(a,b){var i=new e(b);d.push({doc:a,tags:b.tags,instance:i});if(!a.ke_contextmenu){a.ke_contextmenu=1;n.on(a,"mousedown",e.hide);n.on(a,"contextmenu",function(c){e.hide.call(this);for(var f=new m(c.target);f;){var k=f._4e_name(),l=false;if(k=="body")break;for(var g=0;g<d.length;g++){var o=d[g].tags,p=d[g].instance;
-if(a===d[g].doc&&h.inArray(k,o)){c.preventDefault();l=true;p.show(j.Utils.getXY(c.pageX,c.pageY,a,document));break}}if(l)break;f=f.parent()}})}return i};e.hide=function(){for(var a=0;a<d.length;a++){var b=d[a].instance;this===d[a].doc&&b.hide()}};var q=j.SimpleOverlay;h.augment(e,{_init:function(){var a=this,b=a.cfg,i=b.funcs;a.elDom=new m("<div class='ke-contextmenu'></div>");var c=a.elDom;c.css("width",b.width);document.body.appendChild(c[0]);a.el=new q({el:c});for(var f in i){b=new m("<a href='#'>"+
-f+"</a>");c[0].appendChild(b[0]);(function(k,l){k.on("click",function(g){l();a.hide();g.halt()})})(b,i[f])}},hide:function(){this.el&&this.el.hide()},_realShow:function(a){this.el.show(a)},_prepareShow:function(){this._init()},show:function(a){this._prepareShow(a)}});j.ContextMenu=e;console.log("contexmenu loaded!")});
+/**
+ * contextmenu for kissy editor
+ * @author: yiminghe@gmail.com
+ */
+KISSY.Editor.add("contextmenu", function(editor) {
+    var KE = KISSY.Editor,
+        S = KISSY,
+        Node = S.Node,
+        //DOM = S.DOM,
+        Event = S.Event;
+    var HTML = "<div class='ke-contextmenu'></div>";
+
+
+    function ContextMenu(config) {
+        this.cfg = S.clone(config);
+        KE.Utils.lazyRun(this, "_prepareShow", "_realShow");
+    }
+
+    var global_tags = [];
+    /**
+     * 多菜单管理
+     */
+    ContextMenu.register = function(doc, cfg) {
+
+        var cm = new ContextMenu(cfg);
+
+        global_tags.push({
+            doc:doc,
+            tags:cfg.tags,
+            instance:cm
+        });
+
+        if (!doc.ke_contextmenu) {
+            doc.ke_contextmenu = 1;
+            Event.on(doc, "mousedown", ContextMenu.hide);
+            Event.on(doc, "contextmenu", function(ev) {
+                ContextMenu.hide.call(this);
+                var t = new Node(ev.target);
+                while (t) {
+                    var name = t._4e_name(),stop = false;
+                    if (name == "body")break;
+                    for (var i = 0; i < global_tags.length; i++) {
+                        var tags = global_tags[i].tags,
+                            instance = global_tags[i].instance,
+                            doc2 = global_tags[i].doc;
+                        if (doc === doc2 && S.inArray(name, tags)) {
+                            ev.preventDefault();
+                            stop = true;
+                            instance.show(KE.Utils.getXY(ev.pageX, ev.pageY, doc, document));
+                            break;
+                        }
+                    }
+                    if (stop) break;
+                    t = t.parent();
+                }
+            });
+        }
+        return cm;
+    };
+    ContextMenu.hide = function() {
+        var doc = this;
+        for (var i = 0; i < global_tags.length; i++) {
+            var instance = global_tags[i].instance,doc2 = global_tags[i].doc;
+            if (doc === doc2)
+                instance.hide();
+        }
+    };
+
+    var Overlay = KE.SimpleOverlay;
+    S.augment(ContextMenu, {
+        /**
+         * 根据配置构造右键菜单内容
+         */
+        _init:function() {
+            var self = this,cfg = self.cfg,funcs = cfg.funcs;
+            self.elDom = new Node(HTML);
+            var el = self.elDom;
+            el.css("width", cfg.width);
+            document.body.appendChild(el[0]);
+            //使它具备 overlay 的能力，其实这里并不是实体化
+            self.el = new Overlay({el:el});
+
+            for (var f in funcs) {
+                var a = new Node("<a href='#'>" + f + "</a>");
+                el[0].appendChild(a[0]);
+                (function(a, func) {
+                    a.on("click", function(ev) {
+                        func();
+                        self.hide();
+                        ev.halt();
+                    });
+                })(a, funcs[f]);
+            }
+
+        },
+
+        hide : function() {
+            this.el && this.el.hide();
+        },
+        _realShow:function(offset) {
+            this.el.show(offset);
+        },
+        _prepareShow:function() {
+            this._init();
+        },
+        show:function(offset) {
+            this._prepareShow(offset);
+        }
+    });
+
+
+    KE.ContextMenu = ContextMenu;
+    console.log("contexmenu loaded!");
+});

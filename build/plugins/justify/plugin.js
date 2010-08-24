@@ -1,3 +1,86 @@
-KISSY.Editor.add("justify",function(d){var c=KISSY.Editor,m=KISSY,e=c.TripleButton;c.Justify||function(){function k(a,b,g,h){this.editor=a;this.v=b;this.contentCls=h;this.title=g;this._init()}var n=/(-moz-|-webkit-|start|auto)/i;m.augment(k,{_init:function(){var a=this.editor;this.el=new e({contentCls:this.contentCls,title:this.title,container:a.toolBarDiv});a.on("selectionChange",this._selectionChange,this);this.el.on("click",this._effect,this)},_effect:function(){var a=this.editor,b=a.getSelection(),
-g=this.el.get("state");if(b){var h=b.createBookmarks(),l=b.getRanges(),i,f;a.fire("save");for(var j=l.length-1;j>=0;j--){i=l[j].createIterator();for(i.enlargeBr=true;f=i.getNextParagraph();){f.removeAttr("align");g==e.OFF?f.css("text-align",this.v):f.css("text-align","")}}a.focus();a.notifySelectionChange();b.selectBookmarks(h);a.fire("save")}},_selectionChange:function(a){var b=this.el;a=a.path;if(a=a.block||a.blockLimit){a=a.css("text-align").replace(n,"");a==this.v||!a&&this.v=="left"?b.set("state",
-e.ON):b.set("state",e.OFF)}}});c.Justify=k}();d.addPlugin(function(){new c.Justify(d,"left","\u5de6\u5bf9\u9f50","ke-toolbar-alignleft");new c.Justify(d,"center","\u5c45\u4e2d\u5bf9\u9f50","ke-toolbar-aligncenter");new c.Justify(d,"right","\u53f3\u5bf9\u9f50","ke-toolbar-alignright")})});
+/**
+ * align support for kissy editor
+ * @author: yiminghe@gmail.com
+ */
+KISSY.Editor.add("justify", function(editor) {
+    var KE = KISSY.Editor,
+        S = KISSY,TripleButton = KE.TripleButton;
+
+    if (!KE.Justify) {
+        (function() {
+            function Justify(editor, v, title, contentCls) {
+                var self = this;
+                self.editor = editor;
+                self.v = v;
+                self.contentCls = contentCls;
+                self.title = title;
+                self._init();
+            }
+
+            var alignRemoveRegex = /(-moz-|-webkit-|start|auto)/i,
+                default_align = "left";
+            S.augment(Justify, {
+                _init:function() {
+                    var self = this,editor = self.editor,toolBarDiv = editor.toolBarDiv;
+                    self.el = new TripleButton({
+                        contentCls:self.contentCls,
+                        //text:self.v,
+                        title:self.title,
+                        container:toolBarDiv
+                    });
+                    editor.on("selectionChange", self._selectionChange, self);
+                    self.el.on("click", self._effect, self);
+                },
+                _effect:function() {
+                    var self = this,editor = self.editor,
+                        selection = editor.getSelection(),
+                        enterMode = "p",state = self.el.get("state");
+
+                    if (!selection)
+                        return;
+
+                    var bookmarks = selection.createBookmarks(),
+                        ranges = selection.getRanges(),
+                        iterator,
+                        block;
+                    editor.fire("save");
+                    for (var i = ranges.length - 1; i >= 0; i--) {
+                        iterator = ranges[ i ].createIterator();
+                        iterator.enlargeBr = true;
+                        while (( block = iterator.getNextParagraph() )) {
+                            block.removeAttr('align');
+                            if (state == TripleButton.OFF)
+                                block.css('text-align', self.v);
+                            else
+                                block.css('text-align', '');
+                        }
+                    }
+
+                    editor.focus();
+                    editor.notifySelectionChange();
+                    selection.selectBookmarks(bookmarks);
+                    editor.fire("save");
+                },
+                _selectionChange:function(ev) {
+                    var self = this,
+                        el = self.el,
+                        path = ev.path,elements = path.elements,block = path.block || path.blockLimit;
+                    if (!block)return;
+                    var align = block.css("text-align").replace(alignRemoveRegex, "");
+                    if (align == self.v || (!align && self.v == default_align)) {
+                        el.set("state", TripleButton.ON);
+                    } else {
+                        el.set("state", TripleButton.OFF);
+                    }
+                }
+            });
+            KE.Justify = Justify;
+        })();
+    }
+    editor.addPlugin(function() {
+        new KE.Justify(editor, "left", "左对齐", "ke-toolbar-alignleft");
+        new KE.Justify(editor, "center", "居中对齐", "ke-toolbar-aligncenter");
+        new KE.Justify(editor, "right", "右对齐", "ke-toolbar-alignright");
+        //new Justify(editor, "justify", "两端对齐");
+    });
+});

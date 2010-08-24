@@ -127,13 +127,13 @@
     var base = location.href.replace(/^(.*kissy-editor\/).*$/i, '$1'),
             S = KISSY;
 
-    //S.Config.debug = true;
+    //S.Config.debug = true;"dev";
     S.Config.base = base;
 
     S.add({
         'editor': {
             path: 'build/editor-core-pkg-min.js',
-            csspath: "build/assets/editor.css"
+            csspath: "build/assets/editor-min.css"
         }
     });
 

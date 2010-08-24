@@ -33,7 +33,11 @@ KISSY.add("editor", function(S, undefined) {
     S.app(Editor, S.EventTarget);
     Editor.Config.base = S.Config.base + "editor/";
     function debugUrl(url) {
-        return !debug ? ("build/" + url) : url;
+        if (!debug) return "build/" + url.replace(/\.(js|css)/i, "-min.$1");
+        if (debug === "dev") {
+            return url;
+        }
+        return "build/" + url;
     }
 
     var debug = S.Config.debug,mods = {

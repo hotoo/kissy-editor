@@ -1,2 +1,80 @@
-KISSY.Editor.add("templates",function(h){var a=KISSY.Editor,i=KISSY,k=i.Node,l=a.TripleButton,m=a.SimpleOverlay;a.TplUI||function(){function j(b){this.editor=b;this._init()}i.augment(j,{_init:function(){(new l({container:this.editor.toolBarDiv,contentCls:"ke-toolbar-template",title:"\u6a21\u677f"})).on("click",this._show,this);a.Utils.lazyRun(this,"_prepare","_real")},_prepare:function(){for(var b=this.editor,f=b.cfg.pluginConfig.templates,c="<div class='ke-tpl'>",g=0;g<f.length;g++)c+="<a href='javascript:void(0)' class='ke-tpl-list' tabIndex='-1'>"+
-f[g].demo+"</a>";c+="</div>";this._initDialogOk=true;var d=new m({mask:true,title:"\u5185\u5bb9\u6a21\u677f"});d.body.html(c);c=d.body.all(".ke-tpl-list");d.on("hide",function(){b.focus()});c.on("click",function(e){e.halt();e=(new k(e.target))._4e_index();e!=-1&&b.insertHtml(f[e].html);d.hide()});this.ui=d},_real:function(){this.ui.show()},_show:function(){this._prepare()}});a.TplUI=j}();h.addPlugin(function(){new a.TplUI(h)})});
+/**
+ * templates support for kissy editor
+ * @author: yiminghe@gmail.com
+ */
+KISSY.Editor.add("templates", function(editor) {
+    var KE = KISSY.Editor,
+        S = KISSY,
+        Node = S.Node,
+        //Event = S.Event,
+        //KEN = KE.NODE,
+        //UA = S.UA,
+        //DOM = S.DOM,
+        TripleButton = KE.TripleButton,
+        Overlay = KE.SimpleOverlay;
+
+    if (!KE.TplUI) {
+
+        (function() {
+            function TplUI(editor) {
+                this.editor = editor;
+                this._init();
+            }
+
+            S.augment(TplUI, {
+                _init:function() {
+                    var self = this,editor = self.editor,el = new TripleButton({
+                        container:editor.toolBarDiv,
+                        //text:"template",
+                        contentCls:"ke-toolbar-template",
+                        title:"模板"
+                    });
+                    el.on("click", self._show, self);
+                    KE.Utils.lazyRun(this, "_prepare", "_real");
+                },
+                _prepare:function() {
+                    var self = this,editor = self.editor,templates = editor.cfg.pluginConfig.templates;
+                    var HTML = "<div class='ke-tpl'>";
+
+                    for (var i = 0; i < templates.length; i++) {
+                        var t = templates[i];
+                        HTML += "<a href='javascript:void(0)' class='ke-tpl-list' tabIndex='-1'>" + t.demo + "</a>";
+                    }
+                    HTML += "</div>";
+
+                    this._initDialogOk = true;
+                    var ui = new Overlay({mask:true,title:"内容模板"});
+                    ui.body.html(HTML);
+                    var list = ui.body.all(".ke-tpl-list");
+                    ui.on("hide", function() {
+                        editor.focus();
+                    });
+                    list.on("click", function(ev) {
+                        ev.halt();
+                        var t = new Node(ev.target);
+                        var index = t._4e_index();
+                        if (index != -1) {
+                            editor.insertHtml(templates[index].html);
+                        }
+                        ui.hide();
+                    });
+                    self.ui = ui;
+                },
+                _real:function() {
+                    var self = this;
+                    self.ui.show();
+                },
+                _show:function() {
+                    var self = this;
+                    self._prepare();
+                }
+            });
+            KE.TplUI = TplUI;
+        })();
+    }
+    editor.addPlugin(function() {
+        new KE.TplUI(editor);
+
+    });
+
+});

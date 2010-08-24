@@ -1,5 +1,237 @@
-KISSY.Editor.add("htmlparser-filter",function(){function j(a){this._={elementNames:[],attributeNames:[],elements:{$length:0},attributes:{$length:0}};a&&this.addRules(a,10)}function k(a,b){for(var c=0;a&&c<b.length;c++){var d=b[c];a=a.replace(d[0],d[1])}return a}function i(a,b,c){if(typeof b=="function")b=[b];var d,f;f=a.length;var e=b&&b.length;if(e){for(d=0;d<f&&a[d].pri<c;d++);for(f=e-1;f>=0;f--)if(e=b[f]){e.pri=c;a.splice(d,0,e)}}}function l(a,b,c){if(b)for(var d in b){var f=a[d];a[d]=h(f,b[d],
-c);f||a.$length++}}function h(a,b,c){if(b){b.pri=c;if(a){if(a.splice)i(a,b,c);else{a=a.pri>c?[b,a]:[a,b];a.filter=n}return a}else return b.filter=b}}function n(a){for(var b=a.type||a instanceof g.HtmlParser.Fragment,c=0;c<this.length;c++){if(b)var d=a.type,f=a.name;var e=this[c].apply(window,arguments);if(e===false)return e;if(b){if(e&&(e.name!=f||e.type!=d))return e}else if(typeof e!="string")return e;e!=undefined&&(a=e)}return a}var g=KISSY.Editor,m=g.NODE;if(!g.HtmlParser.Filter){KISSY.augment(j,
-{addRules:function(a,b){if(typeof b!="number")b=10;i(this._.elementNames,a.elementNames,b);i(this._.attributeNames,a.attributeNames,b);l(this._.elements,a.elements,b);l(this._.attributes,a.attributes,b);this._.text=h(this._.text,a.text,b)||this._.text;this._.comment=h(this._.comment,a.comment,b)||this._.comment;this._.root=h(this._.root,a.root,b)||this._.root},onElementName:function(a){return k(a,this._.elementNames)},onAttributeName:function(a){return k(a,this._.attributeNames)},onText:function(a){var b=
-this._.text;return b?b.filter(a):a},onComment:function(a,b){var c=this._.comment;return c?c.filter(a,b):a},onFragment:function(a){var b=this._.root;return b?b.filter(a):a},onElement:function(a){for(var b=[this._.elements["^"],this._.elements[a.name],this._.elements.$],c,d=0;d<3;d++)if(c=b[d]){c=c.filter(a,this);if(c===false)return null;if(c&&c!=a)return this.onNode(c);if(a.parent&&!a.name)break}return a},onNode:function(a){var b=a.type;return b==m.NODE_ELEMENT?this.onElement(a):b==m.NODE_TEXT?new g.HtmlParser.Text(this.onText(a.value)):
-null},onAttribute:function(a,b,c){if(b=this._.attributes[b]){a=b.filter(c,a,this);if(a===false)return false;if(typeof a!="undefined")return a}return c}});g.HtmlParser.Filter=j}});
+KISSY.Editor.add("htmlparser-filter", function(
+    //editor
+    ) {
+    var KE = KISSY.Editor,S = KISSY,KEN = KE.NODE;
+    if (KE.HtmlParser.Filter)return;
+    function Filter(rules) {
+        this._ = {
+            elementNames : [],
+            attributeNames : [],
+            elements : { $length : 0 },
+            attributes : { $length : 0 }
+        };
+
+        if (rules)
+            this.addRules(rules, 10);
+    }
+
+    S.augment(Filter, {
+        addRules : function(rules, priority) {
+            if (typeof priority != 'number')
+                priority = 10;
+
+            // Add the elementNames.
+            addItemsToList(this._.elementNames, rules.elementNames, priority);
+
+            // Add the attributeNames.
+            addItemsToList(this._.attributeNames, rules.attributeNames, priority);
+
+            // Add the elements.
+            addNamedItems(this._.elements, rules.elements, priority);
+
+            // Add the attributes.
+            addNamedItems(this._.attributes, rules.attributes, priority);
+
+            // Add the text.
+            this._.text = transformNamedItem(this._.text, rules.text, priority) || this._.text;
+
+            // Add the comment.
+            this._.comment = transformNamedItem(this._.comment, rules.comment, priority) || this._.comment;
+
+            // Add root fragment.
+            this._.root = transformNamedItem(this._.root, rules.root, priority) || this._.root;
+        },
+
+        onElementName : function(name) {
+            return filterName(name, this._.elementNames);
+        },
+
+        onAttributeName : function(name) {
+            return filterName(name, this._.attributeNames);
+        },
+
+        onText : function(text) {
+            var textFilter = this._.text;
+            return textFilter ? textFilter.filter(text) : text;
+        },
+
+        onComment : function(commentText, comment) {
+            var textFilter = this._.comment;
+            return textFilter ? textFilter.filter(commentText, comment) : commentText;
+        },
+
+        onFragment : function(element) {
+            var rootFilter = this._.root;
+            return rootFilter ? rootFilter.filter(element) : element;
+        },
+
+        onElement : function(element) {
+            // We must apply filters set to the specific element name as
+            // well as those set to the generic $ name. So, add both to an
+            // array and process them in a small loop.
+            var filters = [ this._.elements[ '^' ], this._.elements[ element.name ], this._.elements.$ ],
+                filter, ret;
+
+            for (var i = 0; i < 3; i++) {
+                filter = filters[ i ];
+                if (filter) {
+                    ret = filter.filter(element, this);
+
+                    if (ret === false)
+                        return null;
+
+                    if (ret && ret != element)
+                        return this.onNode(ret);
+
+                    // The non-root element has been dismissed by one of the filters.
+                    if (element.parent && !element.name)
+                        break;
+                }
+            }
+
+            return element;
+        },
+
+        onNode : function(node) {
+            var type = node.type;
+
+            return type == KEN.NODE_ELEMENT ? this.onElement(node) :
+                type == KEN.NODE_TEXT ? new KE.HtmlParser.Text(this.onText(node.value)) :
+                    null;
+        },
+
+        onAttribute : function(element, name, value) {
+            var filter = this._.attributes[ name ];
+
+            if (filter) {
+                var ret = filter.filter(value, element, this);
+
+                if (ret === false)
+                    return false;
+
+                if (typeof ret != 'undefined')
+                    return ret;
+            }
+
+            return value;
+        }
+    });
+    function filterName(name, filters) {
+        for (var i = 0; name && i < filters.length; i++) {
+            var filter = filters[ i ];
+            name = name.replace(filter[ 0 ], filter[ 1 ]);
+        }
+        return name;
+    }
+
+    function addItemsToList(list, items, priority) {
+        if (typeof items == 'function')
+            items = [ items ];
+
+        var i, j,
+            listLength = list.length,
+            itemsLength = items && items.length;
+
+        if (itemsLength) {
+            // Find the index to insert the items at.
+            for (i = 0; i < listLength && list[ i ].pri < priority; i++) { /*jsl:pass*/
+            }
+
+            // Add all new items to the list at the specific index.
+            for (j = itemsLength - 1; j >= 0; j--) {
+                var item = items[ j ];
+                if (item) {
+                    item.pri = priority;
+                    list.splice(i, 0, item);
+                }
+            }
+        }
+    }
+
+    function addNamedItems(hashTable, items, priority) {
+        if (items) {
+            for (var name in items) {
+                var current = hashTable[ name ];
+
+                hashTable[ name ] =
+                    transformNamedItem(
+                        current,
+                        items[ name ],
+                        priority);
+
+                if (!current)
+                    hashTable.$length++;
+            }
+        }
+    }
+
+    function transformNamedItem(current, item, priority) {
+        if (item) {
+            item.pri = priority;
+
+            if (current) {
+                // If the current item is not an Array, transform it.
+                if (!current.splice) {
+                    if (current.pri > priority)
+                        current = [ item, current ];
+                    else
+                        current = [ current, item ];
+
+                    current.filter = callItems;
+                }
+                else
+                    addItemsToList(current, item, priority);
+
+                return current;
+            }
+            else {
+                item.filter = item;
+                return item;
+            }
+        }
+        return undefined;
+    }
+
+    // Invoke filters sequentially on the array, break the iteration
+    // when it doesn't make sense to continue anymore.
+    function callItems(currentEntry) {
+        var isNode = currentEntry.type
+            || currentEntry instanceof KE.HtmlParser.Fragment;
+
+        for (var i = 0; i < this.length; i++) {
+            // Backup the node info before filtering.
+            if (isNode) {
+                var orgType = currentEntry.type,
+                    orgName = currentEntry.name;
+            }
+
+            var item = this[ i ],
+                ret = item.apply(window, arguments);
+
+            if (ret === false)
+                return ret;
+
+            // We're filtering node (element/fragment).
+            if (isNode) {
+                // No further filtering if it's not anymore
+                // fitable for the subsequent filters.
+                if (ret && ( ret.name != orgName
+                    || ret.type != orgType )) {
+                    return ret;
+                }
+            }
+            // Filtering value (nodeName/textValue/attrValue).
+            else {
+                // No further filtering if it's not
+                // any more values.
+                if (typeof ret != 'string')
+                    return ret;
+            }
+
+            ret != undefined && ( currentEntry = ret );
+        }
+        return currentEntry;
+    }
+
+    KE.HtmlParser.Filter = Filter;
+});

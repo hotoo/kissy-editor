@@ -1,1 +1,42 @@
-KISSY.Editor.add("focusmanager",function(i){function e(){this.iframeFocus=true}function f(){this.iframeFocus=false}var b=KISSY,g=b.DOM,d=b.Event;b={};var h={};b.add=function(a){h[a._UUID]=a;var c=g._4e_getWin(a.document);d.on(c,"focus",e,a);d.on(c,"blur",f,a)};b.remove=function(a){delete h[a._UUID];var c=g._4e_getWin(a.document);d.remove(c,"focus",e,a);d.remove(c,"blur",f,a)};i.focusManager=b});
+/**
+ * 多实例的焦点控制，主要是为了firefox焦点失去bug，记录当前状态
+ * @author: <yiminghe@gmail.com>
+ */
+KISSY.Editor.add("focusmanager", function(KE) {
+    var S = KISSY,
+        DOM = S.DOM,
+        Event = S.Event,
+        focusManager = {};
+
+    var INSTANCES = {};
+
+    focusManager.add = function(editor) {
+        INSTANCES[editor._UUID] = editor;
+        var win = DOM._4e_getWin(editor.document);
+        Event.on(win, "focus", focus, editor);
+        Event.on(win, "blur", blur, editor);
+    };
+    focusManager.remove = function(editor) {
+        delete INSTANCES[editor._UUID];
+        var win = DOM._4e_getWin(editor.document);
+        Event.remove(win, "focus", focus, editor);
+        Event.remove(win, "blur", blur, editor);
+    };
+    function focus() {
+        //console.log(" i got focus");
+        var editor = this;
+        editor.iframeFocus = true;
+        /*for (var i in INSTANCES) {
+         if (i != editor._UUID)
+         INSTANCES[i].blur();
+         }*/
+    }
+
+    function blur() {
+        //console.log(" i lost focus");
+        var editor = this;
+        editor.iframeFocus = false;
+    }
+
+    KE.focusManager = focusManager;
+});

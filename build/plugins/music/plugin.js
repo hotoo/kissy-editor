@@ -1,5 +1,134 @@
-KISSY.Editor.add("music",function(h){var c=KISSY.Editor;c.MusicInserter||function(){function e(a){e.superclass.constructor.call(this,a);this._init()}var d=KISSY,i=d.Node,g=d.DOM,j=d.Event,k=c.SimpleOverlay,l=c.TripleButton,m='<object  width="165" height="37" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"><param value="'+(c.Config.base+'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"')+' name="movie"><param value="high" name="quality"><param value="#FFFFFF" name="bgcolor"><embed width="165" height="37" type="application/x-shockwave-flash" swliveconnect="true" src="'+
-(c.Config.base+'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"')+'quality="high" pluginspage="http://www.macromedia.com/go/getflashplayer" bgcolor="#FFFFFF"></object>',n=/#\(music\)/g;e.ATTRS={editor:{}};d.extend(e,d.Base,{_init:function(){var a=this.get("editor").toolBarDiv;this.el=new l({contentCls:"ke-toolbar-music",title:"\u5206\u4eab\u97f3\u4e50",container:a});this.el.on("offClick",this.show,this);c.Utils.lazyRun(this,"_prepare","_real")},_prepare:function(){var a=this,b=this.get("editor");
-this.content=new i("<div class='ke-popup-wrap' style='width:250px;padding:10px;'><p style='margin:0 0 10px'><label>\u8bf7\u8f93\u5165\u97f3\u4e50\u5730\u5740\uff1a<br/><input value='http://' style='width: 250px;' class='ke-music-url'/></label></p><p><button class='ke-music-insert'>\u63d2\u5165</button>&nbsp;<a href='#' class='ke-music-cancel'>\u53d6\u6d88</a></p></div>");this.d=new k({el:this.content});document.body.appendChild(this.content[0]);var f=this.content.one(".ke-music-cancel"),o=this.content.one(".ke-music-insert");
-this.musicUrl=this.content.one(".ke-music-url");f.on("click",function(p){this.d.hide();p.halt()},this);j.on(document,"click",this.hide,this);j.on(b.document,"click",this.hide,this);o.on("click",function(){a._insert()})},hide:function(a){var b=this;g._4e_ascendant(a.target,function(f){return f[0]===b.content[0]||f[0]===b.el.el[0]})||this.d.hide()},_real:function(){var a=this.el.el.offset();a.top+=this.el.el.height()+5;if(a.left+this.content.width()>g.viewportWidth()-60)a.left=g.viewportWidth()-this.content.width()-
-60;this.d.show(a)},_insert:function(){var a=this.get("editor"),b=this.musicUrl.val();if(b){b=new i(m.replace(n,b),null,a.document);b=a.createFakeElement?a.createFakeElement(b,"ke_music","music",true):b;a.insertElement(b);this.d.hide()}},show:function(){this._prepare()}});c.MusicInserter=e}();h.addPlugin(function(){new c.MusicInserter({editor:h})})});
+/**
+ * insert music for kissy editor
+ * @author: yiminghe@gmail.com
+ */
+KISSY.Editor.add("music", function(editor) {
+    var KE = KISSY.Editor;
+    if (!KE.MusicInserter) {
+        (function() {
+
+            var
+                S = KISSY,
+                Node = S.Node,
+                DOM = S.DOM,
+                Event = S.Event,
+                //MUSIC_PLAYER = KE.Config.base+"niftyplayer.swf",
+                //CLS_FLASH = 'ke_flash',
+                CLS_MUSIC = 'ke_music',
+                // TYPE_FLASH = 'flash',
+                TYPE_MUSIC = 'music',
+                Overlay = KE.SimpleOverlay,
+                TripleButton = KE.TripleButton,
+                html = "<div class='ke-popup-wrap' " +
+                    "style='width:250px;padding:10px;'>" +
+                    "<p style='margin:0 0 10px'>" +
+                    "<label>请输入音乐地址：<br/>" +
+                    "<input value='http://' style='width: 250px;' class='ke-music-url'/>" +
+                    "</label></p>" +
+                    "<p>" +
+                    "<button class='ke-music-insert'>插入</button>&nbsp;" +
+                    "<a href='#' class='ke-music-cancel'>取消</a>" +
+                    "</p>" +
+                    "</div>",
+                MUSIC_MARKUP = '<object ' +
+                    ' width="165" height="37"' +
+                    ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"' +
+                    ' classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000">' +
+                    '<param value="'
+                    + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
+                    ' name="movie">' +
+                    '<param value="high" name="quality">' +
+                    '<param value="#FFFFFF" name="bgcolor">' +
+                    '<embed width="165" height="37" ' +
+                    'type="application/x-shockwave-flash" ' +
+                    'swliveconnect="true" ' +
+                    'src="' + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
+                    'quality="high" ' +
+                    'pluginspage="http://www.macromedia.com/go/getflashplayer"' +
+                    ' bgcolor="#FFFFFF">' +
+                    '</object>',
+                music_reg = /#\(music\)/g;
+
+            function MusicInserter(cfg) {
+                MusicInserter.superclass.constructor.call(this, cfg);
+                this._init();
+            }
+
+            MusicInserter.ATTRS = {
+                editor:{}
+            };
+
+            S.extend(MusicInserter, S.Base, {
+                _init:function() {
+                    var editor = this.get("editor"),toolBarDiv = editor.toolBarDiv;
+
+                    this.el = new TripleButton({
+                        //text:"music",
+                        contentCls:"ke-toolbar-music",
+                        title:"分享音乐",
+                        container:toolBarDiv
+                    });
+
+                    this.el.on("offClick", this.show, this);
+                    KE.Utils.lazyRun(this, "_prepare", "_real");
+                },
+                _prepare:function() {
+                    var self = this,editor = this.get("editor");
+                    this.content = new Node(html);
+                    this.d = new Overlay({
+                        el:this.content
+                    });
+                    document.body.appendChild(this.content[0]);
+                    var cancel = this.content.one(".ke-music-cancel"),
+                        ok = this.content.one(".ke-music-insert");
+                    this.musicUrl = this.content.one(".ke-music-url");
+                    cancel.on("click", function(ev) {
+                        this.d.hide();
+                        ev.halt();
+                    }, this);
+                    Event.on(document, "click", this.hide, this);
+                    Event.on(editor.document, "click", this.hide, this);
+                    ok.on("click", function() {
+                        self._insert();
+                    });
+                },
+                hide:function(ev) {
+                    var self = this;
+                    if (DOM._4e_ascendant(ev.target, function(node) {
+                        return node[0] === self.content[0] || node[0] === self.el.el[0];
+                    }))return;
+                    this.d.hide();
+                },
+                _real:function() {
+                    var xy = this.el.el.offset();
+                    xy.top += this.el.el.height() + 5;
+                    if (xy.left + this.content.width() > DOM.viewportWidth() - 60) {
+                        xy.left = DOM.viewportWidth() - this.content.width() - 60;
+                    }
+                    this.d.show(xy);
+                },
+                _insert:function() {
+                    var editor = this.get("editor");
+                    var url = this.musicUrl.val();
+                    if (!url) return;
+                    var music = new Node(MUSIC_MARKUP.replace(music_reg, url), null, editor.document);
+                    var substitute = editor.createFakeElement ?
+                        editor.createFakeElement(music, CLS_MUSIC, TYPE_MUSIC, true) :
+                        music;
+                    editor.insertElement(substitute);
+                    this.d.hide();
+                },
+                show:function() {
+                    this._prepare();
+                }
+            });
+            KE.MusicInserter = MusicInserter;
+        })();
+    }
+    editor.addPlugin(function() {
+        new KE.MusicInserter({
+            editor:editor
+        });
+    });
+
+});

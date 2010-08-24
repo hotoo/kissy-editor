@@ -1,23 +1,966 @@
-KISSY.Editor.add("dom",function(p){function u(a){return a.replace(/-(\w)/g,function(b,c){return c.toUpperCase()})}var o=KISSY,n=o.DOM,m=o.UA,i=o.Node,t=p.Utils,v={abbr:1,acronym:1,address:1,b:1,bdo:1,big:1,cite:1,code:1,del:1,dfn:1,em:1,font:1,i:1,ins:1,label:1,kbd:1,q:1,s:1,samp:1,small:1,span:1,strike:1,strong:1,sub:1,sup:1,tt:1,u:1,"var":1};p.NODE={NODE_ELEMENT:1,NODE_TEXT:3,NODE_DOCUMENT_FRAGMENT:11};p.POSITION={};var k=p.NODE,l=p.POSITION;l.POSITION_IDENTICAL=0;l.POSITION_DISCONNECTED=1;l.POSITION_FOLLOWING=
-2;l.POSITION_PRECEDING=4;l.POSITION_IS_CONTAINED=8;l.POSITION_CONTAINS=16;var q={},w={block:1,"list-item":1,table:1,"table-row-group":1,"table-header-group":1,"table-footer-group":1,"table-row":1,"table-column-group":1,"table-column":1,"table-cell":1,"table-caption":1},x={hr:1},f=function(a){return a[0]||a},r=function(a){if(!a[0])return new i(a);return a},s={_4e_equals:function(a,b){if(!a&&!b)return true;if(!a||!b)return false;a=f(a);b=f(b);return a===b},_4e_isBlockBoundary:function(a,b){a=r(a);b=
-o.mix(o.mix({},x),b||{});return w[a.css("display")]||b[a._4e_name()]},_4e_getWin:function(a){return a&&"scrollTo"in a&&a.document?a:a&&a.nodeType===9?a.defaultView||a.parentWindow:false},_4e_index:function(a){a=f(a);for(var b=a.parentNode.childNodes,c=0;c<b.length;c++)if(b[c]===a)return c;return-1},_4e_first:function(a,b){a=f(a);if((a=(a=a.firstChild)&&new i(a))&&b&&!b(a))a=a._4e_next(b);return a},_4e_move:function(a,b,c){a.remove();a=f(a);b=f(b);c?b.insertBefore(a,b.firstChild):b.appendChild(a)},
-_4e_name:function(a){a=f(a);return a.nodeName.toLowerCase()},_4e_isIdentical:function(a,b){if(a._4e_name()!=b._4e_name())return false;var c=a[0].attributes,d=b[0].attributes,e=c.length,g=d.length;if(!m.ie&&e!=g)return false;for(var h=0;h<e;h++){var j=c[h];if((!m.ie||j.specified&&j.nodeName!="_ke_expando")&&j.nodeValue!=b.attr(j.nodeName))return false}if(m.ie)for(h=0;h<g;h++){j=d[h];if(j.specified&&j.nodeName!="_ke_expando"&&j.nodeValue!=a.attr(j.nodeName))return false}return true},_4e_isEmptyInlineRemoveable:function(a){a=
-f(a).childNodes;for(var b=0,c=a.length;b<c;b++){var d=a[b],e=d.nodeType;if(!(e==k.NODE_ELEMENT&&d.getAttribute("_ke_bookmark")))if(e==k.NODE_ELEMENT&&!s._4e_isEmptyInlineRemoveable(d)||e==k.NODE_TEXT&&o.trim(d.nodeValue))return false}return true},_4e_moveChildren:function(a,b,c){a=f(a);b=b[0]||b;if(a!=b)if(c)for(;c=a.lastChild;)b.insertBefore(a.removeChild(c),b.firstChild);else for(;c=a.firstChild;)b.appendChild(a.removeChild(c))},_4e_mergeSiblings:function(){function a(b,c,d){if(c[0]&&c[0].nodeType==
-k.NODE_ELEMENT){for(var e=[];c.attr("_ke_bookmark")||c._4e_isEmptyInlineRemoveable();){e.push(c);c=d?new i(c[0].nextSibling):new i(c[0].previousSibling);if(!c[0]||c[0].nodeType!=k.NODE_ELEMENT)return}if(b._4e_isIdentical(c)){for(var g=d?b[0].lastChild:b[0].firstChild;e.length;)e.shift()._4e_move(b,!d);c._4e_moveChildren(b,!d);c.remove();g[0]&&g[0].nodeType==k.NODE_ELEMENT&&g._4e_mergeSiblings()}}}return function(b){if(b[0])if(v[b._4e_name()]||b._4e_name()=="a"){a(b,new i(b[0].nextSibling),true);a(b,
-new i(b[0].previousSibling))}}}(),_4e_unselectable:m.gecko?function(a){a=f(a);a.style.MozUserSelect="none"}:m.webkit?function(a){a=f(a);a.style.KhtmlUserSelect="none"}:function(a){a=f(a);if(m.ie||m.opera){var b,c=0;for(a.unselectable="on";b=a.all[c++];)switch(b.tagName.toLowerCase()){case "iframe":case "textarea":case "input":case "select":break;default:b.unselectable="on"}}},_4e_getOffset:function(a,b){a=f(a);var c,d=0;c=0;var e=a.ownerDocument.defaultView||a.ownerDocument.parentWindow,g=a.ownerDocument,
-h=g.documentElement;if(a.getBoundingClientRect){if(a!==g.body&&h!==a){c=a.getBoundingClientRect();d=c.left+n.scrollLeft(e);c=c.top+n.scrollTop(e)}if(b)if(e!=(b.defaultView||b.parentWindow)&&e.frameElement){b=s._4e_getOffset(e.frameElement,b);d+=b.left;c+=b.top}}return{left:d,top:c}},_4e_getFrameDocument:function(a){return(a=f(a))&&a.contentWindow.document},_4e_splitText:function(a,b){a=f(a);var c=a.ownerDocument;if(!(!a||a.nodeType!=k.NODE_TEXT)){if(m.ie&&b==a.nodeValue.length){c=c.createTextNode("");
-n.insertAfter(c,a);return c}a=new i(a.splitText(b));if(m.ie==8){c=c.createTextNode("");n.insertAfter(c,a[0]);c.parentNode.removeChild(c)}return a}},_4e_parents:function(a,b){a=r(a);var c=[];do c[b?"push":"unshift"](a);while(a=a.parent());return c},_4e_clone:function(a,b,c){a=f(a);a=a.cloneNode(b);if(!c){var d=function(e){if(e.nodeType==k.NODE_ELEMENT){e.removeAttribute("id",false);e.removeAttribute("_ke_expando",false);e=e.childNodes;for(var g=0;g<e.length;g++)d(e[g])}};d(a)}return new i(a)},_4e_nextSourceNode:function(a,
-b,c,d){a=f(a);if(d&&!d.call){var e=d[0]||d;d=function(h){h=h[0]||h;return h!==e}}b=!b&&a.firstChild;var g=new i(a);if(!b){if(a.nodeType==k.NODE_ELEMENT&&d&&d(this,true)===false)return null;b=a.nextSibling}for(;!b&&(g=g.parent());){if(d&&d(g,true)===false)return null;b=g[0].nextSibling}if(!b)return null;b=new i(b);if(d&&d(b)===false)return null;if(c&&c!=b[0].nodeType)return b._4e_nextSourceNode(false,c,d);return b},_4e_previousSourceNode:function(a,b,c,d){a=f(a);if(d&&!d.call){var e=d[0]||d;d=function(h){h=
-h[0]||h;return h!==e}}b=!b&&a.lastChild;var g=new i(a);if(!b){if(a.nodeType==k.NODE_ELEMENT&&d&&d(a,true)===false)return null;b=a.previousSibling}for(;!b&&(g=g.parent());){if(d&&d(g,true)===false)return null;b=g[0].previousSibling}if(!b)return null;b=new i(b);if(d&&d(b)===false)return null;if(c&&b[0].nodeType!=c)return b._4e_previousSourceNode(false,c,d);return b},_4e_contains:m.ie||m.webkit?function(a,b){a=f(a);b=f(b);return b.nodeType!=k.NODE_ELEMENT?a.contains(b.parentNode):a!=b&&a.contains(b)}:
-function(a,b){a=f(a);b=f(b);return!!(a.compareDocumentPosition(b)&16)},_4e_commonAncestor:function(a,b){if(a._4e_equals(b))return a;if(b[0].nodeType!=k.NODE_TEXT&&b._4e_contains(a))return b;a=a[0].nodeType==k.NODE_TEXT?a.parent():a;do if(a[0].nodeType!=k.NODE_TEXT&&a._4e_contains(b))return a;while(a=a.parent());return null},_4e_ascendant:function(a,b,c){a=f(a);if(!c)a=a.parentNode;if(b&&!o.isFunction(b)){var d=b;b=function(e){return e._4e_name()==d}}for(;a&&a.nodeType!=9;){if(!b||b(new i(a))===true)return new i(a);
-a=a.parentNode}return null},_4e_hasAttribute:function(a,b){a=f(a);a=a.attributes.getNamedItem(b);return!!(a&&a.specified)},_4e_hasAttributes:m.ie?function(a){a=f(a);for(var b=a.attributes,c=0;c<b.length;c++){var d=b[c];switch(d.nodeName){case "class":if(a.getAttribute("class"))return true;break;case "_ke_expando":continue;default:if(d.specified)return true}}return false}:function(a){a=f(a);m.gecko&&a.removeAttribute("_moz_dirty");a=a.attributes;return a.length>1||a.length==1&&a[0].nodeName!="_ke_expando"},
-_4e_position:function(a,b){var c=f(a),d=f(b);if(c.compareDocumentPosition)return c.compareDocumentPosition(d);if(c==d)return l.POSITION_IDENTICAL;if(c.nodeType==k.NODE_ELEMENT&&d.nodeType==k.NODE_ELEMENT){if(c.contains){if(c.contains(d))return l.POSITION_CONTAINS+l.POSITION_PRECEDING;if(d.contains(c))return l.POSITION_IS_CONTAINED+l.POSITION_FOLLOWING}if("sourceIndex"in c)return c.sourceIndex<0||d.sourceIndex<0?l.POSITION_DISCONNECTED:c.sourceIndex<d.sourceIndex?l.POSITION_PRECEDING:l.POSITION_FOLLOWING}a=
-a._4e_address();b=b._4e_address();c=Math.min(a.length,b.length);for(d=0;d<=c-1;d++)if(a[d]!=b[d]){if(d<c)return a[d]<b[d]?l.POSITION_PRECEDING:l.POSITION_FOLLOWING;break}return a.length<b.length?l.POSITION_CONTAINS+l.POSITION_PRECEDING:l.POSITION_IS_CONTAINED+l.POSITION_FOLLOWING},_4e_address:function(a,b){a=f(a);var c=[],d=a.ownerDocument.documentElement;for(a=a;a&&a!=d;){var e=a.parentNode,g=-1;if(e){for(var h=0;h<e.childNodes.length;h++){var j=e.childNodes[h];if(!(b&&j.nodeType==3&&j.previousSibling&&
-j.previousSibling.nodeType==3)){g++;if(j==a)break}}c.unshift(g)}a=e}return c},_4e_breakParent:function(a,b){var c=new p.Range(a[0].ownerDocument);c.setStartAfter(a);c.setEndAfter(b);b=c.extractContents();c.insertNode(a.remove());a[0].parentNode.insertBefore(b,a[0].nextSibling)},_4e_style:function(a,b,c){if(c!==undefined)return a.css(b,c);a=a[0]||a;return a.style[u(b)]},_4e_remove:function(a,b){a=f(a);var c=a.parentNode;if(c){if(b)for(;b=a.firstChild;)c.insertBefore(a.removeChild(b),a);c.removeChild(a)}return this},
-_4e_trim:function(a){n._4e_ltrim(a);n._4e_rtrim(a)},_4e_ltrim:function(a){a=f(a);for(var b;b=a.firstChild;){if(b.nodeType==k.NODE_TEXT){var c=t.ltrim(b.nodeValue),d=b.nodeValue.length;if(c){if(c.length<d){(new i(b))._4e_splitText(d-c.length);a.removeChild(a.firstChild)}}else{a.removeChild(b);continue}}break}},_4e_rtrim:function(a){a=f(a);for(var b;b=a.lastChild;){if(b.type==k.NODE_TEXT){var c=t.rtrim(b.nodeValue),d=b.nodeValue.length;if(c){if(c.length<d){(new i(b))._4e_splitText(c.length);a.removeChild(a.lastChild)}}else{a.removeChild(b);
-continue}}break}if(!m.ie&&!m.opera)(b=a.lastChild)&&b.nodeType==1&&b.nodeName.toLowerCase()=="br"&&b.parentNode.removeChild(b)},_4e_appendBogus:function(a){a=f(a);for(var b=a.lastChild;b&&b.nodeType==k.NODE_TEXT&&!o.trim(b.nodeValue);)b=b.previousSibling;if(!b||b.nodeType==k.NODE_TEXT||n._4e_name(b)!=="br"){b=m.opera?a.ownerDocument.createTextNode(""):a.ownerDocument.createElement("br");m.gecko&&b.setAttribute("type","_moz");a.appendChild(b)}},_4e_previous:function(a,b){a=f(a);var c;do c=(a=a.previousSibling)&&
-new i(a);while(c&&b&&!b(c));return c},_4e_last:function(a,b){if((a=(a=a[0].lastChild)&&new i(a))&&b&&!b(a))a=a._4e_previous(b);return a},_4e_next:function(a,b){a=f(a);var c;do c=(a=a.nextSibling)&&new i(a);while(c&&b&&!b(c));return c},_4e_outerHtml:function(a){a=f(a);if(a.outerHTML)return a.outerHTML.replace(/<\?[^>]*>/,"");var b=a.ownerDocument.createElement("div");b.appendChild(a.cloneNode(true));return b.innerHTML},_4e_setMarker:function(a,b,c,d){a[0]||(a=new i(a));var e=a._4e_getData("list_marker_id")||
-a._4e_setData("list_marker_id",o.guid())._4e_getData("list_marker_id"),g=a._4e_getData("list_marker_names")||a._4e_setData("list_marker_names",{})._4e_getData("list_marker_names");b[e]=a;g[c]=1;return a._4e_setData(c,d)},_4e_clearMarkers:function(a,b,c){a=r(a);var d=a._4e_getData("list_marker_names"),e=a._4e_getData("list_marker_id");for(var g in d)a._4e_removeData(g);a._4e_removeData("list_marker_names");if(c){a._4e_removeData("list_marker_id");delete b[e]}},_4e_setData:function(a,b,c){var d=n._4e_getUniqueId(a);
-(q[d]||(q[d]={}))[b]=c;return a},_4e_getData:function(a,b){a=f(a);return(a=(a=a.getAttribute("_ke_expando"))&&q[a])&&a[b]},_4e_removeData:function(a,b){a=f(a);var c=a.getAttribute("_ke_expando");var d=(c=c&&q[c])&&c[b];typeof d!="undefined"&&c&&delete c[b];o.isEmptyObject(c)&&n._4e_clearData(a);return d||null},_4e_clearData:function(a){a=f(a);var b=a.getAttribute("_ke_expando");b&&delete q[b];b&&a.removeAttribute("_ke_expando")},_4e_getUniqueId:function(a){a=f(a);var b=a.getAttribute("_ke_expando");
-if(b)return b;b=o.guid();a.setAttribute("_ke_expando",b);return b},_4e_copyAttributes:function(a,b,c){a=f(a);var d=a.attributes;c=c||{};for(var e=0;e<d.length;e++){var g=d[e],h=g.nodeName.toLowerCase(),j;if(!(h in c))if(h=="checked"&&(j=n.attr(a,h)))b.attr(h,j);else if(g.specified||m.ie&&g.nodeValue&&h=="value"){j=n.attr(a,h);if(j===null)j=g.nodeValue;b.attr(h,j)}}if(a.style.cssText!=="")b[0].style.cssText=a.style.cssText},_4e_isEditable:function(a){a=n._4e_name(a);var b=p.XHTML_DTD;return(a=!b.$nonEditable[a]&&
-(b[a]||b.span))&&a["#"]},_4e_scrollIntoView:function(a){a=r(a);var b=a[0].ownerDocument,c=n.scrollLeft(b),d=n.scrollTop(b),e=a.offset(),g=e.left;e=e.top;if(n.viewportHeight(b)+d<e||e<d||n.viewportWidth(b)+c<g||g<c)a.scrollIntoView(b)}};o.DOM._4e_inject=function(a){o.mix(n,a);for(var b in a)a.hasOwnProperty(b)&&function(c){i.prototype[c]=function(){var d=[].slice.call(arguments,0);d.unshift(this);return a[c].apply(null,d)}}(b)};o.DOM._4e_inject(s)});
+/**
+ * modified from ckeditor,dom utils for kissy editor
+ * @modifier: <yiminghe@gmail.com(chengyu)>
+ */
+KISSY.Editor.add("dom", function(KE) {
+
+    var S = KISSY,
+        DOM = S.DOM,
+        UA = S.UA,
+        doc = document,
+        Node = S.Node,
+        Utils = KE.Utils,
+        GET_BOUNDING_CLIENT_RECT = 'getBoundingClientRect',
+        REMOVE_EMPTY = {abbr:1,acronym:1,address:1,b:1,bdo:1,big:1,cite:1,code:1,del:1,dfn:1,em:1,font:1,i:1,ins:1,label:1,kbd:1,q:1,s:1,samp:1,small:1,span:1,strike:1,strong:1,sub:1,sup:1,tt:1,u:1,'var':1};
+    KE.NODE = {
+        NODE_ELEMENT:1,
+        NODE_TEXT:3,
+        NODE_DOCUMENT_FRAGMENT:11
+    };
+    KE.POSITION = {};
+    var KEN = KE.NODE,KEP = KE.POSITION;
+
+    KEP.POSITION_IDENTICAL = 0;
+    KEP.POSITION_DISCONNECTED = 1;
+    KEP.POSITION_FOLLOWING = 2;
+    KEP.POSITION_PRECEDING = 4;
+    KEP.POSITION_IS_CONTAINED = 8;
+    KEP.POSITION_CONTAINS = 16;
+
+    /*
+     * Anything whose display computed style is block, list-item, table,
+     * table-row-group, table-header-group, table-footer-group, table-row,
+     * table-column-group, table-column, table-cell, table-caption, or whose node
+     * name is hr, br (when enterMode is br only) is a block boundary.
+     */
+    var customData = {},blockBoundaryDisplayMatch = {
+        block : 1,
+        'list-item' : 1,
+        table : 1,
+        'table-row-group' : 1,
+        'table-header-group' : 1,
+        'table-footer-group' : 1,
+        'table-row' : 1,
+        'table-column-group' : 1,
+        'table-column' : 1,
+        'table-cell' : 1,
+        'table-caption' : 1
+    },
+        blockBoundaryNodeNameMatch = { hr : 1 },
+        normalElDom = function(el) {
+            return   el[0] || el;
+        },
+        normalEl = function(el) {
+            if (!el[0]) return new Node(el);
+            return el;
+        },
+        editorDom = {
+            _4e_equals:function(e1, e2) {
+                //全部为空
+                if (!e1 && !e2)return true;
+                //一个为空，一个不为空
+                if (!e1 || !e2)return false;
+                e1 = normalElDom(e1);
+                e2 = normalElDom(e2);
+                return e1 === e2;
+            },
+
+            _4e_isBlockBoundary:function(el, customNodeNames) {
+                el = normalEl(el);
+                var nodeNameMatches = S.mix(S.mix({}, blockBoundaryNodeNameMatch), customNodeNames || {});
+
+                return blockBoundaryDisplayMatch[ el.css('display') ] ||
+                    nodeNameMatches[ el._4e_name() ];
+            },
+            _4e_getWin:function(elem) {
+                return (elem && ('scrollTo' in elem) && elem["document"]) ?
+                    elem :
+                    elem && elem.nodeType === 9 ?
+                        elem.defaultView || elem.parentWindow :
+                        false;
+            },
+            _4e_index:function(el) {
+                el = normalElDom(el);
+                var siblings = el.parentNode.childNodes;
+                for (var i = 0; i < siblings.length; i++) {
+                    if (siblings[i] === el) return i;
+                }
+                return -1;
+            },
+            _4e_first:function(el, evaluator) {
+                el = normalElDom(el);
+                var first = el.firstChild,
+                    retval = first && new Node(first);
+                if (retval && evaluator && !evaluator(retval))
+                    retval = retval._4e_next(evaluator);
+
+                return retval;
+            },
+
+            _4e_move : function(thisElement, target, toStart) {
+                thisElement.remove();
+                thisElement = normalElDom(thisElement);
+                target = normalElDom(target);
+                if (toStart) {
+                    target.insertBefore(thisElement, target.firstChild);
+                }
+                else {
+                    target.appendChild(thisElement);
+                }
+            },
+
+            _4e_name:function(thisElement) {
+                thisElement = normalElDom(thisElement);
+                return thisElement.nodeName.toLowerCase();
+            },
+            _4e_isIdentical : function(thisElement, otherElement) {
+                if (thisElement._4e_name() != otherElement._4e_name())
+                    return false;
+
+                var thisAttribs = thisElement[0].attributes,
+                    otherAttribs = otherElement[0].attributes,thisLength = thisAttribs.length,
+                    otherLength = otherAttribs.length;
+
+                if (!UA.ie && thisLength != otherLength)
+                    return false;
+
+                for (var i = 0; i < thisLength; i++) {
+                    var attribute = thisAttribs[ i ];
+
+                    if (( !UA.ie || ( attribute.specified && attribute.nodeName != '_ke_expando' ) ) && attribute.nodeValue != otherElement.attr(attribute.nodeName))
+                        return false;
+                }
+
+                // For IE, we have to for both elements, because it's difficult to
+                // know how the atttibutes collection is organized in its DOM.
+                if (UA.ie) {
+                    for (i = 0; i < otherLength; i++) {
+                        attribute = otherAttribs[ i ];
+                        if (attribute.specified && attribute.nodeName != '_ke_expando'
+                            && attribute.nodeValue != thisElement.attr(attribute.nodeName))
+                            return false;
+                    }
+                }
+
+                return true;
+            },
+            _4e_isEmptyInlineRemoveable : function(thisElement) {
+                var children = normalElDom(thisElement).childNodes;
+                for (var i = 0, count = children.length; i < count; i++) {
+                    var child = children[i],
+                        nodeType = child.nodeType;
+
+                    if (nodeType == KEN.NODE_ELEMENT && child.getAttribute('_ke_bookmark'))
+                        continue;
+
+                    if (nodeType == KEN.NODE_ELEMENT && !editorDom._4e_isEmptyInlineRemoveable(child)
+                        || nodeType == KEN.NODE_TEXT && S.trim(child.nodeValue)) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            _4e_moveChildren : function(thisElement, target, toStart) {
+                var $ = normalElDom(thisElement);
+                target = target[0] || target;
+                if ($ == target)
+                    return;
+
+                var child;
+
+                if (toStart) {
+                    while (( child = $.lastChild ))
+                        target.insertBefore($.removeChild(child), target.firstChild);
+                }
+                else {
+                    while (( child = $.firstChild ))
+                        target.appendChild($.removeChild(child));
+                }
+            },
+            _4e_mergeSiblings : ( function() {
+                function mergeElements(element, sibling, isNext) {
+                    if (sibling[0] && sibling[0].nodeType == KEN.NODE_ELEMENT) {
+                        // Jumping over bookmark nodes and empty inline elements, e.g. <b><i></i></b>,
+                        // queuing them to be moved later. (#5567)
+                        var pendingNodes = [];
+
+                        while (sibling.attr('_ke_bookmark')
+                            || sibling._4e_isEmptyInlineRemoveable()) {
+                            pendingNodes.push(sibling);
+                            sibling = isNext ? new Node(sibling[0].nextSibling) : new Node(sibling[0].previousSibling);
+                            if (!sibling[0] || sibling[0].nodeType != KEN.NODE_ELEMENT)
+                                return;
+                        }
+
+                        if (element._4e_isIdentical(sibling)) {
+                            // Save the last child to be checked too, to merge things like
+                            // <b><i></i></b><b><i></i></b> => <b><i></i></b>
+                            var innerSibling = isNext ? element[0].lastChild : element[0].firstChild;
+
+                            // Move pending nodes first into the target element.
+                            while (pendingNodes.length)
+                                pendingNodes.shift()._4e_move(element, !isNext);
+
+                            sibling._4e_moveChildren(element, !isNext);
+                            sibling.remove();
+
+                            // Now check the last inner child (see two comments above).
+                            if (innerSibling[0] && innerSibling[0].nodeType == KEN.NODE_ELEMENT)
+                                innerSibling._4e_mergeSiblings();
+                        }
+                    }
+                }
+
+                return function(thisElement) {
+                    if (!thisElement[0]) return;
+                    //note by yiminghe,why not just merge whatever
+                    // Merge empty links and anchors also. (#5567)
+                    if (!( REMOVE_EMPTY[ thisElement._4e_name() ] || thisElement._4e_name() == "a" ))
+                        return;
+
+                    mergeElements(thisElement, new Node(thisElement[0].nextSibling), true);
+                    mergeElements(thisElement, new Node(thisElement[0].previousSibling));
+                };
+            } )(),
+            _4e_unselectable :
+                UA.gecko ?
+                    function(el) {
+                        el = normalElDom(el);
+                        el.style.MozUserSelect = 'none';
+                    }
+                    : UA.webkit ?
+                    function(el) {
+                        el = normalElDom(el);
+                        el.style.KhtmlUserSelect = 'none';
+                    }
+                    :
+                    function(el) {
+                        el = normalElDom(el);
+                        if (UA.ie || UA.opera) {
+                            var
+                                e,
+                                i = 0;
+
+                            el.unselectable = 'on';
+
+                            while (( e = el.all[ i++ ] )) {
+                                switch (e.tagName.toLowerCase()) {
+                                    case 'iframe' :
+                                    case 'textarea' :
+                                    case 'input' :
+                                    case 'select' :
+                                        /* Ignore the above tags */
+                                        break;
+                                    default :
+                                        e.unselectable = 'on';
+                                }
+                            }
+                        }
+                    },
+
+            _4e_getOffset:function(elem, refDocument) {
+                elem = normalElDom(elem);
+                var box,
+                    x = 0,
+                    y = 0,
+                    currentWindow = elem.ownerDocument.defaultView || elem.ownerDocument.parentWindow,
+                    currentDoc = elem.ownerDocument,
+                    currentDocElem = currentDoc.documentElement;
+                //same with DOM.offset
+                if (elem[GET_BOUNDING_CLIENT_RECT]) {
+                    if (elem !== currentDoc.body && currentDocElem !== elem) {
+                        box = elem[GET_BOUNDING_CLIENT_RECT]();
+                        x = box.left + DOM["scrollLeft"](currentWindow);
+                        y = box.top + DOM["scrollTop"](currentWindow);
+                    }
+                    if (refDocument) {
+                        var refWindow = refDocument.defaultView || refDocument.parentWindow;
+                        if (currentWindow != refWindow && currentWindow['frameElement']) {
+                            //note:when iframe is static ,still some mistake
+                            var iframePosition = editorDom._4e_getOffset(currentWindow.frameElement, refDocument);
+                            x += iframePosition.left;
+                            y += iframePosition.top;
+                        }
+                    }
+                }
+                return { left: x, top: y };
+            },
+
+            _4e_getFrameDocument : function(el) {
+                var $ = normalElDom(el),t;
+
+                try {
+                    // In IE, with custom document.domain, it may happen that
+                    // the iframe is not yet available, resulting in "Access
+                    // Denied" for the following property access.
+                    t = $.contentWindow.document;
+                }
+                catch (e) {
+                    // Trick to solve this issue, forcing the iframe to get ready
+                    // by simply setting its "src" property.
+                    t = $.src;
+                    $.src = t;
+
+                    // In IE6 though, the above is not enough, so we must pause the
+                    // execution for a while, giving it time to think.
+                    if (UA.ie && UA.ie < 7) {
+                        window.showModalDialog(
+                            'javascript:document.write("' +
+                                '<script>' +
+                                'window.setTimeout(' +
+                                'function(){window.close();}' +
+                                ',50);' +
+                                '</scrip' +
+                                't' +
+                                '>' +
+                                '")');
+                    }
+                }
+                return $ && $.contentWindow.document;
+            },
+
+            _4e_splitText : function(el, offset) {
+                el = normalElDom(el);
+                var doc = el.ownerDocument;
+                if (!el || el.nodeType != KEN.NODE_TEXT) return;
+                // If the offset is after the last char, IE creates the text node
+                // on split, but don't include it into the DOM. So, we have to do
+                // that manually here.
+                if (UA.ie && offset == el.nodeValue.length) {
+                    var next = doc.createTextNode("");
+                    DOM.insertAfter(next, el);
+                    return next;
+                }
+
+
+                var retval = new Node(el.splitText(offset));
+
+                // IE BUG: IE8 does not update the childNodes array in DOM after splitText(),
+                // we need to make some DOM changes to make it update. (#3436)
+                if (UA.ie == 8) {
+                    var workaround = doc.createTextNode("");
+                    DOM.insertAfter(workaround, retval[0]);
+                    workaround.parentNode.removeChild(workaround);
+                }
+
+                return retval;
+            },
+
+            _4e_parents : function(node, closerFirst) {
+                node = normalEl(node);
+                var parents = [];
+                do {
+                    parents[  closerFirst ? 'push' : 'unshift' ](node);
+                } while (( node = node.parent() ));
+
+                return parents;
+            },
+
+            _4e_clone : function(el, includeChildren, cloneId) {
+                el = normalElDom(el);
+                var $clone = el.cloneNode(includeChildren);
+
+                if (!cloneId) {
+                    var removeIds = function(node) {
+                        if (node.nodeType != KEN.NODE_ELEMENT)
+                            return;
+
+                        node.removeAttribute('id', false);
+                        //复制时不要复制expando
+                        node.removeAttribute('_ke_expando', false);
+
+                        var childs = node.childNodes;
+                        for (var i = 0; i < childs.length; i++)
+                            removeIds(childs[ i ]);
+                    };
+
+                    // The "id" attribute should never be cloned to avoid duplication.
+                    removeIds($clone);
+                }
+                return new Node($clone);
+            },
+            /**
+             * 深度优先遍历获取下一结点
+             * @param el
+             * @param startFromSibling
+             * @param nodeType
+             * @param guard
+             */
+            _4e_nextSourceNode : function(el, startFromSibling, nodeType, guard) {
+                el = normalElDom(el);
+                // If "guard" is a node, transform it in a function.
+                if (guard && !guard.call) {
+                    var guardNode = guard[0] || guard;
+                    guard = function(node) {
+                        node = node[0] || node;
+                        return node !== guardNode;
+                    };
+                }
+
+                var node = !startFromSibling && el.firstChild ,
+                    parent = new Node(el);
+
+                // Guarding when we're skipping the current element( no children or 'startFromSibling' ).
+                // send the 'moving out' signal even we don't actually dive into.
+                if (!node) {
+                    if (el.nodeType == KEN.NODE_ELEMENT && guard && guard(this, true) === false)
+                        return null;
+                    node = el.nextSibling;
+                }
+
+                while (!node && ( parent = parent.parent())) {
+                    // The guard check sends the "true" paramenter to indicate that
+                    // we are moving "out" of the element.
+                    if (guard && guard(parent, true) === false)
+                        return null;
+
+                    node = parent[0].nextSibling;
+                }
+
+                if (!node)
+                    return null;
+                node = new Node(node);
+                if (guard && guard(node) === false)
+                    return null;
+
+                if (nodeType && nodeType != node[0].nodeType)
+                    return node._4e_nextSourceNode(false, nodeType, guard);
+
+                return node;
+            },
+            _4e_previousSourceNode : function(el, startFromSibling, nodeType, guard) {
+                el = normalElDom(el);
+                if (guard && !guard.call) {
+                    var guardNode = guard[0] || guard;
+                    guard = function(node) {
+                        node = node[0] || node;
+                        return node !== guardNode;
+                    };
+                }
+
+                var node = ( !startFromSibling && el.lastChild),
+                    parent = new Node(el);
+
+                // Guarding when we're skipping the current element( no children or 'startFromSibling' ).
+                // send the 'moving out' signal even we don't actually dive into.
+                if (!node) {
+                    if (el.nodeType == KEN.NODE_ELEMENT && guard && guard(el, true) === false)
+                        return null;
+                    node = el.previousSibling;
+                }
+
+                while (!node && ( parent = parent.parent() )) {
+                    // The guard check sends the "true" paramenter to indicate that
+                    // we are moving "out" of the element.
+                    if (guard && guard(parent, true) === false)
+                        return null;
+                    node = parent[0].previousSibling;
+                }
+
+                if (!node)
+                    return null;
+                node = new Node(node);
+                if (guard && guard(node) === false)
+                    return null;
+
+                if (nodeType && node[0].nodeType != nodeType)
+                    return node._4e_previousSourceNode(false, nodeType, guard);
+
+                return node;
+            },
+            _4e_contains :
+                UA.ie || UA.webkit ?
+                    function(el, node) {
+                        el = normalElDom(el);
+                        node = normalElDom(node);
+                        return node.nodeType != KEN.NODE_ELEMENT ?
+                            el.contains(node.parentNode) :
+                            el != node && el.contains(node);
+                    }
+                    :
+                    function(el, node) {
+                        el = normalElDom(el);
+                        node = normalElDom(node);
+                        return !!( el.compareDocumentPosition(node) & 16 );
+                    },
+            _4e_commonAncestor:function(el, node) {
+                if (el._4e_equals(node))
+                    return el;
+
+                if (node[0].nodeType != KEN.NODE_TEXT && node._4e_contains(el))
+                    return node;
+
+                var start = el[0].nodeType == KEN.NODE_TEXT ? el.parent() : el;
+
+                do   {
+                    if (start[0].nodeType != KEN.NODE_TEXT && start._4e_contains(node))
+                        return start;
+                } while (( start = start.parent() ));
+
+                return null;
+            },
+            _4e_ascendant : function(el, name, includeSelf) {
+                var $ = normalElDom(el);
+
+                if (!includeSelf)
+                    $ = $.parentNode;
+                if (name && !S.isFunction(name)) {
+                    var n = name;
+                    name = function(node) {
+                        return node._4e_name() == n;
+                    };
+                }
+                //到document就完了
+                while ($ && $.nodeType != 9) {
+                    if (!name || name(new Node($)) === true)
+                        return new Node($);
+
+                    $ = $.parentNode;
+                }
+                return null;
+            },
+            _4e_hasAttribute : function(el, name) {
+                el = normalElDom(el);
+                var $attr = el.attributes.getNamedItem(name);
+                return !!( $attr && $attr.specified );
+            },
+            _4e_hasAttributes: UA.ie ?
+                function(el) {
+                    el = normalElDom(el);
+                    var attributes = el.attributes;
+
+                    for (var i = 0; i < attributes.length; i++) {
+                        var attribute = attributes[i];
+
+                        switch (attribute.nodeName) {
+                            case 'class' :
+                                // IE has a strange bug. If calling removeAttribute('className'),
+                                // the attributes collection will still contain the "class"
+                                // attribute, which will be marked as "specified", even if the
+                                // outerHTML of the element is not displaying the class attribute.
+                                // Note : I was not able to reproduce it outside the editor,
+                                // but I've faced it while working on the TC of #1391.
+                                if (el.getAttribute('class'))
+                                    return true;
+                                break;
+                            // Attributes to be ignored.
+                            case '_ke_expando' :
+                                continue;
+
+                            /*jsl:fallthru*/
+
+                            default :
+                                if (attribute.specified)
+                                    return true;
+                        }
+                    }
+
+                    return false;
+                }
+                :
+                function(el) {
+                    el = normalElDom(el);
+                    //删除firefox自己添加的标志
+                    UA.gecko && el.removeAttribute("_moz_dirty");
+                    var attributes = el.attributes;
+                    return ( attributes.length > 1 || ( attributes.length == 1 && attributes[0].nodeName != '_ke_expando' ) );
+                },
+
+            _4e_position : function(el, otherNode) {
+                var $ = normalElDom(el),$other = normalElDom(otherNode);
+
+
+                if ($.compareDocumentPosition)
+                    return $.compareDocumentPosition($other);
+
+                // IE and Safari have no support for compareDocumentPosition.
+
+                if ($ == $other)
+                    return KEP.POSITION_IDENTICAL;
+
+                // Only element nodes support contains and sourceIndex.
+                if ($.nodeType == KEN.NODE_ELEMENT && $other.nodeType == KEN.NODE_ELEMENT) {
+                    if ($.contains) {
+                        if ($.contains($other))
+                            return KEP.POSITION_CONTAINS + KEP.POSITION_PRECEDING;
+
+                        if ($other.contains($))
+                            return KEP.POSITION_IS_CONTAINED + KEP.POSITION_FOLLOWING;
+                    }
+
+                    if ('sourceIndex' in $) {
+                        return ( $.sourceIndex < 0 || $other.sourceIndex < 0 ) ? KEP.POSITION_DISCONNECTED :
+                            ( $.sourceIndex < $other.sourceIndex ) ? KEP.POSITION_PRECEDING :
+                                KEP.POSITION_FOLLOWING;
+                    }
+                }
+
+                // For nodes that don't support compareDocumentPosition, contains
+                // or sourceIndex, their "address" is compared.
+
+                var addressOfThis = el._4e_address(),
+                    addressOfOther = otherNode._4e_address(),
+                    minLevel = Math.min(addressOfThis.length, addressOfOther.length);
+
+                // Determinate preceed/follow relationship.
+                for (var i = 0; i <= minLevel - 1; i++) {
+                    if (addressOfThis[ i ] != addressOfOther[ i ]) {
+                        if (i < minLevel) {
+                            return addressOfThis[ i ] < addressOfOther[ i ] ?
+                                KEP.POSITION_PRECEDING : KEP.POSITION_FOLLOWING;
+                        }
+                        break;
+                    }
+                }
+
+                // Determinate contains/contained relationship.
+                return ( addressOfThis.length < addressOfOther.length ) ?
+                    KEP.POSITION_CONTAINS + KEP.POSITION_PRECEDING :
+                    KEP.POSITION_IS_CONTAINED + KEP.POSITION_FOLLOWING;
+            },
+
+            _4e_address:function(el, normalized) {
+                el = normalElDom(el);
+                var address = [],
+
+                    $documentElement = el.ownerDocument.documentElement,
+                    node = el;
+
+                while (node && node != $documentElement) {
+                    var parentNode = node.parentNode,
+                        currentIndex = -1;
+
+                    if (parentNode) {
+                        for (var i = 0; i < parentNode.childNodes.length; i++) {
+                            var candidate = parentNode.childNodes[i];
+
+                            if (normalized &&
+                                candidate.nodeType == 3 &&
+                                candidate.previousSibling &&
+                                candidate.previousSibling.nodeType == 3) {
+                                continue;
+                            }
+
+                            currentIndex++;
+
+                            if (candidate == node)
+                                break;
+                        }
+
+                        address.unshift(currentIndex);
+                    }
+
+                    node = parentNode;
+                }
+
+                return address;
+            },
+            _4e_breakParent : function(el, parent) {
+                var KERange = KE.Range,range = new KERange(el[0].ownerDocument);
+
+                // We'll be extracting part of this element, so let's use our
+                // range to get the correct piece.
+                range.setStartAfter(el);
+                range.setEndAfter(parent);
+
+                // Extract it.
+                var docFrag = range.extractContents();
+
+                // Move the element outside the broken element.
+                range.insertNode(el.remove());
+
+                // Re-insert the extracted piece after the element.
+                el[0].parentNode.insertBefore(docFrag, el[0].nextSibling);
+            },
+            _4e_style:function(el, styleName, val) {
+                if (val !== undefined) {
+                    return el.css(styleName, val);
+                }
+                el = el[0] || el;
+                return el.style[normalizeStyle(styleName)];
+            },
+            _4e_remove : function(el, preserveChildren) {
+                var $ = normalElDom(el), parent = $.parentNode;
+                if (parent) {
+                    if (preserveChildren) {
+                        // Move all children before the node.
+                        for (var child; ( child = $.firstChild );) {
+                            parent.insertBefore($.removeChild(child), $);
+                        }
+                    }
+                    parent.removeChild($);
+                }
+                return this;
+            },
+            _4e_trim : function(el) {
+                DOM._4e_ltrim(el);
+                DOM._4e_rtrim(el);
+            },
+
+            _4e_ltrim : function(el) {
+                el = normalElDom(el);
+                var child;
+                while (( child = el.firstChild )) {
+                    if (child.nodeType == KEN.NODE_TEXT) {
+                        var trimmed = Utils.ltrim(child.nodeValue),
+                            originalLength = child.nodeValue.length;
+
+                        if (!trimmed) {
+                            el.removeChild(child);
+                            continue;
+                        }
+                        else if (trimmed.length < originalLength) {
+                            new Node(child)._4e_splitText(originalLength - trimmed.length);
+                            // IE BUG: child.remove() may raise JavaScript errors here. (#81)
+                            el.removeChild(el.firstChild);
+                        }
+                    }
+                    break;
+                }
+            },
+
+            _4e_rtrim : function(el) {
+                el = normalElDom(el);
+                var child;
+                while (( child = el.lastChild )) {
+                    if (child.type == KEN.NODE_TEXT) {
+                        var trimmed = Utils.rtrim(child.nodeValue),
+                            originalLength = child.nodeValue.length;
+
+                        if (!trimmed) {
+                            el.removeChild(child);
+                            continue;
+                        } else if (trimmed.length < originalLength) {
+                            new Node(child)._4e_splitText(trimmed.length);
+                            // IE BUG: child.getNext().remove() may raise JavaScript errors here.
+                            // (#81)
+                            el.removeChild(el.lastChild);
+                        }
+                    }
+                    break;
+                }
+
+                if (!UA.ie && !UA.opera) {
+                    child = el.lastChild;
+                    if (child && child.nodeType == 1 && child.nodeName.toLowerCase() == 'br') {
+                        // Use "eChildNode.parentNode" instead of "node" to avoid IE bug (#324).
+                        child.parentNode.removeChild(child);
+                    }
+                }
+            },
+
+            _4e_appendBogus : function(el) {
+                el = normalElDom(el);
+                var lastChild = el.lastChild;
+
+                // Ignore empty/spaces text.
+                while (lastChild && lastChild.nodeType == KEN.NODE_TEXT && !S.trim(lastChild.nodeValue))
+                    lastChild = lastChild.previousSibling;
+                if (!lastChild || lastChild.nodeType == KEN.NODE_TEXT || DOM._4e_name(lastChild) !== 'br') {
+                    var bogus = UA.opera ?
+                        el.ownerDocument.createTextNode('') :
+                        el.ownerDocument.createElement('br');
+
+                    UA.gecko && bogus.setAttribute('type', '_moz');
+
+                    el.appendChild(bogus);
+                }
+            },
+            _4e_previous : function(el, evaluator) {
+                var previous = normalElDom(el), retval;
+                do {
+                    previous = previous.previousSibling;
+                    retval = previous && new Node(previous);
+                } while (retval && evaluator && !evaluator(retval));
+                return retval;
+            },
+
+            /**
+             * @param {Function} evaluator Filtering the result node.
+             */
+            _4e_last : function(el, evaluator) {
+                var last = el[0].lastChild,
+                    retval = last && new Node(last);
+                if (retval && evaluator && !evaluator(retval))
+                    retval = retval._4e_previous(evaluator);
+
+                return retval;
+            },
+
+            _4e_next : function(el, evaluator) {
+                var next = normalElDom(el), retval;
+                do {
+                    next = next.nextSibling;
+                    retval = next && new Node(next);
+                } while (retval && evaluator && !evaluator(retval));
+                return retval;
+            },
+            _4e_outerHtml : function(el) {
+                el = normalElDom(el);
+                if (el.outerHTML) {
+                    // IE includes the <?xml:namespace> tag in the outerHTML of
+                    // namespaced element. So, we must strip it here. (#3341)
+                    return el.outerHTML.replace(/<\?[^>]*>/, '');
+                }
+
+                var tmpDiv = el.ownerDocument.createElement('div');
+                tmpDiv.appendChild(el.cloneNode(true));
+                return tmpDiv.innerHTML;
+            },
+
+            _4e_setMarker : function(element, database, name, value) {
+                if (!element[0]) element = new Node(element);
+                var id = element._4e_getData('list_marker_id') ||
+                    ( element._4e_setData('list_marker_id', S.guid())._4e_getData('list_marker_id')),
+                    markerNames = element._4e_getData('list_marker_names') ||
+                        ( element._4e_setData('list_marker_names', {})._4e_getData('list_marker_names'));
+                database[id] = element;
+                markerNames[name] = 1;
+
+                return element._4e_setData(name, value);
+            },
+            _4e_clearMarkers : function(element, database, removeFromDatabase) {
+
+                element = normalEl(element);
+                var names = element._4e_getData('list_marker_names'),
+                    id = element._4e_getData('list_marker_id');
+                for (var i in names)
+                    element._4e_removeData(i);
+                element._4e_removeData('list_marker_names');
+                if (removeFromDatabase) {
+                    element._4e_removeData('list_marker_id');
+                    delete database[id];
+                }
+            },
+
+            _4e_setData : function(el, key, value) {
+                var expandoNumber = DOM._4e_getUniqueId(el),
+                    dataSlot = customData[ expandoNumber ] || ( customData[ expandoNumber ] = {} );
+                dataSlot[ key ] = value;
+                return el;
+            },
+
+
+            _4e_getData :function(el, key) {
+                el = normalElDom(el);
+                var expandoNumber = el.getAttribute('_ke_expando'),
+                    dataSlot = expandoNumber && customData[ expandoNumber ];
+                return dataSlot && dataSlot[ key ];
+            },
+
+
+            _4e_removeData : function(el, key) {
+                el = normalElDom(el);
+                var expandoNumber = el.getAttribute('_ke_expando'),
+                    dataSlot = expandoNumber && customData[ expandoNumber ],
+                    retval = dataSlot && dataSlot[ key ];
+
+                if (typeof retval != 'undefined' && dataSlot)
+                    delete dataSlot[ key ];
+                if (S.isEmptyObject(dataSlot))
+                    DOM._4e_clearData(el);
+
+                return retval || null;
+            },
+
+            _4e_clearData : function(el) {
+                el = normalElDom(el);
+                var expandoNumber = el.getAttribute('_ke_expando');
+                expandoNumber && delete customData[ expandoNumber ];
+                //ie inner html 会把属性带上，删掉！
+                expandoNumber && el.removeAttribute("_ke_expando");
+            },
+            _4e_getUniqueId : function(el) {
+                el = normalElDom(el);
+                var id = el.getAttribute('_ke_expando');
+                if (id) return id;
+                id = S.guid();
+                el.setAttribute('_ke_expando', id);
+                return id;
+            },
+
+            _4e_copyAttributes : function(el, dest, skipAttributes) {
+                el = normalElDom(el);
+                var attributes = el.attributes;
+                skipAttributes = skipAttributes || {};
+
+                for (var n = 0; n < attributes.length; n++) {
+                    // Lowercase attribute name hard rule is broken for
+                    // some attribute on IE, e.g. CHECKED.
+                    var attribute = attributes[n],
+                        attrName = attribute.nodeName.toLowerCase(),
+                        attrValue;
+
+                    // We can set the type only once, so do it with the proper value, not copying it.
+                    if (attrName in skipAttributes)
+                        continue;
+
+                    if (attrName == 'checked' && ( attrValue = DOM.attr(el, attrName) ))
+                        dest.attr(attrName, attrValue);
+                    // IE BUG: value attribute is never specified even if it exists.
+                    else if (attribute.specified ||
+                        ( UA.ie && attribute.nodeValue && attrName == 'value' )) {
+                        attrValue = DOM.attr(el, attrName);
+                        if (attrValue === null)
+                            attrValue = attribute.nodeValue;
+                        dest.attr(attrName, attrValue);
+                    }
+                }
+
+                // The style:
+                if (el.style.cssText !== '')
+                    dest[0].style.cssText = el.style.cssText;
+            },
+
+            _4e_isEditable : function(el) {
+
+                // Get the element DTD (defaults to span for unknown elements).
+                var name = DOM._4e_name(el),
+                    xhtml_dtd = KE.XHTML_DTD,
+                    dtd = !xhtml_dtd.$nonEditable[ name ]
+                        && ( xhtml_dtd[ name ] || xhtml_dtd.span );
+
+                // In the DTD # == text node.
+                return ( dtd && dtd['#'] );
+            },
+            /**
+             * 修正scrollIntoView在可视区域内不需要滚动
+             * @param elem
+             */
+            _4e_scrollIntoView:function(elem) {
+                elem = normalEl(elem);
+                var doc = elem[0].ownerDocument;
+                var l = DOM.scrollLeft(doc),t = DOM.scrollTop(doc),eoffset = elem.offset(),el = eoffset.left, et = eoffset.top;
+                if (DOM.viewportHeight(doc) + t < et ||
+                    et < t ||
+                    DOM.viewportWidth(doc) + l < el
+                    ||
+                    el < l
+                    ) {
+                    elem.scrollIntoView(doc);
+                }
+            }
+        };
+
+
+    function normalizeStyle(styleName) {
+        return styleName.replace(/-(\w)/g, function(m, g1) {
+            return g1.toUpperCase();
+        })
+    }
+
+    S.DOM._4e_inject = function(editorDom) {
+        S.mix(DOM, editorDom);
+        for (var dm in editorDom) {
+            if (editorDom.hasOwnProperty(dm))
+                (function(dm) {
+                    Node.prototype[dm] = function() {
+                        var args = [].slice.call(arguments, 0);
+                        args.unshift(this);
+                        return editorDom[dm].apply(null, args);
+                    };
+                })(dm);
+        }
+    };
+    S.DOM._4e_inject(editorDom);
+});

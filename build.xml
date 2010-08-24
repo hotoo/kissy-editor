@@ -20,15 +20,12 @@ build file for kissy editor
 
         <mkdir dir="build"/>
         <copy todir="build">
-            <dirset dir="." includes="core/**,plugins/**,ui/**">
-            </dirset>
-        </copy>
-        <copy todir="build">
-            <fileset dir="." includes="assets/*.png,assets/*.gif"></fileset>
+            <fileset dir="." includes="assets/**,core/**,plugins/**,ui/**">
+            </fileset>
         </copy>
     </target>
 
-    <target name="run" depends="clean,prepare,concat,minify">
+    <target name="run" depends="prepare,concat,minify">
 
     </target>
 
@@ -49,7 +46,7 @@ build file for kissy editor
             <srcfile/>
             <arg value="--js_output_file"/>
             <targetfile/>
-            <mapper type="regexp" from="^(.*)\.(css|js)$" to="\1.\2"/>
+            <mapper type="regexp" from="^(.*)\.(css|js)$" to="\1-min.\2"/>
         </apply>
 
         <apply executable="java" verbose="true" dest="build">
@@ -60,7 +57,7 @@ build file for kissy editor
             <srcfile/>
             <arg line="-o"/>
             <targetfile/>
-            <mapper type="regexp" from="^(.*)\.(css|js)$" to="\1.\2"/>
+            <mapper type="regexp" from="^(.*)\.(css|js)$" to="\1-min.\2"/>
         </apply>
 
         <apply executable="java" verbose="true" dest="build">
@@ -86,7 +83,7 @@ build file for kissy editor
         <!--
         kissy editor core ,load plugins dynamically
         -->
-        <concat destfile="build/editor-core-pkg.js">
+        <concat destfile="build/editor-core-pkg.js" encoding="${charset}" outputencoding="${charset}">
             <filelist dir="."
                       files="editor.js"/>
             <filelist dir="core"
@@ -99,7 +96,7 @@ build file for kissy editor
         <!--
         full kissy editor ,all plugins static included
         -->
-        <concat destfile="build/editor-all-pkg.js">
+        <concat destfile="build/editor-all-pkg.js" encoding="${charset}" outputencoding="${charset}">
             <filelist dir="."
                       files="editor.js"/>
             <filelist dir="core"

@@ -1,2 +1,99 @@
-KISSY.Editor.add("htmldataprocessor",function(){var e=KISSY.Editor;if(!e.HtmlDataProcessor){var i=KISSY.UA,d=e.HtmlParser,f=new d.Filter,g=new d.Filter,h={elementNames:[[/^script$/,""],[/^iframe$/,""],[/^style$/,""],[/^link$/,""],[/^meta$/,""],[/^\?xml:namespace$/,""]],elements:{embed:function(a){var b=a.parent;if(b&&b.name=="object"){var c=b.attributes.width;b=b.attributes.height;c&&(a.attributes.width=c);b&&(a.attributes.height=b)}},param:function(a){a.children=[];a.isEmpty=true;return a},a:function(a){if(!(a.children.length||
-a.attributes.name))return false}},attributes:{"class":function(a){if(/ke_/.test(a))return a;return false}}};if(i.ie)h.attributes.style=function(a){return a.toLowerCase()};f.addRules(h);g.addRules(h);e.HtmlDataProcessor={htmlFilter:f,dataFilter:g,toHtml:function(a,b){var c=new d.HtmlWriter;d.Fragment.FromHtml(a,b).writeHtml(c,f);return c.getHtml(true)},toDataFormat:function(a,b){var c=new d.HtmlWriter;a=d.Fragment.FromHtml(a,b);c.reset();a.writeHtml(c,g);return c.getHtml(true)}}}});
+/**
+ * modified from ckeditor,process malform html for kissyeditor
+ * @modifier: yiminghe@gmail.com
+ */
+KISSY.Editor.add("htmldataprocessor", function(
+    //editor
+    ) {
+    var KE = KISSY.Editor;
+    if (KE.HtmlDataProcessor) return;
+    var
+        S = KISSY,
+        UA = S.UA,
+        HtmlParser = KE.HtmlParser,
+        htmlFilter = new HtmlParser.Filter(),
+        dataFilter = new HtmlParser.Filter();
+    var defaultHtmlFilterRules = {
+        elementNames : [
+            // Remove script,iframe style,link,meta
+            [ ( /^script$/ ), '' ],
+            [ ( /^iframe$/ ), '' ],
+            [ ( /^style$/ ), '' ],
+            [ ( /^link$/ ), '' ],
+            [ ( /^meta$/ ), '' ],
+            // Ignore <?xml:namespace> tags.
+            [ ( /^\?xml:namespace$/ ), '' ]
+        ],
+        elements : {
+            embed : function(element) {
+                var parent = element.parent;
+                // If the <embed> is child of a <object>, copy the width
+                // and height attributes from it.
+                if (parent && parent.name == 'object') {
+                    var parentWidth = parent.attributes.width,
+                        parentHeight = parent.attributes.height;
+                    parentWidth && ( element.attributes.width = parentWidth );
+                    parentHeight && ( element.attributes.height = parentHeight );
+                }
+            },
+            // Restore param elements into self-closing.
+            param : function(param) {
+                param.children = [];
+                param.isEmpty = true;
+                return param;
+            },
+            // Remove empty link but not empty anchor.(#3829)
+            a : function(element) {
+                if (!( element.children.length ||
+                    element.attributes.name )) {
+                    return false;
+                }
+            }
+        },
+        attributes :  {
+            //防止word的垃圾class，全部杀掉算了，除了以ke_开头的编辑器内置class
+            'class' : function(value
+                // , element
+                ) {
+                if (/ke_/.test(value)) return value;
+                return false;
+            }
+        }
+    };
+    if (UA.ie) {
+        // IE outputs style attribute in capital letters. We should convert
+        // them back to lower case.
+        defaultHtmlFilterRules.attributes.style = function(value
+            // , element
+            ) {
+            return value.toLowerCase();
+        };
+    }
+
+    htmlFilter.addRules(defaultHtmlFilterRules);
+    dataFilter.addRules(defaultHtmlFilterRules);
+
+    KE.HtmlDataProcessor = {
+        htmlFilter:htmlFilter,
+        dataFilter:dataFilter,
+        //编辑器html到外部html
+        toHtml:function(html, fixForBody) {
+            //fixForBody = fixForBody || "p";
+            // Now use our parser to make further fixes to the structure, as
+            // well as apply the filter.
+            var writer = new HtmlParser.HtmlWriter(),
+                fragment = HtmlParser.Fragment.FromHtml(html, fixForBody);
+            fragment.writeHtml(writer, htmlFilter);
+            return writer.getHtml(true);
+        },
+        //外部html进入编辑器
+        toDataFormat : function(html, fixForBody) {
+            //fixForBody = fixForBody || "p";
+            var writer = new HtmlParser.HtmlWriter(),
+                fragment = HtmlParser.Fragment.FromHtml(html, fixForBody);
+            writer.reset();
+            fragment.writeHtml(writer, dataFilter);
+            return writer.getHtml(true);
+        }
+    };
+});

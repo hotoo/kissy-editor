@@ -1,2 +1,68 @@
-KISSY.Editor.add("sourcearea",function(e){var c=KISSY.Editor,f=KISSY,i=f.UA,d=c.TripleButton;c.SourceArea||function(){function g(a){this.editor=a;this._init()}f.augment(g,{_init:function(){var a=this.editor;this.el=new d({container:a.toolBarDiv,cls:"ke-tool-editor-source",title:"\u6e90\u7801",contentCls:"ke-toolbar-source"});this.el.on("offClick",this._show,this);this.el.on("onClick",this._hide,this);a.textarea.on("mousedown",function(b){b.stopPropagation()})},_show:function(){var a=this.editor,b=
-this.el;a.textarea.val(a.getData());a._showSource();b.set("state",d.ON)},_hide:function(){var a=this.editor,b=a.textarea,h=this.el;a._hideSource();a.setData(b.val());if(i.gecko&&a.iframeFocus){h.el[0].focus();a.focus()}h.set("state",d.OFF)}});c.SourceArea=g}();e.addPlugin(function(){new c.SourceArea(e)})});
+/**
+ * source editor for kissy editor
+ * @author: yiminghe@gmail.com
+ */
+KISSY.Editor.add("sourcearea", function(editor) {
+    var KE = KISSY.Editor,
+        S = KISSY,
+        UA = S.UA,
+        TripleButton = KE.TripleButton;
+    if (!KE.SourceArea) {
+        (function() {
+            function SourceArea(editor) {
+                this.editor = editor;
+                this._init();
+            }
+
+            S.augment(SourceArea, {
+                _init:function() {
+                    var self = this,editor = self.editor;
+                    self.el = new TripleButton({
+                        container:editor.toolBarDiv,
+                        cls:"ke-tool-editor-source",
+                        title:"源码",
+                        contentCls:"ke-toolbar-source"
+                        //text:"source"
+                    });
+                    self.el.on("offClick", self._show, self);
+                    self.el.on("onClick", self._hide, self);
+
+                    //不被父容器阻止默认，可点击
+                    editor.textarea.on("mousedown", function(ev) {
+                        ev.stopPropagation();
+                    });
+                },
+                _show:function() {
+                    var self = this,
+                        editor = self.editor,
+                        textarea = editor.textarea,
+                        iframe = editor.iframe,
+                        el = self.el;
+                    textarea.val(editor.getData());
+                    editor._showSource();
+                    el.set("state", TripleButton.ON);
+                },
+                _hide:function() {
+                    var self = this,
+                        editor = self.editor,
+                        textarea = editor.textarea,
+                        iframe = editor.iframe,
+                        el = self.el;
+                    editor._hideSource();
+                    editor.setData(textarea.val());
+                    //firefox 光标激活，强迫刷新
+                    if (UA.gecko && editor.iframeFocus) {
+                        el.el[0].focus();
+                        editor.focus();
+                    }
+                    el.set("state", TripleButton.OFF);
+                }
+            });
+            KE.SourceArea = SourceArea;
+        })();
+    }
+
+    editor.addPlugin(function() {
+        new KE.SourceArea(editor);
+    });
+});

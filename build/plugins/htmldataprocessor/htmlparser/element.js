@@ -1,4 +1,214 @@
-KISSY.Editor.add("htmlparser-element",function(){function m(d,a){this.name=d;this.attributes=a||(a={});this.children=[];var c=a._ke_real_element_type||d;a=f.XHTML_DTD;c=!!(a.$nonBodyContent[c]||a.$block[c]||a.$listItem[c]||a.$tableContent[c]||a.$nonEditable[c]||c=="br");var b=!!a.$empty[d];this.isEmpty=b;this.isUnknown=!a[d];this._={isBlockLike:c,hasInlineStarted:b||!c}}var f=KISSY.Editor;if(!f.HtmlParser.Element){var n=f.NODE,p=function(d,a){d=d[0];a=a[0];return d<a?-1:d>a?1:0};KISSY.augment(m,{type:n.NODE_ELEMENT,
-add:f.HtmlParser.Fragment.prototype.add,clone:function(){return new m(this.name,this.attributes)},writeHtml:function(d,a){var c=this.attributes,b=this,g=b.name,e,h,j,k;b.filterChildren=function(){if(!k){var o=new f.HtmlParser.BasicWriter;f.HtmlParser.Fragment.prototype.writeChildrenHtml.call(b,o,a);b.children=(new f.HtmlParser.Fragment.fromHtml(o.getHtml())).children;k=1}};if(a){for(;;){if(!(g=a.onElementName(g)))return;b.name=g;if(!(b=a.onElement(b)))return;b.parent=this.parent;if(b.name==g)break;
-if(b.type!=n.NODE_ELEMENT){b.writeHtml(d,a);return}g=b.name;if(!g){this.writeChildrenHtml.call(b,d,k?null:a);return}}c=b.attributes}d.openTag(g,c);for(var l=[],i=0;i<2;i++)for(e in c){h=e;j=c[e];if(i==1)l.push([e,j]);else if(a){for(;;)if(h=a.onAttributeName(e))if(h!=e){delete c[e];e=h}else break;else{delete c[e];break}if(h)if((j=a.onAttribute(b,h,j))===false)delete c[h];else c[h]=j}}d.sortAttributes&&l.sort(p);c=l.length;for(i=0;i<c;i++){e=l[i];d.attribute(e[0],e[1])}d.openTagClose(g,b.isEmpty);if(!b.isEmpty){this.writeChildrenHtml.call(b,
-d,k?null:a);d.closeTag(g)}},writeChildrenHtml:function(){f.HtmlParser.Fragment.prototype.writeChildrenHtml.apply(this,arguments)}});f.HtmlParser.Element=m}});
+KISSY.Editor.add("htmlparser-element", function(editor) {
+    var KE=KISSY.Editor;
+    if(KE.HtmlParser.Element)return;
+    /**
+     * A lightweight representation of an HTML element.
+     * @param {String} name The element name.
+     * @param {Object} attributes And object holding all attributes defined for
+     *        this element.
+     * @constructor
+     * @example
+     */
+    function Element(name, attributes) {
+        /**
+         * The element name.
+         * @type String
+         * @example
+         */
+        this.name = name;
+
+        /**
+         * Holds the attributes defined for this element.
+         * @type Object
+         * @example
+         */
+        this.attributes = attributes || ( attributes = {} );
+
+        /**
+         * The nodes that are direct children of this element.
+         * @type Array
+         * @example
+         */
+        this.children = [];
+
+        var tagName = attributes._ke_real_element_type || name;
+
+        var dtd = KE.XHTML_DTD,
+            isBlockLike = !!( dtd.$nonBodyContent[ tagName ] || dtd.$block[ tagName ] || dtd.$listItem[ tagName ] || dtd.$tableContent[ tagName ] || dtd.$nonEditable[ tagName ] || tagName == 'br' ),
+            isEmpty = !!dtd.$empty[ name ];
+
+        this.isEmpty = isEmpty;
+        this.isUnknown = !dtd[ name ];
+
+        /** @private */
+        this._ =
+        {
+            isBlockLike : isBlockLike,
+            hasInlineStarted : isEmpty || !isBlockLike
+        };
+    }
+
+    // Used to sort attribute entries in an array, where the first element of
+    // each object is the attribute name.
+    var S = KISSY,
+        KEN = KE.NODE,
+        sortAttribs = function(a, b) {
+            a = a[0];
+            b = b[0];
+            return a < b ? -1 : a > b ? 1 : 0;
+        };
+    S.augment(Element, {
+        /**
+         * The node type. This is a constant value set to {@link KEN.NODE_ELEMENT}.
+         * @type Number
+         * @example
+         */
+        type : KEN.NODE_ELEMENT,
+
+        /**
+         * Adds a node to the element children list.
+         * @param {Object} node The node to be added.
+         * @function
+         * @example
+         */
+        add : KE.HtmlParser.Fragment.prototype.add,
+
+        /**
+         * Clone this element.
+         * @returns {Element} The element clone.
+         * @example
+         */
+        clone : function() {
+            return new Element(this.name, this.attributes);
+        },
+
+        /**
+         * Writes the element HTML to a CKEDITOR.htmlWriter.
+         * @param  writer The writer to which write the HTML.
+         * @example
+         */
+        writeHtml : function(writer, filter) {
+            var attributes = this.attributes;
+
+            // Ignore cke: prefixes when writing HTML.
+            var element = this,
+                writeName = element.name,
+                a, newAttrName, value;
+
+            var isChildrenFiltered;
+
+            /**
+             * Providing an option for bottom-up filtering order ( element
+             * children to be pre-filtered before the element itself ).
+             */
+            element.filterChildren = function() {
+                if (!isChildrenFiltered) {
+                    var writer = new KE.HtmlParser.BasicWriter();
+                    KE.HtmlParser.Fragment.prototype.writeChildrenHtml.call(element, writer, filter);
+                    element.children = new KE.HtmlParser.Fragment.fromHtml(writer.getHtml()).children;
+                    isChildrenFiltered = 1;
+                }
+            };
+
+            if (filter) {
+                while (true) {
+                    if (!( writeName = filter.onElementName(writeName) ))
+                        return;
+
+                    element.name = writeName;
+
+                    if (!( element = filter.onElement(element) ))
+                        return;
+
+                    element.parent = this.parent;
+
+                    if (element.name == writeName)
+                        break;
+
+                    // If the element has been replaced with something of a
+                    // different type, then make the replacement write itself.
+                    if (element.type != KEN.NODE_ELEMENT) {
+                        element.writeHtml(writer, filter);
+                        return;
+                    }
+
+                    writeName = element.name;
+
+                    // This indicate that the element has been dropped by
+                    // filter but not the children.
+                    if (!writeName) {
+                        this.writeChildrenHtml.call(element, writer, isChildrenFiltered ? null : filter);
+                        return;
+                    }
+                }
+
+                // The element may have been changed, so update the local
+                // references.
+                attributes = element.attributes;
+            }
+
+            // Open element tag.
+            writer.openTag(writeName, attributes);
+
+            // Copy all attributes to an array.
+            var attribsArray = [];
+            // Iterate over the attributes twice since filters may alter
+            // other attributes.
+            for (var i = 0; i < 2; i++) {
+                for (a in attributes) {
+                    newAttrName = a;
+                    value = attributes[ a ];
+                    if (i == 1)
+                        attribsArray.push([ a, value ]);
+                    else if (filter) {
+                        while (true) {
+                            if (!( newAttrName = filter.onAttributeName(a) )) {
+                                delete attributes[ a ];
+                                break;
+                            }
+                            else if (newAttrName != a) {
+                                delete attributes[ a ];
+                                a = newAttrName;
+                                continue;
+                            }
+                            else
+                                break;
+                        }
+                        if (newAttrName) {
+                            if (( value = filter.onAttribute(element, newAttrName, value) ) === false)
+                                delete attributes[ newAttrName ];
+                            else
+                                attributes [ newAttrName ] = value;
+                        }
+                    }
+                }
+            }
+            // Sort the attributes by name.
+            if (writer.sortAttributes)
+                attribsArray.sort(sortAttribs);
+
+            // Send the attributes.
+            var len = attribsArray.length;
+            for (i = 0; i < len; i++) {
+                var attrib = attribsArray[ i ];
+                writer.attribute(attrib[0], attrib[1]);
+            }
+
+            // Close the tag.
+            writer.openTagClose(writeName, element.isEmpty);
+
+            if (!element.isEmpty) {
+                this.writeChildrenHtml.call(element, writer, isChildrenFiltered ? null : filter);
+                // Close the element.
+                writer.closeTag(writeName);
+            }
+        },
+
+        writeChildrenHtml : function(writer, filter) {
+            // Send children.
+            KE.HtmlParser.Fragment.prototype.writeChildrenHtml.apply(this, arguments);
+        }
+    });
+
+    KE.HtmlParser.Element = Element;
+});

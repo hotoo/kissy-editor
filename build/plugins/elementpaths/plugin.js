@@ -1,2 +1,79 @@
-KISSY.Editor.add("elementpaths",function(h){var f=KISSY.Editor,g=KISSY,i=g.Node,l=g.DOM;f.ElementPaths||function(){function j(a){this.cfg=a;this._cache=[];this._init()}g.augment(j,{_init:function(){var a=this.cfg.editor;this.holder=new i("<div>");this.holder.appendTo(a.statusDiv);a.on("selectionChange",this._selectionChange,this)},_selectionChange:function(a){var k=this.cfg.editor,d=this.holder;d=d[0]||d;a=a.path.elements;var c,b;c=this._cache;for(b=0;b<c.length;b++){c[b].detach("click");c[b].remove()}this._cache=
-[];for(b=0;b<a.length;b++){c=a[b];var e=new i("<a href='#' class='elementpath'>"+(c.attr("_ke_real_element_type")||c._4e_name())+"</a>");this._cache.push(e);(function(m){e.on("click",function(n){n.halt();k.focus();setTimeout(function(){k.getSelection().selectElement(m)},50)})})(c);d.firstChild?l.insertBefore(e[0],d.firstChild):d.appendChild(e[0])}}});f.ElementPaths=j}();h.addPlugin(function(){new f.ElementPaths({editor:h})})});
+/**
+ * element path shown in status bar,modified from ckeditor
+ * @modifier: yiminghe@gmail.com
+ */
+KISSY.Editor.add("elementpaths", function(editor) {
+    var KE = KISSY.Editor,S = KISSY,Node = S.Node,DOM = S.DOM;
+    if (!KE.ElementPaths) {
+
+        (function() {
+            function ElementPaths(cfg) {
+                this.cfg = cfg;
+                this._cache = [];
+                this._init();
+            }
+
+            S.augment(ElementPaths, {
+                _init:function() {
+                    var self = this,cfg = self.cfg,
+                        editor = cfg.editor,
+                        textarea = editor.textarea[0];
+                    self.holder = new Node("<div>");
+                    self.holder.appendTo(editor.statusDiv);
+                    editor.on("selectionChange", self._selectionChange, self);
+                },
+                _selectionChange:function(ev) {
+                    //console.log(ev);
+                    var self = this,
+                        cfg = self.cfg,
+                        editor = cfg.editor,
+                        holder = self.holder,
+                        statusDom = holder[0] || holder;
+                    var elementPath = ev.path,
+                        elements = elementPath.elements,
+                        element,i,
+                        cache = self._cache;
+
+                    for (i = 0; i < cache.length; i++) {
+                        cache[i].detach("click");
+                        cache[i].remove();
+                    }
+                    self._cache = [];
+                    // For each element into the elements path.
+                    for (i = 0; i < elements.length; i++) {
+                        element = elements[i];
+
+                        var a = new Node("<a href='#' class='elementpath'>" +
+                            //考虑 fake objects
+                            (element.attr("_ke_real_element_type") || element._4e_name())
+                            + "</a>");
+                        self._cache.push(a);
+                        (function(element) {
+                            a.on("click", function(ev2) {
+                                ev2.halt();
+                                editor.focus();
+                                setTimeout(function() {
+                                    editor.getSelection().selectElement(element);
+                                }, 50);
+                            });
+                        })(element);
+                        if (statusDom.firstChild) {
+                            DOM.insertBefore(a[0], statusDom.firstChild);
+                        }
+                        else {
+                            statusDom.appendChild(a[0]);
+                        }
+                    }
+
+                }
+            });
+            KE.ElementPaths = ElementPaths;
+        })();
+    }
+
+    editor.addPlugin(function() {
+        new KE.ElementPaths({
+            editor:editor
+        });
+    });
+});

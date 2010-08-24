@@ -1,4 +1,106 @@
-KISSY.Editor.add("image",function(h){var c=KISSY.Editor,d=KISSY,i=d.Node,e=d.DOM,j=d.Event,k=c.SimpleOverlay;c.ImageInserter||function(){function f(a){f.superclass.constructor.call(this,a);this._init()}var l=c.TripleButton;f.ATTRS={editor:{}};d.extend(f,d.Base,{_init:function(){var a=this.get("editor").toolBarDiv;this.el=new l({contentCls:"ke-toolbar-image",title:"\u56fe\u50cf",container:a});this.el.on("offClick",this.show,this);c.Utils.lazyRun(this,"_prepare","_real")},_prepare:function(){var a=
-this,b=this.get("editor");this.content=new i("<div class='ke-popup-wrap' style='width:250px;padding:10px;'><p style='margin:0 0 10px'><label>\u8bf7\u8f93\u5165\u56fe\u7247\u5730\u5740\uff1a<br/><input value='http://' style='width: 250px;' class='ke-img-url'/></label></p><p><button class='ke-img-insert'>\u63d2\u5165</button>&nbsp;<a href='#' class='ke-img-cancel'>\u53d6\u6d88</a></p></div>");this.d=new k({el:this.content});document.body.appendChild(this.content[0]);var g=this.content.one(".ke-img-cancel"),
-m=this.content.one(".ke-img-insert");this.imgUrl=this.content.one(".ke-img-url");g.on("click",function(n){this.d.hide();n.halt()},this);j.on(document,"click",this.hide,this);j.on(b.document,"click",this.hide,this);m.on("click",function(){a._insert()})},hide:function(a){var b=this;e._4e_ascendant(a.target,function(g){return g[0]===b.content[0]||g[0]===b.el.el[0]},true)||this.d.hide()},_real:function(){var a=this.el.el.offset();a.top+=this.el.el.height()+5;console.log(this.content.width(),a.left,e.viewportWidth());
-if(a.left+this.content.width()>e.viewportWidth()-60)a.left=e.viewportWidth()-this.content.width()-60;this.d.show(a)},_insert:function(){var a=this.get("editor"),b=this.imgUrl.val();if(b){b=new i("<img src='"+b+"'/>",null,a.document);a.insertElement(b);this.d.hide()}},show:function(){this._prepare()}});c.ImageInserter=f}();h.addPlugin(function(){new c.ImageInserter({editor:h})})});
+/**
+ * insert image for kissy editor
+ * @author: yiminghe@gmail.com
+ */
+KISSY.Editor.add("image", function(editor) {
+    var KE = KISSY.Editor,
+        S = KISSY,
+        Node = S.Node,
+        DOM = S.DOM,
+        Event = S.Event,
+        Overlay = KE.SimpleOverlay;
+    if (!KE.ImageInserter) {
+        (function() {
+            function ImageInserter(cfg) {
+                ImageInserter.superclass.constructor.call(this, cfg);
+                this._init();
+            }
+
+            var TripleButton = KE.TripleButton,html = "<div class='ke-popup-wrap' style='width:250px;padding:10px;'>" +
+                "<p style='margin:0 0 10px'><label>请输入图片地址：<br/>" +
+                "<input value='http://' style='width: 250px;' class='ke-img-url'/>" +
+                "</label></p>" +
+                "<p>" +
+                "<button class='ke-img-insert'>插入</button>&nbsp;<a href='#' class='ke-img-cancel'>取消</a>" +
+                "</p>" +
+                "</div>";
+
+            ImageInserter.ATTRS = {
+                editor:{}
+            };
+
+            S.extend(ImageInserter, S.Base, {
+                _init:function() {
+                    var editor = this.get("editor"),toolBarDiv = editor.toolBarDiv;
+
+                    this.el = new TripleButton({
+                        contentCls:"ke-toolbar-image",
+                        //text:"img",
+                        title:"图像",
+                        container:toolBarDiv
+                    });
+
+                    this.el.on("offClick", this.show, this);
+                    KE.Utils.lazyRun(this, "_prepare", "_real");
+
+                },
+                _prepare:function() {
+                    var self = this,editor = this.get("editor");
+                    this.content = new Node(html);
+                    this.d = new Overlay({
+                        el:this.content
+                    });
+                    document.body.appendChild(this.content[0]);
+                    var cancel = this.content.one(".ke-img-cancel"),ok = this.content.one(".ke-img-insert");
+                    this.imgUrl = this.content.one(".ke-img-url");
+                    cancel.on("click", function(ev) {
+                        this.d.hide();
+                        ev.halt();
+                    }, this);
+                    Event.on(document, "click", this.hide, this);
+                    Event.on(editor.document, "click", this.hide, this);
+                    ok.on("click", function() {
+                        self._insert();
+                    });
+                },
+                hide:function(ev) {
+                    var self = this;
+
+                    if (DOM._4e_ascendant(ev.target, function(node) {
+                        return node[0] === self.content[0] || node[0] === self.el.el[0];
+                    }, true))return;
+                    this.d.hide();
+                },
+                _real:function() {
+                    var xy = this.el.el.offset();
+                    xy.top += this.el.el.height() + 5;
+                    console.log(this.content.width(), xy.left, DOM.viewportWidth());
+                    if (xy.left + this.content.width() > DOM.viewportWidth() - 60) {
+                        xy.left = DOM.viewportWidth() - this.content.width() - 60;
+                    }
+                    this.d.show(xy);
+                },
+                _insert:function() {
+                    var editor = this.get("editor");
+                    var url = this.imgUrl.val();
+                    if (!url) return;
+                    var img = new Node("<img src='" + url + "'/>", null, editor.document);
+                    editor.insertElement(img);
+                    this.d.hide();
+                },
+                show:function() {
+                    this._prepare();
+                }
+            });
+            KE.ImageInserter = ImageInserter;
+        })();
+    }
+
+    editor.addPlugin(function() {
+        new KE.ImageInserter({
+            editor:editor
+        });
+
+    });
+
+});
