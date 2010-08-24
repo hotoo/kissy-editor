@@ -35,7 +35,7 @@ build file for kissy editor
     <target name="minify">
 
         <apply executable="java" verbose="true" dest="build">
-            <fileset dir="build" includes="**/*.js"/>
+            <fileset dir="build" includes="**/*.js" excludes="**/*-min.js"/>
             <arg line="-jar"/>
             <arg path="${ks-tools.dir}/closure-compiler/compiler.jar"/>
             <arg line="--charset ${charset}"/>
@@ -49,7 +49,7 @@ build file for kissy editor
         </apply>
 
         <apply executable="java" verbose="true" dest="build">
-            <fileset dir="build" includes="**/*.css"/>
+            <fileset dir="build" includes="**/*.css" excludes="**/*-min.css"/>
             <arg line="-jar"/>
             <arg path="${ks-tools.dir}/yuicompressor/yuicompressor.jar"/>
             <arg line="--charset ${charset}"/>
