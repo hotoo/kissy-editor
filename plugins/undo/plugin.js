@@ -153,8 +153,8 @@ KISSY.Editor.add("undo", function(editor) {
                     });
                     editor.on("restore", this.restore, this);
                     self._keyMonitor();
-                    //先save一下
-                    self.save();
+                    //先save一下,why??
+                    //self.save();
                 },
 
                 /**

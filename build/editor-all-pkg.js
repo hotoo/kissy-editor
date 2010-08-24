@@ -517,7 +517,9 @@ KISSY.Editor.add("definition", function(KE) {
             this._commands[name] = obj;
         },
         execCommand:function(name) {
+            this.fire("save");
             this._commands[name].exec(this);
+            this.fire("save");
         },
         getData:function() {
             if (KE.HtmlDataProcessor)
@@ -12901,8 +12903,8 @@ KISSY.Editor.add("undo", function(editor) {
                     });
                     editor.on("restore", this.restore, this);
                     self._keyMonitor();
-                    //先save一下
-                    self.save();
+                    //先save一下,why??
+                    //self.save();
                 },
 
                 /**

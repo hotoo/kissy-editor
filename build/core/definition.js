@@ -115,7 +115,9 @@ KISSY.Editor.add("definition", function(KE) {
             this._commands[name] = obj;
         },
         execCommand:function(name) {
+            this.fire("save");
             this._commands[name].exec(this);
+            this.fire("save");
         },
         getData:function() {
             if (KE.HtmlDataProcessor)
