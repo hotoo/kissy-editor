@@ -10,7 +10,7 @@ KISSY.Editor.add("format", function(editor) {
     if (!KE.Format) {
         (function() {
             var
-                FORMAT_SELECTION_HTML = "<select title='格式'>",
+                FORMAT_SELECTION_HTML = "<select style='height:21px' title='格式'>",
                 FORMATS = {
                     "标题 / 清除":"p",
                     "标题1":"h1",
@@ -19,14 +19,26 @@ KISSY.Editor.add("format", function(editor) {
                     "标题4":"h4",
                     "标题5":"h5",
                     "标题6":"h6"
-                },FORMAT_STYLES = {},KEStyle = KE.Style;
+                },
+                FORMAT_SIZES = {
+                    h1:"2em",
+                    h2:"1.5em",
+                    h3:"1.17em",
+                    h4:"1em",
+                    h5:"0.83em",
+                    h6:"0.67em"
+                },
+                FORMAT_STYLES = {},
+                KEStyle = KE.Style;
 
             for (var p in FORMATS) {
                 if (FORMATS[p]) {
                     FORMAT_STYLES[FORMATS[p]] = new KEStyle({
                         element:FORMATS[p]
                     });
-                    FORMAT_SELECTION_HTML += "<option value='" + FORMATS[p] + "'>" + p + "</option>"
+                    FORMAT_SELECTION_HTML += "<option " +
+                        "style='font-size:" + FORMAT_SIZES[FORMATS[p]] + "'" +
+                        "value='" + FORMATS[p] + "'>" + p + "</option>"
                 }
             }
             FORMAT_SELECTION_HTML += "</select>";

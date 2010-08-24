@@ -46,8 +46,10 @@ KISSY.Editor.add("definition", function(KE) {
         editorHtml = "<div " +
             " class='ke-editor-wrap' " +
             //!!编辑器内焦点不失去,firefox?
-            " onmousedown=' " +
-            "return false;' " +
+            " onmousedown='" +
+            "if((event.target||event.srcElement).nodeName.toLowerCase()!=\"select\")" +
+            "return false;" +
+            "' " +
             " > " +
             "<div class='" + ke_editor_tools.substring(1) + "'></div>" +
             "<div class='" + ke_textarea_wrap.substring(1) + "'><iframe " +

@@ -201,7 +201,7 @@
     var base = location.href.replace(/^(.*kissy-editor\/).*$/i, '$1');
     KISSY.Config.base = base;
 
-    KISSY.use('editor', function() {
+    KISSY.use('editor', function(S) {
 
         var KE = KISSY.Editor;
         S.Config.debug = true;

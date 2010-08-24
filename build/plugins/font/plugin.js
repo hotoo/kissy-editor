@@ -12,7 +12,7 @@ KISSY.Editor.add("font", function(editor) {
         FONT_SIZES = ["8px","10px","12px",
             "14px","18px","24px","36px","48px","60px","72px","84px","96px","108px"],
         FONT_SIZE_STYLES = {},
-        FONT_SIZE_SELECTION_HTML = "<select title='大小'><option value=''>大小 / 清除</option>",
+        FONT_SIZE_SELECTION_HTML = "<select title='大小' style='width:110px;height:21px;'><option value=''>大小 / 清除</option>",
         fontSize_style = {
             element        : 'span',
             styles        : { 'font-size' : '#(size)' },
@@ -24,7 +24,8 @@ KISSY.Editor.add("font", function(editor) {
             "楷体_GB2312","微软雅黑","Georgia","Times New Roman",
             "Impact","Courier New","Arial","Verdana","Tahoma"],
         FONT_FAMILY_STYLES = {},
-        FONT_FAMILY_SELECTION_HTML = "<select title='字体'><option value=''>字体 / 清除</option>",
+        FONT_FAMILY_SELECTION_HTML = "<select title='字体' >" +
+            "<option value=''>字体 / 清除</option>",
         fontFamily_style = {
             element        : 'span',
             styles        : { 'font-family' : '#(family)' },
@@ -38,7 +39,8 @@ KISSY.Editor.add("font", function(editor) {
         FONT_SIZE_STYLES[size] = new KEStyle(fontSize_style, {
             size:size
         });
-        FONT_SIZE_SELECTION_HTML += "<option value='" + size + "'>" + size + "</option>"
+        FONT_SIZE_SELECTION_HTML += "<option style='font-size:"
+            + size + "' value='" + size + "'>" + size + "</option>"
     }
     FONT_SIZE_SELECTION_HTML += "</select>";
 
@@ -47,7 +49,8 @@ KISSY.Editor.add("font", function(editor) {
         FONT_FAMILY_STYLES[family] = new KEStyle(fontFamily_style, {
             family:family
         });
-        FONT_FAMILY_SELECTION_HTML += "<option value='" + family + "'>" + family + "</option>"
+        FONT_FAMILY_SELECTION_HTML += "<option style='font-family:"
+            + family + "'  value='" + family + "'>" + family + "</option>"
     }
     FONT_FAMILY_SELECTION_HTML += "</select>";
 
