@@ -3,7 +3,7 @@
  * @author yiminghe@gmail.com
  * @refer http://yiminghe.javaeye.com/blog/734867
  */
-KISSY.Editor.add("overlay", function(editor) {
+KISSY.Editor.add("overlay", function() {
 
     var KE=KISSY.Editor,
         S = KISSY,
@@ -78,7 +78,7 @@ KISSY.Editor.add("overlay", function(editor) {
             mask_iframe.appendTo(body);
         }
         /*
-         buildÈ«²¿ÎÄ¼ş£¬²»¶¯Ì¬¼ÓÔØ
+         buildå…¨éƒ¨æ–‡ä»¶ï¼Œä¸åŠ¨æ€åŠ è½½
          loading = new Node("<div class='ke-loading'>" +
          "loading ...." +
          "</div>");
@@ -114,7 +114,7 @@ KISSY.Editor.add("overlay", function(editor) {
             });
 
             if (el) {
-                //½¹µã¹ÜÀí£¬ÏÔÊ¾Ê±ÓÃa»ñµÃ½¹µã
+                //ç„¦ç‚¹ç®¡ç†ï¼Œæ˜¾ç¤ºæ—¶ç”¨aè·å¾—ç„¦ç‚¹
                 /*
                  el[0].appendChild(new Node("<a href='#' class='ke-focus' " +
                  "style='" +

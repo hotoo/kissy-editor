@@ -1,7 +1,7 @@
 /**
  * maximize editor
  * @author:yiminghe@gmail.com
- * @note:firefox ½¹µãÍêÈ«Íêµ°ÁË£¬ÕâÀïÈ«ÊÇÕë¶Ôfirefox
+ * @note:firefox ç„¦ç‚¹å®Œå…¨å®Œè›‹äº†ï¼Œè¿™é‡Œå…¨æ˜¯é’ˆå¯¹firefox
  */
 KISSY.Editor.add("maximize", function(editor) {
     var KE = KISSY.Editor,
@@ -33,7 +33,7 @@ KISSY.Editor.add("maximize", function(editor) {
                     self.el = new TripleButton({
                         container:editor.toolBarDiv,
                         cls:"ke-tool-editor-source",
-                        title:"È«ÆÁ",
+                        title:"å…¨å±",
                         contentCls:"ke-toolbar-maximize"
                         //text:"maximize"
                     });
@@ -68,7 +68,7 @@ KISSY.Editor.add("maximize", function(editor) {
                     });
                     window.scrollTo(self.scrollLeft, self.scrollTop);
                     self.el.set("state", TripleButton.OFF);
-                    //firefox ±ØĞëtimeout
+                    //firefox å¿…é¡»timeout
                     setTimeout(function() {
                         //editor.focus();
                         self._restoreEditorStatus();
@@ -80,18 +80,18 @@ KISSY.Editor.add("maximize", function(editor) {
                         editor = self.editor;
                     self.iframeHeight = editor.wrap._4e_style("height");
                     self.editorWrapWidth = editor.editorWrap._4e_style("width");
-                    //Ö÷´°¿Ú¹ö¶¯ÌõÒ²Òª±£´æÅ¶
+                    //ä¸»çª—å£æ»šåŠ¨æ¡ä¹Ÿè¦ä¿å­˜å“¦
                     self.scrollLeft = DOM.scrollLeft();
                     self.scrollTop = DOM.scrollTop();
                     window.scrollTo(0, 0);
                 },
-                //firefoxĞŞÕı£¬iframe layout±ä»¯Ê±£¬range¶ªÁË
+                //firefoxä¿®æ­£ï¼Œiframe layoutå˜åŒ–æ—¶ï¼Œrangeä¸¢äº†
                 _saveEditorStatus:function() {
                     var self = this,
                         editor = self.editor;
                     if (!UA.gecko || !editor.iframeFocus) return;
                     var sel = editor.getSelection();
-                    //firefox ¹â±ê¶ªÊ§bug,Î»ÖÃ¶ªÊ§£¬ËùÒÔÕâÀï±£´æÏÂ
+                    //firefox å…‰æ ‡ä¸¢å¤±bug,ä½ç½®ä¸¢å¤±ï¼Œæ‰€ä»¥è¿™é‡Œä¿å­˜ä¸‹
                     self.savedRanges = sel && sel.getRanges();
                 },
 
@@ -100,12 +100,12 @@ KISSY.Editor.add("maximize", function(editor) {
                         editor = self.editor;
                     var sel;
 
-                    //firefox½¹µãbug
+                    //firefoxç„¦ç‚¹bug
                     if (UA.gecko && editor.iframeFocus) {
 
-                        //Ô­À´ÊÇ¾Û½¹£¬ÏÖÔÚË¢ĞÂdesignmode
+                        //åŸæ¥æ˜¯èšç„¦ï¼Œç°åœ¨åˆ·æ–°designmode
                         sel = editor.getSelection();
-                        //firefox ÏÈÊ§È¥½¹µã²ÅĞĞ
+                        //firefox å…ˆå¤±å»ç„¦ç‚¹æ‰è¡Œ
                         self.el.el[0].focus();
                         editor.focus();
                         if (self.savedRanges && sel) {
@@ -113,24 +113,24 @@ KISSY.Editor.add("maximize", function(editor) {
                         }
 
                     }
-                    //firefox ÓĞ½¹µãÊ±²ÅÖØĞÂ¾Û½¹
+                    //firefox æœ‰ç„¦ç‚¹æ—¶æ‰é‡æ–°èšç„¦
 
 
                     if (editor.iframeFocus && sel) {
                         var element = sel.getStartElement();
-                        //Ê¹ÓÃÔ­Éú²»ĞĞµÄ£¬»áÊ¹Ö÷´°¿Ú¹ö¶¯
+                        //ä½¿ç”¨åŸç”Ÿä¸è¡Œçš„ï¼Œä¼šä½¿ä¸»çª—å£æ»šåŠ¨
                         //element[0] && element[0].scrollIntoView(true);
                         element && element[0] && element.scrollIntoView(editor.document, false);
                     }
 
-                    //firefox½¹µãbug
+                    //firefoxç„¦ç‚¹bug
                     if (UA.gecko) {
-                        //Ô­À´²»¾Û½¹
+                        //åŸæ¥ä¸èšç„¦
                         if (!editor.iframeFocus) {
-                            //ÒÆµ½ºËĞÄmousedownÅĞ¶Ï
-                            //Ë¢ĞÂdesignmode
+                            //ç§»åˆ°æ ¸å¿ƒmousedownåˆ¤æ–­
+                            //åˆ·æ–°designmode
                             //editor.focus();
-                            //¹â±êÍÏ³ö
+                            //å…‰æ ‡æ‹–å‡º
                             //editor.blur();
                         }
                     }
@@ -181,7 +181,7 @@ KISSY.Editor.add("maximize", function(editor) {
                     this._saveEditorStatus();
                     this._saveSate();
                     this._maximize();
-                    //firefoxµÚÒ»´Î×î´ó»¯bug£¬ÖØ×öÒ»´Î
+                    //firefoxç¬¬ä¸€æ¬¡æœ€å¤§åŒ–bugï¼Œé‡åšä¸€æ¬¡
                     if (true || UA.gecko) {
                         this._maximize();
                     }

@@ -1,12 +1,16 @@
 /**
  * modified from ckeditor,common utils for kissy editor
- * @modifier:yiminghe@gmail.com
+ * @modifier: <yiminghe@gmail.com>
  */
 KISSY.Editor.add("utils", function(KE) {
+
     var S = KISSY,Node = S.Node,DOM = S.DOM;
     KE.Utils = {
+        debugUrl:function (url) {
+            return !S.Config.debug ? ("build/" + url) : url;
+        },
         /**
-         * ÀÁ¶èÒ»ÏÂ
+         * æ‡’æƒ°ä¸€ä¸‹
          * @param obj
          * @param before
          * @param after
@@ -19,12 +23,12 @@ KISSY.Editor.add("utils", function(KE) {
                 return a.apply(this, arguments);
             };
         },
-        
+
 
         getXY:function(x, y, srcDoc, destDoc) {
             var currentWindow = srcDoc.defaultView || srcDoc.parentWindow;
 
-            //x,yÏà¶ÔÓÚµ±Ç°iframeÎÄµµ,·ÀÖ¹µ±Ç°iframeÓĞ¹ö¶¯Ìõ
+            //x,yç›¸å¯¹äºå½“å‰iframeæ–‡æ¡£,é˜²æ­¢å½“å‰iframeæœ‰æ»šåŠ¨æ¡
             x -= DOM.scrollLeft(currentWindow);
             y -= DOM.scrollTop(currentWindow);
             if (destDoc) {

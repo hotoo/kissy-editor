@@ -1,7 +1,6 @@
 /**
  * triple state button for kissy editor
- * @author:yiminghe@gmail.com
- * @date:2010-08-02
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("button", function(editor) {
     var KE=KISSY.Editor,

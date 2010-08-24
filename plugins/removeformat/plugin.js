@@ -1,6 +1,6 @@
 /**
  * remove inline-style format for kissy editor,modified from ckeditor
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("removeformat", function(editor) {
     var KE=KISSY.Editor,
@@ -38,7 +38,7 @@ KISSY.Editor.add("removeformat", function(editor) {
         _init:function() {
             var self = this,editor = self.editor;
             self.el = new TripleButton({
-                title:"«Â≥˝∏Ò Ω",
+                title:"Ê∏ÖÈô§Ê†ºÂºè",
                 contentCls:"ke-toolbar-removeformat",
                 container:editor.toolBarDiv
             });

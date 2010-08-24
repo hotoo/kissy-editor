@@ -1,6 +1,6 @@
 /**
  * preview for kissy editor
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("preview", function(editor) {
     var KE = KISSY.Editor,
@@ -18,7 +18,7 @@ KISSY.Editor.add("preview", function(editor) {
                     self.el = new TripleButton({
                         container:editor.toolBarDiv,
                         cls:"ke-tool-editor-source",
-                        title:"‘§¿¿",
+                        title:"È¢ÑËßà",
                         contentCls:"ke-toolbar-preview"
                         //text:"preview"
                     });

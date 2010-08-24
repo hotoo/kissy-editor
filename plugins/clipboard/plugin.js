@@ -1,6 +1,6 @@
 /**
  * monitor user's paste key ,clear user input,modified from ckeditor
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("clipboard", function(editor) {
     var KE = KISSY.Editor,

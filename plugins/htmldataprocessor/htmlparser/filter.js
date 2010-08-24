@@ -235,4 +235,3 @@ KISSY.Editor.add("htmlparser-filter", function(
 
     KE.HtmlParser.Filter = Filter;
 });
-

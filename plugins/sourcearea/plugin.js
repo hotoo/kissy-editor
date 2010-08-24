@@ -1,6 +1,6 @@
 /**
  * source editor for kissy editor
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("sourcearea", function(editor) {
     var KE = KISSY.Editor,
@@ -20,14 +20,14 @@ KISSY.Editor.add("sourcearea", function(editor) {
                     self.el = new TripleButton({
                         container:editor.toolBarDiv,
                         cls:"ke-tool-editor-source",
-                        title:"Ô´Âë",
+                        title:"æºç ",
                         contentCls:"ke-toolbar-source"
                         //text:"source"
                     });
                     self.el.on("offClick", self._show, self);
                     self.el.on("onClick", self._hide, self);
 
-                    //²»±»¸¸ÈİÆ÷×èÖ¹Ä¬ÈÏ£¬¿Éµã»÷
+                    //ä¸è¢«çˆ¶å®¹å™¨é˜»æ­¢é»˜è®¤ï¼Œå¯ç‚¹å‡»
                     editor.textarea.on("mousedown", function(ev) {
                         ev.stopPropagation();
                     });
@@ -50,7 +50,7 @@ KISSY.Editor.add("sourcearea", function(editor) {
                         el = self.el;
                     editor._hideSource();
                     editor.setData(textarea.val());
-                    //firefox ¹â±ê¼¤»î£¬Ç¿ÆÈË¢ĞÂ
+                    //firefox å…‰æ ‡æ¿€æ´»ï¼Œå¼ºè¿«åˆ·æ–°
                     if (UA.gecko && editor.iframeFocus) {
                         el.el[0].focus();
                         editor.focus();

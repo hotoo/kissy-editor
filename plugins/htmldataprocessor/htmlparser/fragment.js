@@ -57,11 +57,11 @@ KISSY.Editor.add("htmlparser-fragment", function(
      * var fragment = Fragment.fromHtml( '<b>Sample</b> Text' );
      * alert( fragment.children[0].name );  "b"
      * alert( fragment.children[1].value );  " Text"
-     * ÌØÀı£º
-     * ×Ô¶¯¼Óp£¬×Ô¶¯´¦Àí±êÇ©Ç¶Ì×¹æÔò
+     * ç‰¹ä¾‹ï¼š
+     * è‡ªåŠ¨åŠ pï¼Œè‡ªåŠ¨å¤„ç†æ ‡ç­¾åµŒå¥—è§„åˆ™
      * "<img src='xx'><span>5<div>6</div>7</span>"
      * ="<p><img><span>5</span></p><div><span>6</span></div><p><span>7</span></p>"
-     * ×Ô¶¯´¦ÀíulÇ¶Ì×£¬ÒÔ¼°li ie²»±ÕºÏ
+     * è‡ªåŠ¨å¤„ç†ulåµŒå¥—ï¼Œä»¥åŠli ieä¸é—­åˆ
      * "<ul><ul><li>xxx</ul><li>1<li>2<ul>");
      */
     Fragment.FromHtml = function(fragmentHtml, fixForBody) {
@@ -161,7 +161,7 @@ KISSY.Editor.add("htmlparser-fragment", function(
             target.add(element);
 
             //<ul><ul></ul></ul> -> <ul><li><ul></ul></li></ul>
-            //Ìø¹ıÒşĞÎÌí¼ÓµÄliÖ±½Óµ½ul
+            //è·³è¿‡éšå½¢æ·»åŠ çš„liç›´æ¥åˆ°ul
             if (element.returnPoint) {
                 currentNode = element.returnPoint;
                 delete element.returnPoint;
@@ -169,7 +169,7 @@ KISSY.Editor.add("htmlparser-fragment", function(
         }
 
         /**
-         * Óöµ½±êÇ©¿ªÊ¼½¨Á¢½ÚµãºÍ¸¸Ç×¹ØÁª ==  node.parent=parent
+         * é‡åˆ°æ ‡ç­¾å¼€å§‹å»ºç«‹èŠ‚ç‚¹å’Œçˆ¶äº²å…³è” ==  node.parent=parent
          * @param tagName
          * @param attributes
          * @param selfClosing
@@ -220,9 +220,9 @@ KISSY.Editor.add("htmlparser-fragment", function(
 
                     // Establish the list item if it's not existed.
                     if (!( lastChild && lastChild.name in listItems ))
-                    //Ö±½ÓÌí¼Óµ½¸¸Ç×
+                    //ç›´æ¥æ·»åŠ åˆ°çˆ¶äº²
                         addElement(( lastChild = new KE.HtmlParser.Element('li') ), currentNode);
-                    //ÒÔºóÖ±½ÓÌøµ½¸¸Ç×²»ÓÃÔÙÏò¸¸Ç×Ìí¼Ó
+                    //ä»¥åç›´æ¥è·³åˆ°çˆ¶äº²ä¸ç”¨å†å‘çˆ¶äº²æ·»åŠ 
                     returnPoint = currentNode,addPoint = lastChild;
                 }
                 // If the element name is the same as the current element name,
@@ -230,7 +230,7 @@ KISSY.Editor.add("htmlparser-fragment", function(
                 // parent. This situation usually happens with <p>, <li>, <dt> and
                 // <dd>, specially in IE. Do not enter in this if block in this case.
                 else if (tagName == currentName) {
-                    //Ö±½Ó°ÑÉÏÒ»¸ö<p>,<li>½áÊøµô£¬²»ÒªÔÙµÈ´ı</p>,</li>Ö´ĞĞ´ËÏî²Ù×÷ÁË
+                    //ç›´æ¥æŠŠä¸Šä¸€ä¸ª<p>,<li>ç»“æŸæ‰ï¼Œä¸è¦å†ç­‰å¾…</p>,</li>æ‰§è¡Œæ­¤é¡¹æ“ä½œäº†
                     addElement(currentNode, currentNode.parent);
                 }
                 else {
@@ -239,9 +239,9 @@ KISSY.Editor.add("htmlparser-fragment", function(
                             returnPoint = currentNode;
                     }
                     else {
-                        //²ğ·Ö£¬±ÕºÏµô
+                        //æ‹†åˆ†ï¼Œé—­åˆæ‰
                         addElement(currentNode, currentNode.parent, true);
-                        //li,pµÈÏÖÔÚ¾Í±ÕºÏ£¬ÒÔºó¶¼²»ÓÃÔÙ¹ÜÁË
+                        //li,pç­‰ç°åœ¨å°±é—­åˆï¼Œä»¥åéƒ½ä¸ç”¨å†ç®¡äº†
                         if (!optionalClose[ currentName ]) {
                             // The current element is an inline element, which
                             // cannot hold the new one. Put it in the pending list,
@@ -257,7 +257,7 @@ KISSY.Editor.add("htmlparser-fragment", function(
                     currentNode = addPoint;
                 // Try adding it to the return point, or the parent element.
                 else
-                //Ç°Ãæ¶¼µ÷ÓÃ addElement ½«µ±Ç°½Úµã±ÕºÏÁË£¬Ö»ÄÜÍù parent Ìí¼ÓÁË
+                //å‰é¢éƒ½è°ƒç”¨ addElement å°†å½“å‰èŠ‚ç‚¹é—­åˆäº†ï¼Œåªèƒ½å¾€ parent æ·»åŠ äº†
                     currentNode = currentNode.returnPoint || currentNode.parent;
 
                 if (reApply) {
@@ -273,7 +273,7 @@ KISSY.Editor.add("htmlparser-fragment", function(
             element.returnPoint = returnPoint;
             returnPoint = 0;
 
-            //×Ô±ÕºÏµÄ£¬²»µÈ½áÊø±êÇ©£¬Á¢¼´¼Óµ½¸¸Ç×
+            //è‡ªé—­åˆçš„ï¼Œä¸ç­‰ç»“æŸæ ‡ç­¾ï¼Œç«‹å³åŠ åˆ°çˆ¶äº²
             if (element.isEmpty)
                 addElement(element);
             else
@@ -281,7 +281,7 @@ KISSY.Editor.add("htmlparser-fragment", function(
         };
 
         /**
-         * Óöµ½±êÇ©½áÊø£¬½«openÉú³ÉµÄ½ÚµãÌí¼Óµ½domÊ÷ÖĞ == ¸¸Ç×½ÓÄÉ×Ô¼º node.parent.add(node)
+         * é‡åˆ°æ ‡ç­¾ç»“æŸï¼Œå°†openç”Ÿæˆçš„èŠ‚ç‚¹æ·»åŠ åˆ°domæ ‘ä¸­ == çˆ¶äº²æ¥çº³è‡ªå·± node.parent.add(node)
          * @param tagName
          */
         parser.onTagClose = function(tagName) {
@@ -371,7 +371,7 @@ KISSY.Editor.add("htmlparser-fragment", function(
         parser.onCDATA = function(
             //cdata
             ) {
-            //²»×ö
+            //ä¸åš
             //currentNode.add(new KE.HtmlParser.cdata(cdata));
         };
 
@@ -388,7 +388,7 @@ KISSY.Editor.add("htmlparser-fragment", function(
 
         // Close all pending nodes.
         //<p>xxxxxxxxxxxxx
-        //µ½×îºóÒ²ÃğÓĞ½áÊø±êÇ©
+        //åˆ°æœ€åä¹Ÿç­æœ‰ç»“æŸæ ‡ç­¾
         while (currentNode.type) {
             var parent = currentNode.parent,
                 node = currentNode;

@@ -1,6 +1,6 @@
 /**
  * modified from ckeditor ,elementpath represents element's tree path from body
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @modifier: <yiminghe@gmail.com(chengyu)>
  */
 KISSY.Editor.add("elementpath", function(KE) {
     var S = KISSY,

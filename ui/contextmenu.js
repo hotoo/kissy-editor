@@ -1,6 +1,6 @@
 /**
  * contextmenu for kissy editor
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("contextmenu", function(editor) {
     var KE = KISSY.Editor,
@@ -18,7 +18,7 @@ KISSY.Editor.add("contextmenu", function(editor) {
 
     var global_tags = [];
     /**
-     * ¶à²Ëµ¥¹ÜÀí
+     * å¤šèœå•ç®¡ç†
      */
     ContextMenu.register = function(doc, cfg) {
 
@@ -69,7 +69,7 @@ KISSY.Editor.add("contextmenu", function(editor) {
     var Overlay = KE.SimpleOverlay;
     S.augment(ContextMenu, {
         /**
-         * ¸ù¾İÅäÖÃ¹¹ÔìÓÒ¼ü²Ëµ¥ÄÚÈİ
+         * æ ¹æ®é…ç½®æ„é€ å³é”®èœå•å†…å®¹
          */
         _init:function() {
             var self = this,cfg = self.cfg,funcs = cfg.funcs;
@@ -77,7 +77,7 @@ KISSY.Editor.add("contextmenu", function(editor) {
             var el = self.elDom;
             el.css("width", cfg.width);
             document.body.appendChild(el[0]);
-            //Ê¹Ëü¾ß±¸ overlay µÄÄÜÁ¦£¬ÆäÊµÕâÀï²¢²»ÊÇÊµÌå»¯
+            //ä½¿å®ƒå…·å¤‡ overlay çš„èƒ½åŠ›ï¼Œå…¶å®è¿™é‡Œå¹¶ä¸æ˜¯å®ä½“åŒ–
             self.el = new Overlay({el:el});
 
             for (var f in funcs) {

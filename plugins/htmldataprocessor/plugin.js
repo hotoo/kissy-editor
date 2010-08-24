@@ -1,6 +1,6 @@
 /**
  * modified from ckeditor,process malform html for kissyeditor
- * @modifier:yiminghe@gmail.com
+ * @modifier: yiminghe@gmail.com
  */
 KISSY.Editor.add("htmldataprocessor", function(
     //editor
@@ -51,7 +51,7 @@ KISSY.Editor.add("htmldataprocessor", function(
             }
         },
         attributes :  {
-            //·ÀÖ¹wordµÄÀ¬»øclass£¬È«²¿É±µôËãÁË£¬³ıÁËÒÔke_¿ªÍ·µÄ±à¼­Æ÷ÄÚÖÃclass
+            //é˜²æ­¢wordçš„åƒåœ¾classï¼Œå…¨éƒ¨æ€æ‰ç®—äº†ï¼Œé™¤äº†ä»¥ke_å¼€å¤´çš„ç¼–è¾‘å™¨å†…ç½®class
             'class' : function(value
                 // , element
                 ) {
@@ -76,7 +76,7 @@ KISSY.Editor.add("htmldataprocessor", function(
     KE.HtmlDataProcessor = {
         htmlFilter:htmlFilter,
         dataFilter:dataFilter,
-        //±à¼­Æ÷htmlµ½Íâ²¿html
+        //ç¼–è¾‘å™¨htmlåˆ°å¤–éƒ¨html
         toHtml:function(html, fixForBody) {
             //fixForBody = fixForBody || "p";
             // Now use our parser to make further fixes to the structure, as
@@ -86,7 +86,7 @@ KISSY.Editor.add("htmldataprocessor", function(
             fragment.writeHtml(writer, htmlFilter);
             return writer.getHtml(true);
         },
-        //Íâ²¿html½øÈë±à¼­Æ÷
+        //å¤–éƒ¨htmlè¿›å…¥ç¼–è¾‘å™¨
         toDataFormat : function(html, fixForBody) {
             //fixForBody = fixForBody || "p";
             var writer = new HtmlParser.HtmlWriter(),

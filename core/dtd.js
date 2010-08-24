@@ -1,6 +1,6 @@
 /**
  * modified from ckeditor ,xhtml1.1 transitional dtd translation
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @modifier: <yiminghe@gmail.com(chengyu)>
  */
 KISSY.Editor.add("dtd", function(KE) {
     /**

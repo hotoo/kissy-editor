@@ -1,6 +1,6 @@
 /**
  * fakeobjects for music ,video,flash
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("fakeobjects", function(editor) {
     var KE = KISSY.Editor,
@@ -19,7 +19,7 @@ KISSY.Editor.add("fakeobjects", function(editor) {
             var htmlFilterRules = {
                 elements : {
                     /**
-                     * Éú³É×îÖÕhtmlÊ±£¬´Ó±à¼­Æ÷html×ª»¯°ÑfakeÌæ»»ÎªÕæÊµ£¬²¢½«styleµÄwidth,height¸ãµ½ÊôĞÔÉÏÈ¥
+                     * ç”Ÿæˆæœ€ç»ˆhtmlæ—¶ï¼Œä»ç¼–è¾‘å™¨htmlè½¬åŒ–æŠŠfakeæ›¿æ¢ä¸ºçœŸå®ï¼Œå¹¶å°†styleçš„width,heightæåˆ°å±æ€§ä¸Šå»
                      * @param element
                      */
                     $ : function(element) {
@@ -61,7 +61,7 @@ KISSY.Editor.add("fakeobjects", function(editor) {
                 S.mix(dataProcessor, {
 
                     /**
-                     * ´ÓÍâ±ßÕæÊµµÄhtml£¬×ªÎªÎª±à¼­Æ÷´úÂëÖ§³ÖµÄÌæ»»ÔªËØ
+                     * ä»å¤–è¾¹çœŸå®çš„htmlï¼Œè½¬ä¸ºä¸ºç¼–è¾‘å™¨ä»£ç æ”¯æŒçš„æ›¿æ¢å…ƒç´ 
                      * @param realElement
                      * @param className
                      * @param realElementType
@@ -120,7 +120,7 @@ KISSY.Editor.add("fakeobjects", function(editor) {
                 align : realElement.attr("align") || '',
                 style:style
             };
-            
+
 
             if (realElementType)
                 attributes._ke_real_element_type = realElementType;

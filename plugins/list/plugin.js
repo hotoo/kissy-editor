@@ -1,6 +1,6 @@
 /**
  * list formatting,modified from ckeditor
- * @modifier:yiminghe@gmail.com
+ * @modifier: yiminghe@gmail.com
  */
 KISSY.Editor.add("list", function(editor) {
     var KE = KISSY.Editor,
@@ -25,7 +25,7 @@ KISSY.Editor.add("list", function(editor) {
                  * manipulate. This operation should be non-intrusive in the sense that it
                  * does not change the DOM tree, with the exception that it may add some
                  * markers to the list item nodes when database is specified.
-                 * ±âÆ½»¯´¦Àí£¬Éî¶È±éÀú£¬ÀûÓÃ indent ºÍË³ĞòÀ´±íÊ¾Ò»¿ÃÊ÷
+                 * æ‰å¹³åŒ–å¤„ç†ï¼Œæ·±åº¦éå†ï¼Œåˆ©ç”¨ indent å’Œé¡ºåºæ¥è¡¨ç¤ºä¸€æ£µæ ‘
                  */
                 listToArray : function(listNode, database, baseArray, baseIndentLevel, grandparentNode) {
                     if (!listNodeNames[ listNode._4e_name() ])
@@ -71,7 +71,7 @@ KISSY.Editor.add("list", function(editor) {
                 },
 
                 // Convert our internal representation of a list back to a DOM forest.
-                //¸ù¾İ°üº¬indentÊôĞÔµÄÔªËØÊı×éÀ´Éú³ÉÊ÷
+                //æ ¹æ®åŒ…å«indentå±æ€§çš„å…ƒç´ æ•°ç»„æ¥ç”Ÿæˆæ ‘
                 arrayToList : function(listArray, database, baseIndex, paragraphMode) {
                     if (!baseIndex)
                         baseIndex = 0;
@@ -89,7 +89,7 @@ KISSY.Editor.add("list", function(editor) {
                         if (item.indent == indentLevel) {
                             if (!rootNode
                                 ||
-                                //ÓÃÓÚÌæ»»±êÇ©,ul->ol ,ol->ul
+                                //ç”¨äºæ›¿æ¢æ ‡ç­¾,ul->ol ,ol->ul
                                 listArray[ currentIndex ].parent._4e_name() != rootNode._4e_name()) {
 
                                 rootNode = listArray[ currentIndex ].parent._4e_clone(false, true);
@@ -100,7 +100,7 @@ KISSY.Editor.add("list", function(editor) {
                                 currentListItem.appendChild(item.contents[i]._4e_clone(true, true)[0]);
                             currentIndex++;
                         } else if (item.indent == Math.max(indentLevel, 0) + 1) {
-                            //½øÈëÒ»¸öliÀïÃæ£¬ÀïÃæµÄÇ¶Ì×liµİ¹é¹¹Ôì¸¸Ç×ul/ol
+                            //è¿›å…¥ä¸€ä¸ªlié‡Œé¢ï¼Œé‡Œé¢çš„åµŒå¥—lié€’å½’æ„é€ çˆ¶äº²ul/ol
                             var listData = list.arrayToList(listArray, null, currentIndex, paragraphMode);
                             currentListItem.appendChild(listData.listNode);
                             currentIndex = listData.nextIndex;
@@ -475,7 +475,7 @@ KISSY.Editor.add("list", function(editor) {
             var TripleButton = KE.TripleButton;
 
             /**
-             * ÓÃµ½ÁË°´Å¥Èı×´Ì¬µÄÁ½¸ö×´Ì¬£ºoff:µã»÷ºó¸ñÊ½»¯£¬on:µã»÷ºóÇå³ı¸ñÊ½»¯
+             * ç”¨åˆ°äº†æŒ‰é’®ä¸‰çŠ¶æ€çš„ä¸¤ä¸ªçŠ¶æ€ï¼šoff:ç‚¹å‡»åæ ¼å¼åŒ–ï¼Œon:ç‚¹å‡»åæ¸…é™¤æ ¼å¼åŒ–
              * @param cfg
              */
             function List(cfg) {
@@ -518,7 +518,7 @@ KISSY.Editor.add("list", function(editor) {
                         type = this.get("type"),
                         el = this.el,
                         self = this;
-                    //ieÒªµÈ»á²ÅÄÜ»ñµÃ½¹µã´°¿ÚµÄÑ¡ÔñÇøÓò
+                    //ieè¦ç­‰ä¼šæ‰èƒ½è·å¾—ç„¦ç‚¹çª—å£çš„é€‰æ‹©åŒºåŸŸ
                     editor.focus();
                     editor.fire("save");
                     setTimeout(function() {
@@ -543,7 +543,7 @@ KISSY.Editor.add("list", function(editor) {
                         for (var i = 0; i < elements.length && ( element = elements[ i ] )
                             && element[0] !== blockLimit[0]; i++) {
                             var ind = S.indexOf(elements[i]._4e_name(), listNodeNames_arr);
-                            //ul,olÒ»¸öÉúĞ§ºó£¬ÁíÒ»¸ö¾ÍÊ§Ğ§
+                            //ul,olä¸€ä¸ªç”Ÿæ•ˆåï¼Œå¦ä¸€ä¸ªå°±å¤±æ•ˆ
                             if (ind !== -1) {
                                 if (listNodeNames_arr[ind] === type) {
                                     el.set("state", TripleButton.ON);
@@ -565,13 +565,13 @@ KISSY.Editor.add("list", function(editor) {
     editor.addPlugin(function() {
         new KE.List({
             editor:editor,
-            title:"ÏîÄ¿ÁĞ±í",
+            title:"é¡¹ç›®åˆ—è¡¨",
             contentCls:"ke-toolbar-ul",
             type:"ul"
         });
         new KE.List({
             editor:editor,
-            title:"±àºÅÁĞ±í",
+            title:"ç¼–å·åˆ—è¡¨",
             contentCls:"ke-toolbar-ol",
             type:"ol"
         });

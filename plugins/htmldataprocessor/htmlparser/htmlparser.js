@@ -1,6 +1,6 @@
 /**
  * modified from ckeditor,htmlparser for malform html string
- * @modifier:yiminghe@gmail.com
+ * @modifier: yiminghe@gmail.com
  */
 KISSY.Editor.add("htmlparser", function(
     // editor

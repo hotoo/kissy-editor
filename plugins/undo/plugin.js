@@ -1,6 +1,6 @@
 /**
  * undo,redo manager for kissy editor
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("undo", function(editor) {
     var KE = KISSY.Editor,
@@ -11,21 +11,21 @@ KISSY.Editor.add("undo", function(editor) {
     if (!KE.UndoManager) {
         (function() {
             /**
-             * µ±Ç°±à¼­ÇøÓò×´Ì¬£¬°üÀ¨htmlÓëÑ¡ÔñÇøÓò
+             * å½“å‰ç¼–è¾‘åŒºåŸŸçŠ¶æ€ï¼ŒåŒ…æ‹¬htmlä¸é€‰æ‹©åŒºåŸŸ
              * @param editor
              */
             function Snapshot(editor) {
                 var contents = editor._getRawData(),selection = contents && editor.getSelection();
-                //ÄÚÈİhtml
+                //å†…å®¹html
                 this.contents = contents;
-                //Ñ¡ÔñÇøÓòÊéÇ©±êÖ¾
+                //é€‰æ‹©åŒºåŸŸä¹¦ç­¾æ ‡å¿—
                 this.bookmarks = selection && selection.createBookmarks2(true);
             }
 
 
             S.augment(Snapshot, {
                 /**
-                 * ±à¼­×´Ì¬¼äÊÇ·ñÏàµÈ
+                 * ç¼–è¾‘çŠ¶æ€é—´æ˜¯å¦ç›¸ç­‰
                  * @param otherImage
                  */
                 equals:function(otherImage) {
@@ -60,7 +60,7 @@ KISSY.Editor.add("undo", function(editor) {
 
 
             /**
-             * ¼üÅÌÊäÈë×öÑÓ³Ù´¦Àí
+             * é”®ç›˜è¾“å…¥åšå»¶è¿Ÿå¤„ç†
              * @param s
              * @param fn
              * @param scope
@@ -89,13 +89,13 @@ KISSY.Editor.add("undo", function(editor) {
 
 
             /**
-             * Í¨¹ı±à¼­Æ÷µÄsaveÓërestoreÊÂ¼ş£¬±à¼­Æ÷ÊµÀıµÄÀúÊ·Õ»¹ÜÀí£¬Óë¼üÅÌ¼à¿Ø
+             * é€šè¿‡ç¼–è¾‘å™¨çš„saveä¸restoreäº‹ä»¶ï¼Œç¼–è¾‘å™¨å®ä¾‹çš„å†å²æ ˆç®¡ç†ï¼Œä¸é”®ç›˜ç›‘æ§
              * @param editor
              */
             function UndoManager(editor) {
                 //redo undo history stack
                 /**
-                 * ±à¼­Æ÷×´Ì¬ÀúÊ·±£´æ
+                 * ç¼–è¾‘å™¨çŠ¶æ€å†å²ä¿å­˜
                  */
                 this.history = [];
                 this.index = 0;
@@ -113,10 +113,9 @@ KISSY.Editor.add("undo", function(editor) {
 
             S.augment(UndoManager, {
                 /**
-                 * ¼à¿Ø¼üÅÌÊäÈë£¬buffer´¦Àí
-                 * @param ev
+                 * ç›‘æ§é”®ç›˜è¾“å…¥ï¼Œbufferå¤„ç†
                  */
-                _keyMonitor:function(ev) {
+                _keyMonitor:function() {
                     var self = this,editor = self.editor,doc = editor.document;
                     Event.on(doc, "keydown", function(ev) {
                         var keycode = ev.keyCode;
@@ -124,13 +123,13 @@ KISSY.Editor.add("undo", function(editor) {
                             || keycode in modifierKeyCodes
                             )
                             return;
-                        //ctrl+z£¬³·Ïú
+                        //ctrl+zï¼Œæ’¤é”€
                         if (keycode === zKeyCode && (ev.ctrlKey || ev.metaKey)) {
                             editor.fire("restore", {d:-1});
                             ev.halt();
                             return;
                         }
-                        //ctrl+y£¬ÖØ×ö
+                        //ctrl+yï¼Œé‡åš
                         if (keycode === yKeyCode && (ev.ctrlKey || ev.metaKey)) {
                             editor.fire("restore", {d:1});
                             ev.halt();
@@ -142,27 +141,27 @@ KISSY.Editor.add("undo", function(editor) {
 
                 _init:function() {
                     var self = this,editor = self.editor;
-                    //Íâ²¿Í¨¹ıeditor´¥·¢save|restore,¹ÜÀíÆ÷²¶»ñÊÂ¼ş´¦Àí
+                    //å¤–éƒ¨é€šè¿‡editorè§¦å‘save|restore,ç®¡ç†å™¨æ•è·äº‹ä»¶å¤„ç†
                     editor.on("save", function(ev) {
                         if (ev.buffer)
-                        //¼üÅÌ²Ù×÷ĞèÒª»º´æ
+                        //é”®ç›˜æ“ä½œéœ€è¦ç¼“å­˜
                             self.bufferTimer.run();
                         else {
-                            //ÆäËûÁ¢¼´save
+                            //å…¶ä»–ç«‹å³save
                             self.save();
                         }
                     });
                     editor.on("restore", this.restore, this);
                     self._keyMonitor();
-                    //ÏÈsaveÒ»ÏÂ
+                    //å…ˆsaveä¸€ä¸‹
                     self.save();
                 },
 
                 /**
-                 * ±£´æÀúÊ·
+                 * ä¿å­˜å†å²
                  */
                 save:function() {
-                    //Ç°ÃæµÄÀúÊ·Å×Æú
+                    //å‰é¢çš„å†å²æŠ›å¼ƒ
                     if (this.history.length > this.index + 1)
                         this.history.splice(this.index + 1, this.history.length - this.index - 1);
 
@@ -184,7 +183,7 @@ KISSY.Editor.add("undo", function(editor) {
                 /**
                  *
                  * @param ev
-                 * ev.d £º1.ÏòÇ°³·Ïú £¬-1.ÏòºóÖØ×ö
+                 * ev.d ï¼š1.å‘å‰æ’¤é”€ ï¼Œ-1.å‘åé‡åš
                  */
                 restore:function(ev) {
                     var d = ev.d,self = this,editor = self.editor,
@@ -217,7 +216,7 @@ KISSY.Editor.add("undo", function(editor) {
             };
 
             /**
-             * ¹¤¾ßÀ¸ÖØ×öÓë³·ÏúµÄui¹¦ÄÜ
+             * å·¥å…·æ é‡åšä¸æ’¤é”€çš„uiåŠŸèƒ½
              * @param editor
              * @param text
              */
@@ -241,13 +240,13 @@ KISSY.Editor.add("undo", function(editor) {
                     });
                     this.el.set("state", TripleButton.DISABLED);
                     /**
-                     * save,restoreÍê£¬¸üĞÂ¹¤¾ßÀ¸×´Ì¬
+                     * save,restoreå®Œï¼Œæ›´æ–°å·¥å…·æ çŠ¶æ€
                      */
                     editor.on("afterSave", this._respond, this);
                     editor.on("afterRestore", this._respond, this);
 
                     /**
-                     * ´¥·¢ÖØ×ö»ò³·Ïú¶¯×÷£¬¶¼ÊÇrestore£¬·½Ïò²»Í¬
+                     * è§¦å‘é‡åšæˆ–æ’¤é”€åŠ¨ä½œï¼Œéƒ½æ˜¯restoreï¼Œæ–¹å‘ä¸åŒ
                      */
                     self.el.on("offClick", function() {
                         editor.fire("restore", {
@@ -286,18 +285,18 @@ KISSY.Editor.add("undo", function(editor) {
     editor.addPlugin(function() {
 
         /**
-         * ±à¼­Æ÷ÀúÊ·ÖĞÑë¹ÜÀí
+         * ç¼–è¾‘å™¨å†å²ä¸­å¤®ç®¡ç†
          */
         new KE.UndoManager(editor);
 
         /**
-         * ³·Ïú¹¤¾ßÀ¸°´Å¥
+         * æ’¤é”€å·¥å…·æ æŒ‰é’®
          */
-        new KE.RestoreUI(editor, "undo", "³·Ïú", "ke-toolbar-undo");
+        new KE.RestoreUI(editor, "undo", "æ’¤é”€", "ke-toolbar-undo");
         /**
-         * ÖØ×ö¹¤¾ßÀ¸°´Å¥
+         * é‡åšå·¥å…·æ æŒ‰é’®
          */
-        new KE.RestoreUI(editor, "redo", "ÖØ×ö", "ke-toolbar-redo");
+        new KE.RestoreUI(editor, "redo", "é‡åš", "ke-toolbar-redo");
     });
 
 

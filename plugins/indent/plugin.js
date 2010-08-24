@@ -1,6 +1,6 @@
 /**
  * indent formatting,modified from ckeditor
- * @modifier:yiminghe@gmail.com
+ * @modifier: yiminghe@gmail.com
  */
 KISSY.Editor.add("indent", function(editor) {
     var KE = KISSY.Editor,
@@ -223,7 +223,7 @@ KISSY.Editor.add("indent", function(editor) {
             var TripleButton = KE.TripleButton;
 
             /**
-             * ÓÃµ½ÁË°´Å¥Èı×´Ì¬µÄÁ½¸ö×´Ì¬£ºoff¿Éµã»÷£¬disabled:²»¿Éµã»÷
+             * ç”¨åˆ°äº†æŒ‰é’®ä¸‰çŠ¶æ€çš„ä¸¤ä¸ªçŠ¶æ€ï¼šoffå¯ç‚¹å‡»ï¼Œdisabled:ä¸å¯ç‚¹å‡»
              * @param cfg
              */
             function Indent(cfg) {
@@ -255,7 +255,7 @@ KISSY.Editor.add("indent", function(editor) {
                     var editor = this.get("editor"),toolBarDiv = editor.toolBarDiv,
                         el = this.el;
                     var self = this;
-                    //off×´Ì¬ÏÂ´¥·¢²¶»ñ£¬×¢ÒâÃ»ÓĞon×´Ì¬
+                    //offçŠ¶æ€ä¸‹è§¦å‘æ•è·ï¼Œæ³¨æ„æ²¡æœ‰onçŠ¶æ€
                     el.on("offClick", this.exec, this);
                     if (this.get("type") == "outdent")
                         editor.on("selectionChange", this._selectionChange, this);
@@ -269,7 +269,7 @@ KISSY.Editor.add("indent", function(editor) {
                         el = this.el,
                         self = this;
                     editor.focus();
-                    //ieÒªµÈ»á²ÅÄÜ»ñµÃ½¹µã´°¿ÚµÄÑ¡ÔñÇøÓò
+                    //ieè¦ç­‰ä¼šæ‰èƒ½è·å¾—ç„¦ç‚¹çª—å£çš„é€‰æ‹©åŒºåŸŸ
                     editor.fire("save");
                     setTimeout(function() {
                         self.indentCommand.exec(editor);
@@ -302,13 +302,13 @@ KISSY.Editor.add("indent", function(editor) {
     editor.addPlugin(function() {
         editor.addCommand("outdent", new KE.Indent({
             editor:editor,
-            title:"¼õÉÙËõ½øÁ¿",
+            title:"å‡å°‘ç¼©è¿›é‡",
             contentCls:"ke-toolbar-outdent",
             type:"outdent"
         }));
         editor.addCommand("indent", new KE.Indent({
             editor:editor,
-            title:"Ôö¼ÓËõ½øÁ¿",
+            title:"å¢åŠ ç¼©è¿›é‡",
             contentCls:"ke-toolbar-indent",
             type:"indent"
         }));

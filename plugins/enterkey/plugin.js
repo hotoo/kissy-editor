@@ -1,6 +1,6 @@
 /**
  * monitor user's enter and shift enter keydown,modified from ckeditor
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("enterkey", function(editor) {
     var KE = KISSY.Editor,
@@ -37,7 +37,7 @@ KISSY.Editor.add("enterkey", function(editor) {
                 if (range.checkStartOfBlock() && range.checkEndOfBlock()) {
                     var path = new ElementPath(range.startContainer),
                         block = path.block;
-                    //÷ª”–¡Ω≤„£ø
+                    //Âè™Êúâ‰∏§Â±ÇÔºü
                     if (block && ( block._4e_name() == 'li' || block.parent()._4e_name() == 'li' )) {
                         editor.execCommand('outdent');
                         return;

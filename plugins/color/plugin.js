@@ -64,7 +64,7 @@ KISSY.Editor.add("color", function(editor) {
     };
 
     var html = "<div class='ke-popup-wrap ke-color-wrap'>" +
-        "<a class='ke-color-remove' href=\"javascript:void('Çå³ý');\"><span>Çå³ý</span></a>" +
+        "<a class='ke-color-remove' href=\"javascript:void('æ¸…é™¤');\"><span>æ¸…é™¤</span></a>" +
         "<table>";
     var BACK_STYLES = {},FORE_STYLES = {};
     for (var i = 0; i < 5; i++) {
@@ -88,7 +88,7 @@ KISSY.Editor.add("color", function(editor) {
     }
     // Value 'inherit'  is treated as a wildcard,
     // which will match any value.
-    //Çå³ýÒÑÉè¸ñÊ½
+    //æ¸…é™¤å·²è®¾æ ¼å¼
     BACK_STYLES["inherit"] = new KEStyle(colorButton_backStyle, {
         color:"inherit"
     });
@@ -133,7 +133,7 @@ KISSY.Editor.add("color", function(editor) {
                 },
                 _hidePanel:function(ev) {
                     var self = this;
-                    //¶à´°¿Ú¹ÜÀí
+                    //å¤šçª—å£ç®¡ç†
                     if (DOM._4e_ascendant(ev.target, function(node) {
                         return node[0] === self.el.el[0];
                     }, true))return;
@@ -193,7 +193,7 @@ KISSY.Editor.add("color", function(editor) {
         new KE.ColorSupport({
             editor:editor,
             styles:BACK_STYLES,
-            title:"±³¾°ÑÕÉ«",
+            title:"èƒŒæ™¯é¢œè‰²",
             contentCls:"ke-toolbar-bgcolor",
             text:"bgcolor"
         });
@@ -201,7 +201,7 @@ KISSY.Editor.add("color", function(editor) {
         new KE.ColorSupport({
             editor:editor,
             styles:FORE_STYLES,
-            title:"ÎÄ±¾ÑÕÉ«",
+            title:"æ–‡æœ¬é¢œè‰²",
             contentCls:"ke-toolbar-color",
             text:"color"
         });

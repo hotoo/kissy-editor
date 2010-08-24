@@ -1,6 +1,6 @@
 /**
  * table edit plugin for kissy editor
- * @author:yiminghe@gmail.com
+ * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("table", function(editor, undefined) {
     console.log("table loaded!");
@@ -17,46 +17,46 @@ KISSY.Editor.add("table", function(editor, undefined) {
         TABLE_HTML = "<table class='ke-table-config'>" +
             "<tr>" +
             "<td>" +
-            "<label>ĞĞÊı£º <input value='2' class='ke-table-rows ke-table-create-only' size='" + IN_SIZE + "'/></label>" +
+            "<label>è¡Œæ•°ï¼š <input value='2' class='ke-table-rows ke-table-create-only' size='" + IN_SIZE + "'/></label>" +
             "</td>" +
             "<td>" +
-            "<label>¿í¶È£º <input value='200' class='ke-table-width' size='" + IN_SIZE + "'/></label> " +
+            "<label>å®½åº¦ï¼š <input value='200' class='ke-table-width' size='" + IN_SIZE + "'/></label> " +
             "<select class='ke-table-width-unit'>" +
-            "<option value='px'>ÏñËØ</option>" +
-            "<option value='%'>°Ù·Ö±È</option>" +
+            "<option value='px'>åƒç´ </option>" +
+            "<option value='%'>ç™¾åˆ†æ¯”</option>" +
             "</select>" +
             "</td>" +
             "</tr>" +
             "<tr>" +
             "<td>" +
-            "<label>ÁĞÊı£º <input class='ke-table-cols ke-table-create-only' value='3' size='" + IN_SIZE + "'/></label>" +
+            "<label>åˆ—æ•°ï¼š <input class='ke-table-cols ke-table-create-only' value='3' size='" + IN_SIZE + "'/></label>" +
             "</td>" +
             "<td>" +
-            "<label>¸ß¶È£º <input value='200' class='ke-table-height' size='" + IN_SIZE + "'/></label> &nbsp;ÏñËØ</select>" +
+            "<label>é«˜åº¦ï¼š <input value='200' class='ke-table-height' size='" + IN_SIZE + "'/></label> &nbsp;åƒç´ </select>" +
             "</td>" +
             "</tr>" +
             "<tr>" +
             "<td>" +
-            "<label>±êÌâ¸ñ£º <select class='ke-table-head ke-table-create-only'>" +
-            "<option value=''>ÎŞ</option>" +
-            "<option value='1'>ÓĞ</option>" +
+            "<label>æ ‡é¢˜æ ¼ï¼š <select class='ke-table-head ke-table-create-only'>" +
+            "<option value=''>æ— </option>" +
+            "<option value='1'>æœ‰</option>" +
             "</select>" +
             "</td>" +
             "<td>" +
-            "<label>¼ä¾à£º <input value='1' class='ke-table-cellspacing' size='" + IN_SIZE + "'/></label> &nbsp;ÏñËØ</select>" +
+            "<label>é—´è·ï¼š <input value='1' class='ke-table-cellspacing' size='" + IN_SIZE + "'/></label> &nbsp;åƒç´ </select>" +
             "</td>" +
             "</tr>" +
             "<tr>" +
             "<td>" +
-            "<label>¶ÔÆë£º <select class='ke-table-align'>" +
-            "<option value=''>ÎŞ</option>" +
-            "<option value='left'>×ó¶ÔÆë</option>" +
-            "<option value='right'>ÓÒ¶ÔÆë</option>" +
-            "<option value='center'>ÖĞ¼ä¶ÔÆë</option>" +
+            "<label>å¯¹é½ï¼š <select class='ke-table-align'>" +
+            "<option value=''>æ— </option>" +
+            "<option value='left'>å·¦å¯¹é½</option>" +
+            "<option value='right'>å³å¯¹é½</option>" +
+            "<option value='center'>ä¸­é—´å¯¹é½</option>" +
             "</select>" +
             "</label>" + "</td>" +
             "<td>" +
-            "<label>±ß¾à£º <input value='1' class='ke-table-cellpadding' size='" + IN_SIZE + "'/></label> &nbsp;ÏñËØ</select>" +
+            "<label>è¾¹è·ï¼š <input value='1' class='ke-table-cellpadding' size='" + IN_SIZE + "'/></label> &nbsp;åƒç´ </select>" +
             "</td>" +
             "</tr>" +
             "<tr>" +
@@ -64,19 +64,19 @@ KISSY.Editor.add("table", function(editor, undefined) {
 
             "</td>" +
             "<td>" +
-            "<label>±ß¿ò£º <input value='1' class='ke-table-border' size='" + IN_SIZE + "'/></label> &nbsp;ÏñËØ</select>" +
+            "<label>è¾¹æ¡†ï¼š <input value='1' class='ke-table-border' size='" + IN_SIZE + "'/></label> &nbsp;åƒç´ </select>" +
             "</td>" +
             "</tr>" +
             "<tr>" +
             "<td colspan='2'>" +
             "<label>" +
-            "±êÌâ£º<input class='ke-table-caption' style='width:270px'>" +
+            "æ ‡é¢˜ï¼š<input class='ke-table-caption' style='width:270px'>" +
             "</label>" +
             "</td>" +
             "</tr>" +
             "<tr>" +
             "<td colspan='2' style='text-align:center'>" +
-            "<button class='ke-table-ok'>È·¶¨</button>" +
+            "<button class='ke-table-ok'>ç¡®å®š</button>" +
             "</td>" +
             "</tr>" +
             "</table>",
@@ -84,7 +84,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
         tableTags = ["tr","th","td","tbody","table"],trim = S.trim;
 
     /**
-     * table ±à¼­Ä£Ê½ÏÂÏÔÊ¾ĞéÏß±ß¿ò±ãÓÚ±à¼­
+     * table ç¼–è¾‘æ¨¡å¼ä¸‹æ˜¾ç¤ºè™šçº¿è¾¹æ¡†ä¾¿äºç¼–è¾‘
      */
     var showBorderClassName = 'ke_show_border',
         cssStyleText,
@@ -174,7 +174,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                     self.el = new TripleButton({
                         //text:"table",
                         contentCls:"ke-toolbar-table",
-                        title:"±í¸ñ",
+                        title:"è¡¨æ ¼",
                         container:toolBarDiv
                     });
                     var el = self.el;
@@ -205,7 +205,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                         d = new Overlay({
                             width:"350px",
                             mask:true,
-                            title:"±à¼­±í¸ñ"
+                            title:"ç¼–è¾‘è¡¨æ ¼"
                         }),
                         body = d.body;
                     d.body.html(TABLE_HTML);
@@ -227,7 +227,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                     self.tableDialog = d;
                     d.tok.on("click", self._tableOk, self);
                     d.on("hide", function() {
-                        //Çå¿Õ
+                        //æ¸…ç©º
                         self.selectedTable = null;
                         editor.focus();
                     });
@@ -615,7 +615,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                         elementToFocus = getFocusElementAfterDelCols(colsToDelete);
 
                     for (var i = colsToDelete.length - 1; i >= 0; i--) {
-                        //Ä³Ò»ÁĞÒÑ¾­É¾³ı£¿£¿ÕâÒ»ÁĞµÄcellÔÙ×ö£¿ !tableÅĞ¶Ï´¦Àí
+                        //æŸä¸€åˆ—å·²ç»åˆ é™¤ï¼Ÿï¼Ÿè¿™ä¸€åˆ—çš„cellå†åšï¼Ÿ !tableåˆ¤æ–­å¤„ç†
                         if (colsToDelete[ i ])
                             deleteColumns(colsToDelete[i]);
                     }
@@ -626,7 +626,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                     // Get the cell's table.
                     var table = selectionOrCell._4e_ascendant('table');
 
-                    //¸Ãµ¥Ôª¸ñËùÊôµÄÁĞÒÑ¾­±»É¾³ıÁË
+                    //è¯¥å•å…ƒæ ¼æ‰€å±çš„åˆ—å·²ç»è¢«åˆ é™¤äº†
                     if (!table)
                         return null;
 
@@ -666,7 +666,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
             }
 
             var contextMenu = {
-                "±í¸ñÊôĞÔ" : function(editor) {
+                "è¡¨æ ¼å±æ€§" : function(editor) {
                     var selection = editor.getSelection(),
                         startElement = selection && selection.getStartElement(),
                         table = startElement && startElement._4e_ascendant('table', true);
@@ -676,7 +676,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                     tableUI.selectedTable = table;
                     tableUI._tableShow();
                 },
-                "É¾³ı±í¸ñ" : function(editor) {
+                "åˆ é™¤è¡¨æ ¼" : function(editor) {
                     var selection = editor.getSelection(),
                         startElement = selection && selection.getStartElement(),
                         table = startElement && startElement._4e_ascendant('table', true);
@@ -698,25 +698,25 @@ KISSY.Editor.add("table", function(editor, undefined) {
                         table._4e_remove();
                 },
 
-                'É¾³ıĞĞ': function(editor) {
+                'åˆ é™¤è¡Œ': function(editor) {
                     var selection = editor.getSelection();
                     placeCursorInCell(deleteRows(selection), undefined);
 
                 },
 
-                'É¾³ıÁĞ' : function(editor) {
+                'åˆ é™¤åˆ—' : function(editor) {
                     var selection = editor.getSelection(),
                         element = deleteColumns(selection);
                     element && placeCursorInCell(element, true);
                 },
 
-                'ÔÚÉÏ·½²åÈëĞĞ': function(editor) {
+                'åœ¨ä¸Šæ–¹æ’å…¥è¡Œ': function(editor) {
                     var selection = editor.getSelection();
                     insertRow(selection, true);
                 },
 
 
-                'ÔÚÏÂ·½²åÈëĞĞ' : function(editor) {
+                'åœ¨ä¸‹æ–¹æ’å…¥è¡Œ' : function(editor) {
                     var selection = editor.getSelection();
                     insertRow(selection, undefined);
                 },
@@ -724,13 +724,13 @@ KISSY.Editor.add("table", function(editor, undefined) {
 
 
 
-                'ÔÚ×ó²à²åÈëÁĞ' : function(editor) {
+                'åœ¨å·¦ä¾§æ’å…¥åˆ—' : function(editor) {
                     var selection = editor.getSelection();
                     insertColumn(selection, true);
                 },
 
 
-                'ÔÚÓÒ²à²åÈëÁĞ' : function(editor) {
+                'åœ¨å³ä¾§æ’å…¥åˆ—' : function(editor) {
                     var selection = editor.getSelection();
                     insertColumn(selection, undefined);
                 }};
@@ -745,7 +745,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
 
 
         /**
-         * ¶¯Ì¬¼ÓÈëÏÔ±í¸ñborder css£¬±ãÓÚ±à¼­
+         * åŠ¨æ€åŠ å…¥æ˜¾è¡¨æ ¼border cssï¼Œä¾¿äºç¼–è¾‘
          */
         var elem = DOM.create("<style>", null, doc);
         doc.getElementsByTagName("head")[0].appendChild(elem);

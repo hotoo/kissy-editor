@@ -78,14 +78,14 @@ KISSY.Editor.add("flash", function(editor) {
                     }
                 }}, 5);
 
-            var html = "<div style='margin:10px;'><p><label>µÿ÷∑£∫" +
+            var html = "<div style='margin:10px;'><p><label>Âú∞ÂùÄÔºö" +
                 "<input class='ke-flash-url' style='width:280px' /></label></p>" +
-                "<p style='margin:5px 0'><label>øÌ∂»£∫" +
+                "<p style='margin:5px 0'><label>ÂÆΩÂ∫¶Ôºö" +
                 "<input class='ke-flash-width' style='width:120px' /></label>" +
-                "&nbsp;&nbsp;<label>∏ﬂ∂»£∫<input class='ke-flash-height' " +
+                "&nbsp;&nbsp;<label>È´òÂ∫¶Ôºö<input class='ke-flash-height' " +
                 "style='width:110px' /></label></p>" +
 
-                "<p style='margin:5px 0;text-align:right;'><button>»∑∂®</button></p></div>";
+                "<p style='margin:5px 0;text-align:right;'><button>Á°ÆÂÆö</button></p></div>";
 
             function Flash(editor) {
                 this.editor = editor;
@@ -108,7 +108,7 @@ KISSY.Editor.add("flash", function(editor) {
                 _prepareShow:function() {
                     var self = this;
                     self.d = new Overlay({
-                        title:"±‡º≠flash",
+                        title:"ÁºñËæëflash",
                         width:"350px",
                         mask:true
                     });

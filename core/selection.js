@@ -1,6 +1,6 @@
 /**
  * modified from ckeditor core plugin : selection
- * @modifier:yiminghe@gmail.com(chengyu)
+ * @modifier: <yiminghe@gmail.com(chengyu)>
  */
 KISSY.Editor.add("selection", function(KE) {
     KE.SELECTION = {};
@@ -194,7 +194,7 @@ KISSY.Editor.add("selection", function(KE) {
                                     comparisonEnd = testRange.compareEndPoints('EndToStart', range);
 
                                 testRange.collapse();
-                                //ÖĞ¼äÓĞÆäËû±êÇ©
+                                //ä¸­é—´æœ‰å…¶ä»–æ ‡ç­¾
                                 if (comparisonStart > 0)
                                     break;
                                 // When selection stay at the side of certain self-closing elements, e.g. BR,
@@ -223,9 +223,9 @@ KISSY.Editor.add("selection", function(KE) {
 
                         try {
                             while (distance > 0)
-                                //bug? ¿ÉÄÜ²»ÊÇÎÄ±¾½Úµã nodeValue undefined
-                                //ÓÀÔ¶²»»á³öÏÖ textnode<img/>textnode
-                                //Í£Ö¹Ê±£¬Ç°ÃæÒ»¶¨Îªtextnode
+                                //bug? å¯èƒ½ä¸æ˜¯æ–‡æœ¬èŠ‚ç‚¹ nodeValue undefined
+                                //æ°¸è¿œä¸ä¼šå‡ºç° textnode<img/>textnode
+                                //åœæ­¢æ—¶ï¼Œå‰é¢ä¸€å®šä¸ºtextnode
                                 distance -= siblings[ --i ].nodeValue.length;
                         }
                             // Measurement in IE could be somtimes wrong because of <select> element. (#4611)
@@ -726,7 +726,7 @@ KISSY.Editor.add("selection", function(KE) {
     }
 
     /**
-     * ¼à¿ØÑ¡ÔñÇøÓò±ä»¯
+     * ç›‘æ§é€‰æ‹©åŒºåŸŸå˜åŒ–
      * @param editor
      */
     function monitorAndFix(editor) {
@@ -735,12 +735,12 @@ KISSY.Editor.add("selection", function(KE) {
             html = new Node(doc.documentElement);
 
         if (UA.ie) {
-            //wokao,ie ½¹µã¹ÜÀí²»ĞĞ°¡
+            //wokao,ie ç„¦ç‚¹ç®¡ç†ä¸è¡Œå•Š
             // In IE6/7 the blinking cursor appears, but contents are
             // not editable. (#5634)
-            //ÖÕÓÚºÍckÍ¬²½ÁË£¬ÎÒÒ²·¢ÏÖÁËÕâ¸öbug£¬¹ş¹ş,ck3.3.2½â¾ö
+            //ç»ˆäºå’ŒckåŒæ­¥äº†ï¼Œæˆ‘ä¹Ÿå‘ç°äº†è¿™ä¸ªbugï¼Œå“ˆå“ˆ,ck3.3.2è§£å†³
             if (UA.ie < 8 ||
-                //ie8 µÄ 7 ¼æÈİÄ£Ê½
+                //ie8 çš„ 7 å…¼å®¹æ¨¡å¼
                 document.documentMode == 7) {
                 // The 'click' event is not fired when clicking the
                 // scrollbars, so we can use it to check whether
