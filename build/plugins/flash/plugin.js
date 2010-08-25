@@ -1,6 +1,9 @@
 KISSY.Editor.add("flash", function(editor) {
     var KE = KISSY.Editor,
         S = KISSY,
+        DOM = S.DOM,
+        Event = S.Event,
+        ContextMenu = KE.ContextMenu,
         Node = S.Node,
         TripleButton = KE.TripleButton,
         Overlay = KE.SimpleOverlay,
@@ -12,7 +15,9 @@ KISSY.Editor.add("flash", function(editor) {
         TYPE_FLASH = 'flash',
         TYPE_MUSIC = 'music',
         //htmlFilter = dataProcessor && dataProcessor.htmlFilter,
-        dataFilter = dataProcessor && dataProcessor.dataFilter;
+        dataFilter = dataProcessor && dataProcessor.dataFilter,
+        flashRules = ["img." + CLS_FLASH];
+
     if (!KE.Flash) {
 
         (function() {
@@ -88,13 +93,17 @@ KISSY.Editor.add("flash", function(editor) {
                 "<p style='margin:5px 0;text-align:right;'><button>确定</button></p></div>";
 
             function Flash(editor) {
-                this.editor = editor;
-                this._init();
+                var self = this;
+                self.editor = editor;
+                editor._toolbars = editor._toolbars || {};
+                editor._toolbars["flash"] = self;
+                self._init();
             }
 
             S.augment(Flash, {
                 _init:function() {
-                    var self = this,editor = self.editor;
+                    var self = this,editor = self.editor,
+                        myContexts = {};
                     self.el = new TripleButton({
                         container:editor.toolBarDiv,
                         contentCls:"ke-toolbar-flash",
@@ -103,7 +112,36 @@ KISSY.Editor.add("flash", function(editor) {
                     });
 
                     self.el.on("click", self._showConfig, this);
+
+                    Event.on(editor.document, "dblclick", self._dbclick, self);
+
+
+                    for (var f in contextMenu) {
+                        (function(f) {
+                            myContexts[f] = function() {
+                                editor.fire("save");
+                                editor.focus();
+                                contextMenu[f](editor);
+                                editor.fire("save");
+                            }
+                        })(f);
+                    }
+                    ContextMenu.register(editor.document, {
+                        rules:flashRules,
+                        width:"120px",
+                        funcs:myContexts
+                    });
+
                     KE.Utils.lazyRun(this, "_prepareShow", "_realShow");
+                },
+                _dbclick:function(ev) {
+                    var self = this,t = new Node(ev.target);
+                    if (t._4e_name() === "img" && t.hasClass(CLS_FLASH)) {
+                        self.selectedFlash = t;
+                        self._showConfig();
+                        ev.halt();
+                    }
+
                 },
                 _prepareShow:function() {
                     var self = this;
@@ -112,6 +150,11 @@ KISSY.Editor.add("flash", function(editor) {
                         width:"350px",
                         mask:true
                     });
+                    self.d.on("hide", function() {
+                        //清空
+                        self.selectedFlash = null;
+                        editor.focus();
+                    });
                     self.d.body.html(html);
                     self._initD();
                 },
@@ -119,7 +162,27 @@ KISSY.Editor.add("flash", function(editor) {
                     this.d.show();
                 },
                 _showConfig:function() {
-                    this._prepareShow();
+                    var self = this,editor = self.editor,d = self.d,f = self.selectedFlash;
+                    self._prepareShow();
+                    if (f) {
+                        var r = editor.restoreRealElement(f);
+                        if (r.attr("width")) {
+                            self.dWidth.val(parseInt(r.attr("width")));
+                        }
+                        if (r.attr("height")) {
+                            self.dHeight.val(parseInt(r.attr("height")));
+                        }
+                        if (r._4e_name() == "object") {
+                            var params = r.all("param");
+                            for (var i = 0; i < params.length; i++) {
+                                if (DOM.attr(params[i], "name") == "movie") {
+                                    self.dUrl.val(DOM.attr(params[i], "value"));
+                                }
+                            }
+                        } else if (r._4e_name() == "embed") {
+                            self.dUrl.val(r.attr("src"));
+                        }
+                    }
                 },
                 _initD:function() {
                     var self = this,editor = self.editor,d = self.d;
@@ -156,6 +219,20 @@ KISSY.Editor.add("flash", function(editor) {
             KE.Flash = Flash;
         })();
     }
+
+    var contextMenu = {
+        "编辑Flash":function(editor) {
+            var selection = editor.getSelection(),
+                startElement = selection && selection.getStartElement(),
+                flash = startElement && startElement._4e_ascendant('img', true);
+            if (!flash)
+                return;
+            if (!flash.hasClass(CLS_FLASH)) return;
+            var flashUI = editor._toolbars["flash"];
+            flashUI.selectedFlash = flash;
+            flashUI._showConfig();
+        }
+    };
     editor.addPlugin(function() {
         new KE.Flash(editor);
     });

@@ -81,7 +81,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
             "</tr>" +
             "</table>",
         ContextMenu = KE.ContextMenu,
-        tableTags = ["tr","th","td","tbody","table"],trim = S.trim;
+        tableRules = ["tr","th","td","tbody","table"],trim = S.trim;
 
     /**
      * table 编辑模式下显示虚线边框便于编辑
@@ -191,7 +191,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                         })(f);
                     }
                     ContextMenu.register(editor.document, {
-                        tags:tableTags,
+                        rules:tableRules,
                         width:"120px",
                         funcs:myContexts
                     });

@@ -67,7 +67,7 @@ KISSY.add("editor", function(S, undefined) {
             "fakeobjects",
             {
                 name: "flash",
-                requires: ["fakeobjects","overlay"]
+                requires: ["contextmenu","fakeobjects","overlay"]
             },
             "font",
             "format",

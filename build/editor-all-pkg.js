@@ -67,7 +67,7 @@ KISSY.add("editor", function(S, undefined) {
             "fakeobjects",
             {
                 name: "flash",
-                requires: ["fakeobjects","overlay"]
+                requires: ["contextmenu","fakeobjects","overlay"]
             },
             "font",
             "format",
@@ -6596,11 +6596,11 @@ KISSY.Editor.add("button", function(editor) {
  * contextmenu for kissy editor
  * @author: yiminghe@gmail.com
  */
-KISSY.Editor.add("contextmenu", function(editor) {
+KISSY.Editor.add("contextmenu", function() {
     var KE = KISSY.Editor,
         S = KISSY,
         Node = S.Node,
-        //DOM = S.DOM,
+        DOM = S.DOM,
         Event = S.Event;
     var HTML = "<div class='ke-contextmenu'></div>";
 
@@ -6610,7 +6610,7 @@ KISSY.Editor.add("contextmenu", function(editor) {
         KE.Utils.lazyRun(this, "_prepareShow", "_realShow");
     }
 
-    var global_tags = [];
+    var global_rules = [];
     /**
      * 多菜单管理
      */
@@ -6618,9 +6618,9 @@ KISSY.Editor.add("contextmenu", function(editor) {
 
         var cm = new ContextMenu(cfg);
 
-        global_tags.push({
+        global_rules.push({
             doc:doc,
-            tags:cfg.tags,
+            rules:cfg.rules,
             instance:cm
         });
 
@@ -6633,11 +6633,11 @@ KISSY.Editor.add("contextmenu", function(editor) {
                 while (t) {
                     var name = t._4e_name(),stop = false;
                     if (name == "body")break;
-                    for (var i = 0; i < global_tags.length; i++) {
-                        var tags = global_tags[i].tags,
-                            instance = global_tags[i].instance,
-                            doc2 = global_tags[i].doc;
-                        if (doc === doc2 && S.inArray(name, tags)) {
+                    for (var i = 0; i < global_rules.length; i++) {
+                        var instance = global_rules[i].instance,
+                            rules = global_rules[i].rules,
+                            doc2 = global_rules[i].doc;
+                        if (doc === doc2 && applyRules(t[0], rules)) {
                             ev.preventDefault();
                             stop = true;
                             instance.show(KE.Utils.getXY(ev.pageX, ev.pageY, doc, document));
@@ -6651,10 +6651,19 @@ KISSY.Editor.add("contextmenu", function(editor) {
         }
         return cm;
     };
+
+    function applyRules(elem, rules) {
+        for (var i = 0; i < rules.length; i++) {
+            var rule = rules[i];
+            if (DOM.test(elem, rule))return true;
+        }
+        return false;
+    }
+
     ContextMenu.hide = function() {
         var doc = this;
-        for (var i = 0; i < global_tags.length; i++) {
-            var instance = global_tags[i].instance,doc2 = global_tags[i].doc;
+        for (var i = 0; i < global_rules.length; i++) {
+            var instance = global_rules[i].instance,doc2 = global_rules[i].doc;
             if (doc === doc2)
                 instance.hide();
         }
@@ -6702,9 +6711,7 @@ KISSY.Editor.add("contextmenu", function(editor) {
         }
     });
 
-
     KE.ContextMenu = ContextMenu;
-    //console.log("contexmenu loaded!");
 });
 /**
  * simple overlay for kissy editor using lazyRun
@@ -7623,6 +7630,9 @@ KISSY.Editor.add("fakeobjects", function(editor) {
 KISSY.Editor.add("flash", function(editor) {
     var KE = KISSY.Editor,
         S = KISSY,
+        DOM = S.DOM,
+        Event = S.Event,
+        ContextMenu = KE.ContextMenu,
         Node = S.Node,
         TripleButton = KE.TripleButton,
         Overlay = KE.SimpleOverlay,
@@ -7634,7 +7644,9 @@ KISSY.Editor.add("flash", function(editor) {
         TYPE_FLASH = 'flash',
         TYPE_MUSIC = 'music',
         //htmlFilter = dataProcessor && dataProcessor.htmlFilter,
-        dataFilter = dataProcessor && dataProcessor.dataFilter;
+        dataFilter = dataProcessor && dataProcessor.dataFilter,
+        flashRules = ["img." + CLS_FLASH];
+
     if (!KE.Flash) {
 
         (function() {
@@ -7710,13 +7722,17 @@ KISSY.Editor.add("flash", function(editor) {
                 "<p style='margin:5px 0;text-align:right;'><button>确定</button></p></div>";
 
             function Flash(editor) {
-                this.editor = editor;
-                this._init();
+                var self = this;
+                self.editor = editor;
+                editor._toolbars = editor._toolbars || {};
+                editor._toolbars["flash"] = self;
+                self._init();
             }
 
             S.augment(Flash, {
                 _init:function() {
-                    var self = this,editor = self.editor;
+                    var self = this,editor = self.editor,
+                        myContexts = {};
                     self.el = new TripleButton({
                         container:editor.toolBarDiv,
                         contentCls:"ke-toolbar-flash",
@@ -7725,7 +7741,36 @@ KISSY.Editor.add("flash", function(editor) {
                     });
 
                     self.el.on("click", self._showConfig, this);
+
+                    Event.on(editor.document, "dblclick", self._dbclick, self);
+
+
+                    for (var f in contextMenu) {
+                        (function(f) {
+                            myContexts[f] = function() {
+                                editor.fire("save");
+                                editor.focus();
+                                contextMenu[f](editor);
+                                editor.fire("save");
+                            }
+                        })(f);
+                    }
+                    ContextMenu.register(editor.document, {
+                        rules:flashRules,
+                        width:"120px",
+                        funcs:myContexts
+                    });
+
                     KE.Utils.lazyRun(this, "_prepareShow", "_realShow");
+                },
+                _dbclick:function(ev) {
+                    var self = this,t = new Node(ev.target);
+                    if (t._4e_name() === "img" && t.hasClass(CLS_FLASH)) {
+                        self.selectedFlash = t;
+                        self._showConfig();
+                        ev.halt();
+                    }
+
                 },
                 _prepareShow:function() {
                     var self = this;
@@ -7734,6 +7779,11 @@ KISSY.Editor.add("flash", function(editor) {
                         width:"350px",
                         mask:true
                     });
+                    self.d.on("hide", function() {
+                        //清空
+                        self.selectedFlash = null;
+                        editor.focus();
+                    });
                     self.d.body.html(html);
                     self._initD();
                 },
@@ -7741,7 +7791,27 @@ KISSY.Editor.add("flash", function(editor) {
                     this.d.show();
                 },
                 _showConfig:function() {
-                    this._prepareShow();
+                    var self = this,editor = self.editor,d = self.d,f = self.selectedFlash;
+                    self._prepareShow();
+                    if (f) {
+                        var r = editor.restoreRealElement(f);
+                        if (r.attr("width")) {
+                            self.dWidth.val(parseInt(r.attr("width")));
+                        }
+                        if (r.attr("height")) {
+                            self.dHeight.val(parseInt(r.attr("height")));
+                        }
+                        if (r._4e_name() == "object") {
+                            var params = r.all("param");
+                            for (var i = 0; i < params.length; i++) {
+                                if (DOM.attr(params[i], "name") == "movie") {
+                                    self.dUrl.val(DOM.attr(params[i], "value"));
+                                }
+                            }
+                        } else if (r._4e_name() == "embed") {
+                            self.dUrl.val(r.attr("src"));
+                        }
+                    }
                 },
                 _initD:function() {
                     var self = this,editor = self.editor,d = self.d;
@@ -7778,6 +7848,20 @@ KISSY.Editor.add("flash", function(editor) {
             KE.Flash = Flash;
         })();
     }
+
+    var contextMenu = {
+        "编辑Flash":function(editor) {
+            var selection = editor.getSelection(),
+                startElement = selection && selection.getStartElement(),
+                flash = startElement && startElement._4e_ascendant('img', true);
+            if (!flash)
+                return;
+            if (!flash.hasClass(CLS_FLASH)) return;
+            var flashUI = editor._toolbars["flash"];
+            flashUI.selectedFlash = flash;
+            flashUI._showConfig();
+        }
+    };
     editor.addPlugin(function() {
         new KE.Flash(editor);
     });
@@ -11443,11 +11527,10 @@ KISSY.Editor.add("music", function(editor) {
     var KE = KISSY.Editor;
     if (!KE.MusicInserter) {
         (function() {
-
-            var
-                S = KISSY,
+            var S = KISSY,
                 Node = S.Node,
                 DOM = S.DOM,
+                ContextMenu = KE.ContextMenu,
                 Event = S.Event,
                 //MUSIC_PLAYER = KE.Config.base+"niftyplayer.swf",
                 //CLS_FLASH = 'ke_flash',
@@ -11456,6 +11539,7 @@ KISSY.Editor.add("music", function(editor) {
                 TYPE_MUSIC = 'music',
                 Overlay = KE.SimpleOverlay,
                 TripleButton = KE.TripleButton,
+
                 html = "<div class='ke-popup-wrap' " +
                     "style='width:250px;padding:10px;'>" +
                     "<p style='margin:0 0 10px'>" +
@@ -11484,11 +11568,15 @@ KISSY.Editor.add("music", function(editor) {
                     'pluginspage="http://www.macromedia.com/go/getflashplayer"' +
                     ' bgcolor="#FFFFFF">' +
                     '</object>',
-                music_reg = /#\(music\)/g;
+                music_reg = /#\(music\)/g,
+                flashRules = ["img." + CLS_MUSIC];
 
             function MusicInserter(cfg) {
                 MusicInserter.superclass.constructor.call(this, cfg);
-                this._init();
+                var self = this,editor = self.get("editor");
+                editor._toolbars = editor._toolbars || {};
+                editor._toolbars["music"] = self;
+                self._init();
             }
 
             MusicInserter.ATTRS = {
@@ -11497,34 +11585,55 @@ KISSY.Editor.add("music", function(editor) {
 
             S.extend(MusicInserter, S.Base, {
                 _init:function() {
-                    var editor = this.get("editor"),toolBarDiv = editor.toolBarDiv;
+                    var self = this,editor = self.get("editor"),toolBarDiv = editor.toolBarDiv,
+                        myContexts = {};
 
-                    this.el = new TripleButton({
+                    self.el = new TripleButton({
                         //text:"music",
                         contentCls:"ke-toolbar-music",
                         title:"分享音乐",
                         container:toolBarDiv
                     });
-
-                    this.el.on("offClick", this.show, this);
-                    KE.Utils.lazyRun(this, "_prepare", "_real");
+                    Event.on(editor.document, "dblclick", self._dblclick, self);
+                    for (var f in contextMenu) {
+                        (function(f) {
+                            myContexts[f] = function() {
+                                editor.fire("save");
+                                editor.focus();
+                                contextMenu[f](editor);
+                                editor.fire("save");
+                            }
+                        })(f);
+                    }
+                    ContextMenu.register(editor.document, {
+                        rules:flashRules,
+                        width:"120px",
+                        funcs:myContexts
+                    });
+                    self.el.on("offClick", self.show, self);
+                    KE.Utils.lazyRun(self, "_prepare", "_real");
                 },
                 _prepare:function() {
-                    var self = this,editor = this.get("editor");
-                    this.content = new Node(html);
-                    this.d = new Overlay({
-                        el:this.content
+                    var self = this,editor = self.get("editor");
+                    self.content = new Node(html);
+                    self.d = new Overlay({
+                        el:self.content
                     });
-                    document.body.appendChild(this.content[0]);
-                    var cancel = this.content.one(".ke-music-cancel"),
-                        ok = this.content.one(".ke-music-insert");
-                    this.musicUrl = this.content.one(".ke-music-url");
+                    self.d.on("hide", function() {
+                        //清空
+                        self.selectedFlash = null;
+                        editor.focus();
+                    });
+                    document.body.appendChild(self.content[0]);
+                    var cancel = self.content.one(".ke-music-cancel"),
+                        ok = self.content.one(".ke-music-insert");
+                    self.musicUrl = self.content.one(".ke-music-url");
                     cancel.on("click", function(ev) {
-                        this.d.hide();
+                        self.d.hide();
                         ev.halt();
-                    }, this);
-                    Event.on(document, "click", this.hide, this);
-                    Event.on(editor.document, "click", this.hide, this);
+                    }, self);
+                    Event.on(document, "click", self.hide, self);
+                    Event.on(editor.document, "click", self.hide, self);
                     ok.on("click", function() {
                         self._insert();
                     });
@@ -11537,29 +11646,69 @@ KISSY.Editor.add("music", function(editor) {
                     this.d.hide();
                 },
                 _real:function() {
-                    var xy = this.el.el.offset();
-                    xy.top += this.el.el.height() + 5;
-                    if (xy.left + this.content.width() > DOM.viewportWidth() - 60) {
-                        xy.left = DOM.viewportWidth() - this.content.width() - 60;
+                    var self = this,xy = self.el.el.offset();
+                    xy.top += self.el.el.height() + 5;
+                    if (xy.left + self.content.width() > DOM.viewportWidth() - 60) {
+                        xy.left = DOM.viewportWidth() - self.content.width() - 60;
                     }
                     this.d.show(xy);
                 },
                 _insert:function() {
-                    var editor = this.get("editor");
-                    var url = this.musicUrl.val();
+                    var self = this,editor = self.get("editor");
+                    var url = self.musicUrl.val();
                     if (!url) return;
                     var music = new Node(MUSIC_MARKUP.replace(music_reg, url), null, editor.document);
                     var substitute = editor.createFakeElement ?
                         editor.createFakeElement(music, CLS_MUSIC, TYPE_MUSIC, true) :
                         music;
                     editor.insertElement(substitute);
-                    this.d.hide();
+                    self.d.hide();
+                },
+                _dblclick:function(ev) {
+                    var self = this,t = new Node(ev.target);
+                    if (t._4e_name() === "img" && t.hasClass(CLS_MUSIC)) {
+                        self.selectedFlash = t;
+                        self.show();
+                        ev.halt();
+                    }
                 },
                 show:function() {
-                    this._prepare();
+                    var self = this;
+                    self._prepare();
+
+                    if (self.selectedFlash) {
+                        var editor = self.get("editor"),r = editor.restoreRealElement(self.selectedFlash);
+                        if (r._4e_name() == "object") {
+                            var params = r.all("param");
+                            for (var i = 0; i < params.length; i++) {
+                                if (DOM.attr(params[i], "name") == "movie") {
+                                    self.musicUrl.val(getMusicUrl(DOM.attr(params[i], "value")));
+                                }
+                            }
+                        } else if (r._4e_name() == "embed") {
+                            self.musicUrl.val(getMusicUrl(r.attr("src")));
+                        }
+                    }
                 }
             });
+            function getMusicUrl(url) {
+                return url.replace(/^.+niftyplayer\.swf\?file=/, "");
+            }
+
             KE.MusicInserter = MusicInserter;
+            var contextMenu = {
+                "编辑音乐":function(editor) {
+                    var selection = editor.getSelection(),
+                        startElement = selection && selection.getStartElement(),
+                        flash = startElement && startElement._4e_ascendant('img', true);
+                    if (!flash)
+                        return;
+                    if (!flash.hasClass(CLS_MUSIC)) return;
+                    var flashUI = editor._toolbars["music"];
+                    flashUI.selectedFlash = flash;
+                    flashUI.show();
+                }
+            };
         })();
     }
     editor.addPlugin(function() {
@@ -12015,7 +12164,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
             "</tr>" +
             "</table>",
         ContextMenu = KE.ContextMenu,
-        tableTags = ["tr","th","td","tbody","table"],trim = S.trim;
+        tableRules = ["tr","th","td","tbody","table"],trim = S.trim;
 
     /**
      * table 编辑模式下显示虚线边框便于编辑
@@ -12125,7 +12274,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                         })(f);
                     }
                     ContextMenu.register(editor.document, {
-                        tags:tableTags,
+                        rules:tableRules,
                         width:"120px",
                         funcs:myContexts
                     });

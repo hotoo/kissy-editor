@@ -6,11 +6,10 @@ KISSY.Editor.add("music", function(editor) {
     var KE = KISSY.Editor;
     if (!KE.MusicInserter) {
         (function() {
-
-            var
-                S = KISSY,
+            var S = KISSY,
                 Node = S.Node,
                 DOM = S.DOM,
+                ContextMenu = KE.ContextMenu,
                 Event = S.Event,
                 //MUSIC_PLAYER = KE.Config.base+"niftyplayer.swf",
                 //CLS_FLASH = 'ke_flash',
@@ -19,6 +18,7 @@ KISSY.Editor.add("music", function(editor) {
                 TYPE_MUSIC = 'music',
                 Overlay = KE.SimpleOverlay,
                 TripleButton = KE.TripleButton,
+
                 html = "<div class='ke-popup-wrap' " +
                     "style='width:250px;padding:10px;'>" +
                     "<p style='margin:0 0 10px'>" +
@@ -47,11 +47,15 @@ KISSY.Editor.add("music", function(editor) {
                     'pluginspage="http://www.macromedia.com/go/getflashplayer"' +
                     ' bgcolor="#FFFFFF">' +
                     '</object>',
-                music_reg = /#\(music\)/g;
+                music_reg = /#\(music\)/g,
+                flashRules = ["img." + CLS_MUSIC];
 
             function MusicInserter(cfg) {
                 MusicInserter.superclass.constructor.call(this, cfg);
-                this._init();
+                var self = this,editor = self.get("editor");
+                editor._toolbars = editor._toolbars || {};
+                editor._toolbars["music"] = self;
+                self._init();
             }
 
             MusicInserter.ATTRS = {
@@ -60,34 +64,55 @@ KISSY.Editor.add("music", function(editor) {
 
             S.extend(MusicInserter, S.Base, {
                 _init:function() {
-                    var editor = this.get("editor"),toolBarDiv = editor.toolBarDiv;
+                    var self = this,editor = self.get("editor"),toolBarDiv = editor.toolBarDiv,
+                        myContexts = {};
 
-                    this.el = new TripleButton({
+                    self.el = new TripleButton({
                         //text:"music",
                         contentCls:"ke-toolbar-music",
                         title:"分享音乐",
                         container:toolBarDiv
                     });
-
-                    this.el.on("offClick", this.show, this);
-                    KE.Utils.lazyRun(this, "_prepare", "_real");
+                    Event.on(editor.document, "dblclick", self._dblclick, self);
+                    for (var f in contextMenu) {
+                        (function(f) {
+                            myContexts[f] = function() {
+                                editor.fire("save");
+                                editor.focus();
+                                contextMenu[f](editor);
+                                editor.fire("save");
+                            }
+                        })(f);
+                    }
+                    ContextMenu.register(editor.document, {
+                        rules:flashRules,
+                        width:"120px",
+                        funcs:myContexts
+                    });
+                    self.el.on("offClick", self.show, self);
+                    KE.Utils.lazyRun(self, "_prepare", "_real");
                 },
                 _prepare:function() {
-                    var self = this,editor = this.get("editor");
-                    this.content = new Node(html);
-                    this.d = new Overlay({
-                        el:this.content
+                    var self = this,editor = self.get("editor");
+                    self.content = new Node(html);
+                    self.d = new Overlay({
+                        el:self.content
                     });
-                    document.body.appendChild(this.content[0]);
-                    var cancel = this.content.one(".ke-music-cancel"),
-                        ok = this.content.one(".ke-music-insert");
-                    this.musicUrl = this.content.one(".ke-music-url");
+                    self.d.on("hide", function() {
+                        //清空
+                        self.selectedFlash = null;
+                        editor.focus();
+                    });
+                    document.body.appendChild(self.content[0]);
+                    var cancel = self.content.one(".ke-music-cancel"),
+                        ok = self.content.one(".ke-music-insert");
+                    self.musicUrl = self.content.one(".ke-music-url");
                     cancel.on("click", function(ev) {
-                        this.d.hide();
+                        self.d.hide();
                         ev.halt();
-                    }, this);
-                    Event.on(document, "click", this.hide, this);
-                    Event.on(editor.document, "click", this.hide, this);
+                    }, self);
+                    Event.on(document, "click", self.hide, self);
+                    Event.on(editor.document, "click", self.hide, self);
                     ok.on("click", function() {
                         self._insert();
                     });
@@ -100,29 +125,69 @@ KISSY.Editor.add("music", function(editor) {
                     this.d.hide();
                 },
                 _real:function() {
-                    var xy = this.el.el.offset();
-                    xy.top += this.el.el.height() + 5;
-                    if (xy.left + this.content.width() > DOM.viewportWidth() - 60) {
-                        xy.left = DOM.viewportWidth() - this.content.width() - 60;
+                    var self = this,xy = self.el.el.offset();
+                    xy.top += self.el.el.height() + 5;
+                    if (xy.left + self.content.width() > DOM.viewportWidth() - 60) {
+                        xy.left = DOM.viewportWidth() - self.content.width() - 60;
                     }
                     this.d.show(xy);
                 },
                 _insert:function() {
-                    var editor = this.get("editor");
-                    var url = this.musicUrl.val();
+                    var self = this,editor = self.get("editor");
+                    var url = self.musicUrl.val();
                     if (!url) return;
                     var music = new Node(MUSIC_MARKUP.replace(music_reg, url), null, editor.document);
                     var substitute = editor.createFakeElement ?
                         editor.createFakeElement(music, CLS_MUSIC, TYPE_MUSIC, true) :
                         music;
                     editor.insertElement(substitute);
-                    this.d.hide();
+                    self.d.hide();
+                },
+                _dblclick:function(ev) {
+                    var self = this,t = new Node(ev.target);
+                    if (t._4e_name() === "img" && t.hasClass(CLS_MUSIC)) {
+                        self.selectedFlash = t;
+                        self.show();
+                        ev.halt();
+                    }
                 },
                 show:function() {
-                    this._prepare();
+                    var self = this;
+                    self._prepare();
+
+                    if (self.selectedFlash) {
+                        var editor = self.get("editor"),r = editor.restoreRealElement(self.selectedFlash);
+                        if (r._4e_name() == "object") {
+                            var params = r.all("param");
+                            for (var i = 0; i < params.length; i++) {
+                                if (DOM.attr(params[i], "name") == "movie") {
+                                    self.musicUrl.val(getMusicUrl(DOM.attr(params[i], "value")));
+                                }
+                            }
+                        } else if (r._4e_name() == "embed") {
+                            self.musicUrl.val(getMusicUrl(r.attr("src")));
+                        }
+                    }
                 }
             });
+            function getMusicUrl(url) {
+                return url.replace(/^.+niftyplayer\.swf\?file=/, "");
+            }
+
             KE.MusicInserter = MusicInserter;
+            var contextMenu = {
+                "编辑音乐":function(editor) {
+                    var selection = editor.getSelection(),
+                        startElement = selection && selection.getStartElement(),
+                        flash = startElement && startElement._4e_ascendant('img', true);
+                    if (!flash)
+                        return;
+                    if (!flash.hasClass(CLS_MUSIC)) return;
+                    var flashUI = editor._toolbars["music"];
+                    flashUI.selectedFlash = flash;
+                    flashUI.show();
+                }
+            };
         })();
     }
     editor.addPlugin(function() {

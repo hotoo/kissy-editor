@@ -52,7 +52,7 @@ KISSY.Editor.add("definition", function(KE) {
             "' " +
             " > " +
             "<div class='" + ke_editor_tools.substring(1) + "'></div>" +
-            "<div class='" + ke_textarea_wrap.substring(1) + "'><iframe " +
+            "<div class='" + ke_textarea_wrap.substring(1) + "'><" + "iframe " +
             ' style="' + WIDTH + ':100%;' + HEIGHT + ':100%;border:none;" ' +
             ' ' + WIDTH + '="100%" ' +
             ' ' + HEIGHT + '="100%" ' +

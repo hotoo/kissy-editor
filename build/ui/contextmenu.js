@@ -2,11 +2,11 @@
  * contextmenu for kissy editor
  * @author: yiminghe@gmail.com
  */
-KISSY.Editor.add("contextmenu", function(editor) {
+KISSY.Editor.add("contextmenu", function() {
     var KE = KISSY.Editor,
         S = KISSY,
         Node = S.Node,
-        //DOM = S.DOM,
+        DOM = S.DOM,
         Event = S.Event;
     var HTML = "<div class='ke-contextmenu'></div>";
 
@@ -16,7 +16,7 @@ KISSY.Editor.add("contextmenu", function(editor) {
         KE.Utils.lazyRun(this, "_prepareShow", "_realShow");
     }
 
-    var global_tags = [];
+    var global_rules = [];
     /**
      * 多菜单管理
      */
@@ -24,9 +24,9 @@ KISSY.Editor.add("contextmenu", function(editor) {
 
         var cm = new ContextMenu(cfg);
 
-        global_tags.push({
+        global_rules.push({
             doc:doc,
-            tags:cfg.tags,
+            rules:cfg.rules,
             instance:cm
         });
 
@@ -39,11 +39,11 @@ KISSY.Editor.add("contextmenu", function(editor) {
                 while (t) {
                     var name = t._4e_name(),stop = false;
                     if (name == "body")break;
-                    for (var i = 0; i < global_tags.length; i++) {
-                        var tags = global_tags[i].tags,
-                            instance = global_tags[i].instance,
-                            doc2 = global_tags[i].doc;
-                        if (doc === doc2 && S.inArray(name, tags)) {
+                    for (var i = 0; i < global_rules.length; i++) {
+                        var instance = global_rules[i].instance,
+                            rules = global_rules[i].rules,
+                            doc2 = global_rules[i].doc;
+                        if (doc === doc2 && applyRules(t[0], rules)) {
                             ev.preventDefault();
                             stop = true;
                             instance.show(KE.Utils.getXY(ev.pageX, ev.pageY, doc, document));
@@ -57,10 +57,19 @@ KISSY.Editor.add("contextmenu", function(editor) {
         }
         return cm;
     };
+
+    function applyRules(elem, rules) {
+        for (var i = 0; i < rules.length; i++) {
+            var rule = rules[i];
+            if (DOM.test(elem, rule))return true;
+        }
+        return false;
+    }
+
     ContextMenu.hide = function() {
         var doc = this;
-        for (var i = 0; i < global_tags.length; i++) {
-            var instance = global_tags[i].instance,doc2 = global_tags[i].doc;
+        for (var i = 0; i < global_rules.length; i++) {
+            var instance = global_rules[i].instance,doc2 = global_rules[i].doc;
             if (doc === doc2)
                 instance.hide();
         }
@@ -108,7 +117,5 @@ KISSY.Editor.add("contextmenu", function(editor) {
         }
     });
 
-
     KE.ContextMenu = ContextMenu;
-    //console.log("contexmenu loaded!");
 });

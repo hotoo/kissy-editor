@@ -12,7 +12,13 @@ build file for kissy editor
     <property name="version" value="2.0"/>
     <property name="charset" value="utf-8"/>
     <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
-
+    <filelist dir="."
+              files="editor.js" id="editor_js"/>
+    <filelist dir="core" id="core_js"
+              files="utils.js,focusmanager.js,definition.js,
+                      dtd.js,dom.js,elementpath.js
+                      ,walker.js,range.js,domiterator.js,selection.js
+                      ,styles.js"/>
     <!--
     create dir necessarily
     -->
@@ -70,26 +76,15 @@ build file for kissy editor
         kissy editor core ,load plugins dynamically
         -->
         <concat destfile="build/editor-core-pkg.js" encoding="${charset}" outputencoding="${charset}">
-            <filelist dir="."
-                      files="editor.js"/>
-            <filelist dir="core"
-                      files="utils.js,focusmanager.js,definition.js,
-                      dtd.js,dom.js,elementpath.js
-                      ,walker.js,range.js,domiterator.js,selection.js
-                      ,styles.js"/>
+            <filelist refid="editor_js"/>
+            <filelist refid="core_js"/>
         </concat>
 
         <!--
         full kissy editor ,all plugins static included
         -->
         <concat destfile="build/editor-all-pkg.js" encoding="${charset}" outputencoding="${charset}">
-            <filelist dir="."
-                      files="editor.js"/>
-            <filelist dir="core"
-                      files="utils.js,focusmanager.js,definition.js,
-                      dtd.js,dom.js,elementpath.js
-                      ,walker.js,range.js,domiterator.js,selection.js
-                      ,styles.js"/>
+            <path location="build/editor-core-pkg.js"/>
             <fileset dir="ui"
                      includes="**/*.js"/>
             <fileset dir="plugins"
