@@ -7940,8 +7940,7 @@ KISSY.Editor.add("font", function(editor) {
         FONT_SIZE_STYLES[size] = new KEStyle(fontSize_style, {
             size:size
         });
-        FONT_SIZE_SELECTION_HTML += "<option style='font-size:"
-            + size + "' value='" + size + "'>" + size + "</option>"
+        FONT_SIZE_SELECTION_HTML += "<option value='" + size + "'>" + size + "</option>"
     }
     FONT_SIZE_SELECTION_HTML += "</select>";
 
