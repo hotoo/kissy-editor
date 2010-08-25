@@ -1334,7 +1334,14 @@ KISSY.Editor.add("dom", function(KE) {
 
             _4e_name:function(thisElement) {
                 thisElement = normalElDom(thisElement);
-                return thisElement.nodeName.toLowerCase();
+                var nodeName = thisElement.nodeName.toLowerCase();
+                //note by yiminghe:http://msdn.microsoft.com/en-us/library/ms534388(VS.85).aspx
+                if (UA.ie) {
+                    var scopeName = thisElement.scopeName;
+                    if (scopeName && scopeName != 'HTML')
+                        nodeName = scopeName.toLowerCase() + ':' + nodeName;
+                }
+                return nodeName;
             },
             _4e_isIdentical : function(thisElement, otherElement) {
                 if (thisElement._4e_name() != otherElement._4e_name())
@@ -1913,7 +1920,7 @@ KISSY.Editor.add("dom", function(KE) {
                     }
                     parent.removeChild($);
                 }
-                return this;
+                return el;
             },
             _4e_trim : function(el) {
                 DOM._4e_ltrim(el);
@@ -2162,6 +2169,16 @@ KISSY.Editor.add("dom", function(KE) {
                     ) {
                     elem.scrollIntoView(doc);
                 }
+            },
+            _4e_getElementsByTagName:function(elem, tag, namespace) {
+                elem = normalElDom(elem);
+                if (!UA.ie && namespace) {
+                    tag = namespace + ":" + tag
+                }
+                var re = [],els = elem.getElementsByTagName(tag);
+                for (var i = 0; i < els.length; i++)
+                    re.push(new Node(els[i]));
+                return re;
             }
         };
 
@@ -7620,9 +7637,15 @@ KISSY.Editor.add("fakeobjects", function(editor) {
         restoreRealElement:function(fakeElement) {
             if (fakeElement.attr('_ke_real_node_type') != KEN.NODE_ELEMENT)
                 return null;
-            return new Node(
-                decodeURIComponent(fakeElement.attr('_ke_realelement')),
-                this.document);
+            var html = (decodeURIComponent(fakeElement.attr('_ke_realelement')));
+
+            var temp = new Node('<div>', null, this.document);
+            temp.html(html);
+            // When returning the node, remove it from its parent to detach it.
+            var n = temp._4e_first(function(n) {
+                return n[0].nodeType == KEN.NODE_ELEMENT;
+            })._4e_remove();
+            return n;
         }
     });
 
@@ -7667,14 +7690,14 @@ KISSY.Editor.add("flash", function(editor) {
 
             dataFilter && dataFilter.addRules({
                 elements : {
-                    'object' : function(element) {
+                    'ke:object' : function(element) {
                         var attributes = element.attributes,i,
-                            classId = attributes.classid && String(attributes.classid).toLowerCase();
-                        var cls = CLS_FLASH,type = TYPE_FLASH;
+                            classId = attributes.classid && String(attributes.classid).toLowerCase(),
+                            cls = CLS_FLASH,type = TYPE_FLASH;
                         if (!classId) {
                             // Look for the inner <embed>
                             for (i = 0; i < element.children.length; i++) {
-                                if (element.children[ i ].name == 'embed') {
+                                if (element.children[ i ].name == 'ke:embed') {
                                     if (!isFlashEmbed(element.children[ i ]))
                                         return null;
                                     if (music(element.children[ i ].attributes.src)) {
@@ -7689,7 +7712,7 @@ KISSY.Editor.add("flash", function(editor) {
 
                         for (i = 0; i < element.children.length; i++) {
                             var c = element.children[ i ];
-                            if (c.name == 'param' && c.attributes.name == "movie") {
+                            if (c.name == 'ke:param' && c.attributes.name == "movie") {
                                 if (music(c.attributes.value)) {
                                     cls = CLS_MUSIC;
                                     type = TYPE_MUSIC;
@@ -7700,7 +7723,7 @@ KISSY.Editor.add("flash", function(editor) {
                         return dataProcessor.createFakeParserElement(element, cls, type, true);
                     },
 
-                    'embed' : function(element) {
+                    'ke:embed' : function(element) {
                         if (!isFlashEmbed(element))
                             return null;
                         var cls = CLS_FLASH,type = TYPE_FLASH;
@@ -7793,6 +7816,7 @@ KISSY.Editor.add("flash", function(editor) {
                 _showConfig:function() {
                     var self = this,editor = self.editor,d = self.d,f = self.selectedFlash;
                     self._prepareShow();
+
                     if (f) {
                         var r = editor.restoreRealElement(f);
                         if (r.attr("width")) {
@@ -7801,14 +7825,22 @@ KISSY.Editor.add("flash", function(editor) {
                         if (r.attr("height")) {
                             self.dHeight.val(parseInt(r.attr("height")));
                         }
-                        if (r._4e_name() == "object") {
-                            var params = r.all("param");
+                        if (r._4e_name() == "ke:object") {
+                            var params = r._4e_getElementsByTagName("param", "ke");
                             for (var i = 0; i < params.length; i++) {
-                                if (DOM.attr(params[i], "name") == "movie") {
-                                    self.dUrl.val(DOM.attr(params[i], "value"));
+                                if ((params[i].attr("name") || "").toLowerCase() == "movie") {
+                                    self.dUrl.val(params[i].attr("value"));
                                 }
                             }
-                        } else if (r._4e_name() == "embed") {
+                            var embeds = r._4e_getElementsByTagName("embed", "ke");
+                            for (var i = 0; i < embeds.length; i++) {
+                                self.dUrl.val(embeds[i].attr("src"));
+                            }
+                            var objects = r._4e_getElementsByTagName("object", "ke");
+                            for (var i = 0; i < objects.length; i++) {
+                                self.dUrl.val(objects[i].attr("data"));
+                            }
+                        } else if (r._4e_name() == "ke:embed") {
                             self.dUrl.val(r.attr("src"));
                         }
                     }
@@ -7826,20 +7858,20 @@ KISSY.Editor.add("flash", function(editor) {
                     var self = this,editor = self.editor;
                     var url = self.dUrl.val();
                     if (!url)return;
-                    var real = new Node('<object ' +
+                    var real = new Node('<ke:object ' +
                         (parseInt(self.dWidth.val()) ? " width='" + parseInt(self.dWidth.val()) + "' " : ' ') +
                         (parseInt(self.dHeight.val()) ? " height='" + parseInt(self.dHeight.val()) + "' " : ' ') +
                         'classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" ' +
                         'codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0">' +
-                        '<param name="quality" value="high" />' +
-                        '<param name="movie" value="' + url + '" />' +
-                        '<embed ' +
+                        '<ke:param name="quality" value="high" ></ke:param>' +
+                        '<ke:param name="movie" value="' + url + '" ></ke:param>' +
+                        '<ke:embed ' +
                         (parseInt(self.dWidth.val()) ? " width='" + parseInt(self.dWidth.val()) + "' " : ' ') +
                         (parseInt(self.dHeight.val()) ? " height='" + parseInt(self.dHeight.val()) + "' " : ' ') + 'pluginspage="http://www.macromedia.com/go/getflashplayer" quality="high" ' +
                         'src="' + url + '" ' +
                         'type="application/x-shockwave-flash">' +
-                        '</embed>' +
-                        '</object>', null, editor.document);
+                        '</ke:embed>' +
+                        '</ke:object>', null, editor.document);
                     var substitute = editor.createFakeElement ? editor.createFakeElement(real, CLS_FLASH, TYPE_FLASH, true) : real;
                     editor.insertElement(substitute);
                     self.d.hide();
@@ -9866,54 +9898,72 @@ KISSY.Editor.add("htmldataprocessor", function(
         UA = S.UA,
         HtmlParser = KE.HtmlParser,
         htmlFilter = new HtmlParser.Filter(),
-        dataFilter = new HtmlParser.Filter();
-    var defaultHtmlFilterRules = {
-        elementNames : [
-            // Remove script,iframe style,link,meta
-            [ ( /^script$/ ), '' ],
-            [ ( /^iframe$/ ), '' ],
-            [ ( /^style$/ ), '' ],
-            [ ( /^link$/ ), '' ],
-            [ ( /^meta$/ ), '' ],
-            // Ignore <?xml:namespace> tags.
-            [ ( /^\?xml:namespace$/ ), '' ]
-        ],
-        elements : {
-            embed : function(element) {
-                var parent = element.parent;
-                // If the <embed> is child of a <object>, copy the width
-                // and height attributes from it.
-                if (parent && parent.name == 'object') {
-                    var parentWidth = parent.attributes.width,
-                        parentHeight = parent.attributes.height;
-                    parentWidth && ( element.attributes.width = parentWidth );
-                    parentHeight && ( element.attributes.height = parentHeight );
-                }
+        dataFilter = new HtmlParser.Filter(),
+        defaultDataFilterRules = {
+            elementNames : [
+                // Remove script,iframe style,link,meta
+                [ ( /^script$/ ), '' ],
+                [ ( /^iframe$/ ), '' ],
+                [ ( /^style$/ ), '' ],
+                [ ( /^link$/ ), '' ],
+                [ ( /^meta$/ ), '' ]
+            ],
+            elements : {
             },
-            // Restore param elements into self-closing.
-            param : function(param) {
-                param.children = [];
-                param.isEmpty = true;
-                return param;
-            },
-            // Remove empty link but not empty anchor.(#3829)
-            a : function(element) {
-                if (!( element.children.length ||
-                    element.attributes.name )) {
+            attributes :  {
+                //防止word的垃圾class，全部杀掉算了，除了以ke_开头的编辑器内置class
+                'class' : function(value
+                    // , element
+                    ) {
+                    if (/ke_/.test(value)) return value;
                     return false;
                 }
-            }
+            },
+            attributeNames :  [
+                // Event attributes (onXYZ) must not be directly set. They can become
+                // active in the editing area (IE|WebKit).
+                [ ( /^on/ ), 'ck_on' ]
+            ]
         },
-        attributes :  {
-            //防止word的垃圾class，全部杀掉算了，除了以ke_开头的编辑器内置class
-            'class' : function(value
-                // , element
-                ) {
-                if (/ke_/.test(value)) return value;
-                return false;
-            }
-        }
-    };
+        defaultHtmlFilterRules = {
+            elementNames : [
+                // Remove the "ke:" namespace prefix.
+                [ ( /^ke:/ ), '' ],
+                // Ignore <?xml:namespace> tags.
+                [ ( /^\?xml:namespace$/ ), '' ]
+            ],
+            elements : {
+                embed : function(element) {
+                    var parent = element.parent;
+                    // If the <embed> is child of a <object>, copy the width
+                    // and height attributes from it.
+                    if (parent && parent.name == 'object') {
+                        var parentWidth = parent.attributes.width,
+                            parentHeight = parent.attributes.height;
+                        parentWidth && ( element.attributes.width = parentWidth );
+                        parentHeight && ( element.attributes.height = parentHeight );
+                    }
+                },
+                // Restore param elements into self-closing.
+                param : function(param) {
+                    param.children = [];
+                    param.isEmpty = true;
+                    return param;
+                },
+                // Remove empty link but not empty anchor.(#3829)
+                a : function(element) {
+                    if (!( element.children.length ||
+                        element.attributes.name )) {
+                        return false;
+                    }
+                }
+            },
+            attributes :  {
+            },
+            attributeNames :  [
+                [ ( /^ck_on/ ), 'on' ]
+            ]
+        }, protectElementNamesRegex = /(<\/?)((?:object|embed|param|html|body|head|title)[^>]*>)/gi;
     if (UA.ie) {
         // IE outputs style attribute in capital letters. We should convert
         // them back to lower case.
@@ -9925,7 +9975,7 @@ KISSY.Editor.add("htmldataprocessor", function(
     }
 
     htmlFilter.addRules(defaultHtmlFilterRules);
-    dataFilter.addRules(defaultHtmlFilterRules);
+    dataFilter.addRules(defaultDataFilterRules);
 
     KE.HtmlDataProcessor = {
         htmlFilter:htmlFilter,
@@ -9942,6 +9992,9 @@ KISSY.Editor.add("htmldataprocessor", function(
         },
         //外部html进入编辑器
         toDataFormat : function(html, fixForBody) {
+            // Certain elements has problem to go through DOM operation, protect
+            // them by prefixing 'ke' namespace. (#3591)
+            html = html.replace(protectElementNamesRegex, '$1ke:$2');
             //fixForBody = fixForBody || "p";
             var writer = new HtmlParser.HtmlWriter(),
                 fragment = HtmlParser.Fragment.FromHtml(html, fixForBody);
@@ -11551,23 +11604,23 @@ KISSY.Editor.add("music", function(editor) {
                     "<a href='#' class='ke-music-cancel'>取消</a>" +
                     "</p>" +
                     "</div>",
-                MUSIC_MARKUP = '<object ' +
+                MUSIC_MARKUP = '<ke:object ' +
                     ' width="165" height="37"' +
                     ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"' +
                     ' classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000">' +
-                    '<param value="'
+                    '<ke:param value="'
                     + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
-                    ' name="movie">' +
-                    '<param value="high" name="quality">' +
-                    '<param value="#FFFFFF" name="bgcolor">' +
-                    '<embed width="165" height="37" ' +
+                    ' name="movie"></ke:param>' +
+                    '<ke:param value="high" name="quality"></ke:param>' +
+                    '<ke:param value="#FFFFFF" name="bgcolor"></ke:param>' +
+                    '<ke:embed width="165" height="37" ' +
                     'type="application/x-shockwave-flash" ' +
                     'swliveconnect="true" ' +
                     'src="' + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
                     'quality="high" ' +
                     'pluginspage="http://www.macromedia.com/go/getflashplayer"' +
-                    ' bgcolor="#FFFFFF">' +
-                    '</object>',
+                    ' bgcolor="#FFFFFF"></ke:embed>' +
+                    '</ke:object>',
                 music_reg = /#\(music\)/g,
                 flashRules = ["img." + CLS_MUSIC];
 
@@ -11678,14 +11731,22 @@ KISSY.Editor.add("music", function(editor) {
 
                     if (self.selectedFlash) {
                         var editor = self.get("editor"),r = editor.restoreRealElement(self.selectedFlash);
-                        if (r._4e_name() == "object") {
-                            var params = r.all("param");
+                        if (r._4e_name() == "ke:object") {
+                            var params = r._4e_getElementsByTagName("param", "ke");
                             for (var i = 0; i < params.length; i++) {
-                                if (DOM.attr(params[i], "name") == "movie") {
-                                    self.musicUrl.val(getMusicUrl(DOM.attr(params[i], "value")));
+                                if ((params[i].attr("name") || "").toLowerCase() == "movie") {
+                                    self.musicUrl.val(getMusicUrl(params[i].attr("value")));
                                 }
                             }
-                        } else if (r._4e_name() == "embed") {
+                            var embeds = r._4e_getElementsByTagName("embed", "ke");
+                            for (var i = 0; i < embeds.length; i++) {
+                                self.musicUrl.val(getMusicUrl(embeds[i].attr("src")));
+                            }
+                            var objects = r._4e_getElementsByTagName("object", "ke");
+                            for (var i = 0; i < objects.length; i++) {
+                                self.musicUrl.val(getMusicUrl(objects[i].attr("data")));
+                            }
+                        } else if (r._4e_name() == "ke:embed") {
                             self.musicUrl.val(getMusicUrl(r.attr("src")));
                         }
                     }

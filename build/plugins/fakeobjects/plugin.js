@@ -133,9 +133,15 @@ KISSY.Editor.add("fakeobjects", function(editor) {
         restoreRealElement:function(fakeElement) {
             if (fakeElement.attr('_ke_real_node_type') != KEN.NODE_ELEMENT)
                 return null;
-            return new Node(
-                decodeURIComponent(fakeElement.attr('_ke_realelement')),
-                this.document);
+            var html = (decodeURIComponent(fakeElement.attr('_ke_realelement')));
+
+            var temp = new Node('<div>', null, this.document);
+            temp.html(html);
+            // When returning the node, remove it from its parent to detach it.
+            var n = temp._4e_first(function(n) {
+                return n[0].nodeType == KEN.NODE_ELEMENT;
+            })._4e_remove();
+            return n;
         }
     });
 

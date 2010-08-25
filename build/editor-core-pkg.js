@@ -1334,7 +1334,14 @@ KISSY.Editor.add("dom", function(KE) {
 
             _4e_name:function(thisElement) {
                 thisElement = normalElDom(thisElement);
-                return thisElement.nodeName.toLowerCase();
+                var nodeName = thisElement.nodeName.toLowerCase();
+                //note by yiminghe:http://msdn.microsoft.com/en-us/library/ms534388(VS.85).aspx
+                if (UA.ie) {
+                    var scopeName = thisElement.scopeName;
+                    if (scopeName && scopeName != 'HTML')
+                        nodeName = scopeName.toLowerCase() + ':' + nodeName;
+                }
+                return nodeName;
             },
             _4e_isIdentical : function(thisElement, otherElement) {
                 if (thisElement._4e_name() != otherElement._4e_name())
@@ -1913,7 +1920,7 @@ KISSY.Editor.add("dom", function(KE) {
                     }
                     parent.removeChild($);
                 }
-                return this;
+                return el;
             },
             _4e_trim : function(el) {
                 DOM._4e_ltrim(el);
@@ -2162,6 +2169,16 @@ KISSY.Editor.add("dom", function(KE) {
                     ) {
                     elem.scrollIntoView(doc);
                 }
+            },
+            _4e_getElementsByTagName:function(elem, tag, namespace) {
+                elem = normalElDom(elem);
+                if (!UA.ie && namespace) {
+                    tag = namespace + ":" + tag
+                }
+                var re = [],els = elem.getElementsByTagName(tag);
+                for (var i = 0; i < els.length; i++)
+                    re.push(new Node(els[i]));
+                return re;
             }
         };
 

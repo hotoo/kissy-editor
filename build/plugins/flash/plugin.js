@@ -38,14 +38,14 @@ KISSY.Editor.add("flash", function(editor) {
 
             dataFilter && dataFilter.addRules({
                 elements : {
-                    'object' : function(element) {
+                    'ke:object' : function(element) {
                         var attributes = element.attributes,i,
-                            classId = attributes.classid && String(attributes.classid).toLowerCase();
-                        var cls = CLS_FLASH,type = TYPE_FLASH;
+                            classId = attributes.classid && String(attributes.classid).toLowerCase(),
+                            cls = CLS_FLASH,type = TYPE_FLASH;
                         if (!classId) {
                             // Look for the inner <embed>
                             for (i = 0; i < element.children.length; i++) {
-                                if (element.children[ i ].name == 'embed') {
+                                if (element.children[ i ].name == 'ke:embed') {
                                     if (!isFlashEmbed(element.children[ i ]))
                                         return null;
                                     if (music(element.children[ i ].attributes.src)) {
@@ -60,7 +60,7 @@ KISSY.Editor.add("flash", function(editor) {
 
                         for (i = 0; i < element.children.length; i++) {
                             var c = element.children[ i ];
-                            if (c.name == 'param' && c.attributes.name == "movie") {
+                            if (c.name == 'ke:param' && c.attributes.name == "movie") {
                                 if (music(c.attributes.value)) {
                                     cls = CLS_MUSIC;
                                     type = TYPE_MUSIC;
@@ -71,7 +71,7 @@ KISSY.Editor.add("flash", function(editor) {
                         return dataProcessor.createFakeParserElement(element, cls, type, true);
                     },
 
-                    'embed' : function(element) {
+                    'ke:embed' : function(element) {
                         if (!isFlashEmbed(element))
                             return null;
                         var cls = CLS_FLASH,type = TYPE_FLASH;
@@ -164,6 +164,7 @@ KISSY.Editor.add("flash", function(editor) {
                 _showConfig:function() {
                     var self = this,editor = self.editor,d = self.d,f = self.selectedFlash;
                     self._prepareShow();
+
                     if (f) {
                         var r = editor.restoreRealElement(f);
                         if (r.attr("width")) {
@@ -172,14 +173,22 @@ KISSY.Editor.add("flash", function(editor) {
                         if (r.attr("height")) {
                             self.dHeight.val(parseInt(r.attr("height")));
                         }
-                        if (r._4e_name() == "object") {
-                            var params = r.all("param");
+                        if (r._4e_name() == "ke:object") {
+                            var params = r._4e_getElementsByTagName("param", "ke");
                             for (var i = 0; i < params.length; i++) {
-                                if (DOM.attr(params[i], "name") == "movie") {
-                                    self.dUrl.val(DOM.attr(params[i], "value"));
+                                if ((params[i].attr("name") || "").toLowerCase() == "movie") {
+                                    self.dUrl.val(params[i].attr("value"));
                                 }
                             }
-                        } else if (r._4e_name() == "embed") {
+                            var embeds = r._4e_getElementsByTagName("embed", "ke");
+                            for (var i = 0; i < embeds.length; i++) {
+                                self.dUrl.val(embeds[i].attr("src"));
+                            }
+                            var objects = r._4e_getElementsByTagName("object", "ke");
+                            for (var i = 0; i < objects.length; i++) {
+                                self.dUrl.val(objects[i].attr("data"));
+                            }
+                        } else if (r._4e_name() == "ke:embed") {
                             self.dUrl.val(r.attr("src"));
                         }
                     }
@@ -197,20 +206,20 @@ KISSY.Editor.add("flash", function(editor) {
                     var self = this,editor = self.editor;
                     var url = self.dUrl.val();
                     if (!url)return;
-                    var real = new Node('<object ' +
+                    var real = new Node('<ke:object ' +
                         (parseInt(self.dWidth.val()) ? " width='" + parseInt(self.dWidth.val()) + "' " : ' ') +
                         (parseInt(self.dHeight.val()) ? " height='" + parseInt(self.dHeight.val()) + "' " : ' ') +
                         'classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" ' +
                         'codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0">' +
-                        '<param name="quality" value="high" />' +
-                        '<param name="movie" value="' + url + '" />' +
-                        '<embed ' +
+                        '<ke:param name="quality" value="high" ></ke:param>' +
+                        '<ke:param name="movie" value="' + url + '" ></ke:param>' +
+                        '<ke:embed ' +
                         (parseInt(self.dWidth.val()) ? " width='" + parseInt(self.dWidth.val()) + "' " : ' ') +
                         (parseInt(self.dHeight.val()) ? " height='" + parseInt(self.dHeight.val()) + "' " : ' ') + 'pluginspage="http://www.macromedia.com/go/getflashplayer" quality="high" ' +
                         'src="' + url + '" ' +
                         'type="application/x-shockwave-flash">' +
-                        '</embed>' +
-                        '</object>', null, editor.document);
+                        '</ke:embed>' +
+                        '</ke:object>', null, editor.document);
                     var substitute = editor.createFakeElement ? editor.createFakeElement(real, CLS_FLASH, TYPE_FLASH, true) : real;
                     editor.insertElement(substitute);
                     self.d.hide();

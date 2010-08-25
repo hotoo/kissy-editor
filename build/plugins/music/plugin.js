@@ -30,23 +30,23 @@ KISSY.Editor.add("music", function(editor) {
                     "<a href='#' class='ke-music-cancel'>取消</a>" +
                     "</p>" +
                     "</div>",
-                MUSIC_MARKUP = '<object ' +
+                MUSIC_MARKUP = '<ke:object ' +
                     ' width="165" height="37"' +
                     ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"' +
                     ' classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000">' +
-                    '<param value="'
+                    '<ke:param value="'
                     + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
-                    ' name="movie">' +
-                    '<param value="high" name="quality">' +
-                    '<param value="#FFFFFF" name="bgcolor">' +
-                    '<embed width="165" height="37" ' +
+                    ' name="movie"></ke:param>' +
+                    '<ke:param value="high" name="quality"></ke:param>' +
+                    '<ke:param value="#FFFFFF" name="bgcolor"></ke:param>' +
+                    '<ke:embed width="165" height="37" ' +
                     'type="application/x-shockwave-flash" ' +
                     'swliveconnect="true" ' +
                     'src="' + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
                     'quality="high" ' +
                     'pluginspage="http://www.macromedia.com/go/getflashplayer"' +
-                    ' bgcolor="#FFFFFF">' +
-                    '</object>',
+                    ' bgcolor="#FFFFFF"></ke:embed>' +
+                    '</ke:object>',
                 music_reg = /#\(music\)/g,
                 flashRules = ["img." + CLS_MUSIC];
 
@@ -157,14 +157,22 @@ KISSY.Editor.add("music", function(editor) {
 
                     if (self.selectedFlash) {
                         var editor = self.get("editor"),r = editor.restoreRealElement(self.selectedFlash);
-                        if (r._4e_name() == "object") {
-                            var params = r.all("param");
+                        if (r._4e_name() == "ke:object") {
+                            var params = r._4e_getElementsByTagName("param", "ke");
                             for (var i = 0; i < params.length; i++) {
-                                if (DOM.attr(params[i], "name") == "movie") {
-                                    self.musicUrl.val(getMusicUrl(DOM.attr(params[i], "value")));
+                                if ((params[i].attr("name") || "").toLowerCase() == "movie") {
+                                    self.musicUrl.val(getMusicUrl(params[i].attr("value")));
                                 }
                             }
-                        } else if (r._4e_name() == "embed") {
+                            var embeds = r._4e_getElementsByTagName("embed", "ke");
+                            for (var i = 0; i < embeds.length; i++) {
+                                self.musicUrl.val(getMusicUrl(embeds[i].attr("src")));
+                            }
+                            var objects = r._4e_getElementsByTagName("object", "ke");
+                            for (var i = 0; i < objects.length; i++) {
+                                self.musicUrl.val(getMusicUrl(objects[i].attr("data")));
+                            }
+                        } else if (r._4e_name() == "ke:embed") {
                             self.musicUrl.val(getMusicUrl(r.attr("src")));
                         }
                     }
