@@ -454,11 +454,6 @@ KISSY.Editor.add("definition", function(KE) {
             'document.close();',
         editorHtml = "<div " +
             " class='ke-editor-wrap' " +
-            //!!编辑器内焦点不失去,firefox?
-            " onmousedown='" +
-            "if((event.target||event.srcElement).nodeName.toLowerCase()!=\"select\")" +
-            "return false;" +
-            "' " +
             " > " +
             "<div class='" + ke_editor_tools.substring(1) + "'></div>" +
             "<div class='" + ke_textarea_wrap.substring(1) + "'><iframe " +
@@ -482,6 +477,15 @@ KISSY.Editor.add("definition", function(KE) {
         init:function(textarea) {
             var self = this,
                 editorWrap = new Node(editorHtml.replace(/\$\(tabIndex\)/, textarea.attr("tabIndex")));
+            //!!编辑器内焦点不失去,firefox?
+            editorWrap.on("mousedown", function(ev) {
+                if (UA.webkit) {
+                    //chrome select 弹不出来
+                    var n = DOM._4e_name(ev.target);
+                    if (n == "select" || n == "option")return true;
+                }
+                ev.halt();
+            });
             self.editorWrap = editorWrap;
             self._UUID = INSTANCE_ID++;
             self.wrap = editorWrap.one(ke_textarea_wrap);
@@ -806,7 +810,7 @@ KISSY.Editor.add("definition", function(KE) {
                             // break up the selection, safely manage it here. (#4795)
                             var bookmark = sel.getRanges()[ 0 ].createBookmark();
                             // Remove the control manually.
-                            control.remove();
+                            control._4e_remove();
                             sel.selectBookmarks([ bookmark ]);
                             self.fire('save');
                             evt.preventDefault();
@@ -927,7 +931,7 @@ KISSY.Editor.add("definition", function(KE) {
                             && range.checkEndOfBlock()) {
                             range.setStartBefore(current);
                             range.collapse(true);
-                            current.remove();
+                            current._4e_remove();
                         }
                         else
                             range.splitBlock();
@@ -1321,7 +1325,7 @@ KISSY.Editor.add("dom", function(KE) {
             },
 
             _4e_move : function(thisElement, target, toStart) {
-                thisElement.remove();
+                thisElement._4e_remove();
                 thisElement = normalElDom(thisElement);
                 target = normalElDom(target);
                 if (toStart) {
@@ -1432,7 +1436,7 @@ KISSY.Editor.add("dom", function(KE) {
                                 pendingNodes.shift()._4e_move(element, !isNext);
 
                             sibling._4e_moveChildren(element, !isNext);
-                            sibling.remove();
+                            sibling._4e_remove();
 
                             // Now check the last inner child (see two comments above).
                             if (innerSibling[0] && innerSibling[0].nodeType == KEN.NODE_ELEMENT)
@@ -1897,7 +1901,7 @@ KISSY.Editor.add("dom", function(KE) {
                 var docFrag = range.extractContents();
 
                 // Move the element outside the broken element.
-                range.insertNode(el.remove());
+                range.insertNode(el._4e_remove());
 
                 // Re-insert the extracted piece after the element.
                 el[0].parentNode.insertBefore(docFrag, el[0].nextSibling);
@@ -2666,7 +2670,7 @@ KISSY.Editor.add("range", function(KE) {
         SHRINK_TEXT:2
     };
 
-    var S=KISSY,KEN = KE.NODE,
+    var S = KISSY,KEN = KE.NODE,
         KER = KE.RANGE,
         KEP = KE.POSITION,
         Walker = KE.Walker,
@@ -3074,10 +3078,11 @@ KISSY.Editor.add("range", function(KE) {
 
             // Cleanup any marked node.
             if (removeStartNode)
-                startNode.remove();
+                startNode._4e_remove();
 
             if (removeEndNode && endNode[0].parentNode)
-                endNode.remove();
+            //不能使用remove()
+                endNode._4e_remove();
         },
 
         collapse : function(toStart) {
@@ -3462,13 +3467,13 @@ KISSY.Editor.add("range", function(KE) {
                 self.setStartBefore(startNode);
 
                 // Remove it, because it may interfere in the setEndBefore call.
-                startNode.remove();
+                startNode._4e_remove();
 
                 // Set the range end at the bookmark end node position, or simply
                 // collapse it if it is not available.
                 if (endNode && endNode[0]) {
                     self.setEndBefore(endNode);
-                    endNode.remove();
+                    endNode._4e_remove();
                 }
                 else
                     self.collapse(true);
@@ -4475,7 +4480,7 @@ KISSY.Editor.add("domiterator", function(KE) {
             if (!block) {
                 // If no range has been found, this is the end.
                 if (!range) {
-                    this._.docEndMarker && this._.docEndMarker.remove();
+                    this._.docEndMarker && this._.docEndMarker._4e_remove();
                     this._.nextNode = null;
                     return null;
                 }
@@ -5261,7 +5266,7 @@ KISSY.Editor.add("selection", function(KE) {
             }
             else {
                 self.setEndBefore(endNode);
-                endNode.remove();
+                endNode._4e_remove();
                 ieRange.select();
             }
 
@@ -5804,7 +5809,7 @@ KISSY.Editor.add("styles", function(KE) {
             temp.appendChild(newBlock[0]);
             newBlock[0].outerHTML = '<pre>' + preHtml + '</pre>';
             newBlock = new Node(temp.firstChild);
-            newBlock.remove();
+            newBlock._4e_remove();
         }
         else
             newBlock.html(preHtml);
@@ -5881,7 +5886,7 @@ KISSY.Editor.add("styles", function(KE) {
         else
             preBlock.html(mergedHtml);
 
-        previousBlock.remove();
+        previousBlock._4e_remove();
     }
 
     /**
@@ -6103,8 +6108,8 @@ KISSY.Editor.add("styles", function(KE) {
             }
         }
 
-        firstNode.remove();
-        lastNode.remove();
+        firstNode._4e_remove();
+        lastNode._4e_remove();
         range.moveToBookmark(bookmark);
         // Minimize the result range to exclude empty text nodes. (#5374)
         range.shrink(KER.SHRINK_TEXT);

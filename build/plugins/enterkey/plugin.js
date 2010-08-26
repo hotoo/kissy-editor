@@ -122,7 +122,7 @@ KISSY.Editor.add("enterkey", function(editor) {
                             if (element._4e_equals(elementPath.block) || element._4e_equals(elementPath.blockLimit))
                                 break;
                             //<li><strong>^</strong></li>
-                            if (dtd.$removeEmpty[ element.getName() ]) {
+                            if (dtd.$removeEmpty[ element._4e_name() ]) {
                                 element = element._4e_clone();
                                 newBlock._4e_moveChildren(element);
                                 newBlock.append(element);

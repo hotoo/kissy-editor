@@ -214,7 +214,7 @@ KISSY.Editor.add("domiterator", function(KE) {
             if (!block) {
                 // If no range has been found, this is the end.
                 if (!range) {
-                    this._.docEndMarker && this._.docEndMarker.remove();
+                    this._.docEndMarker && this._.docEndMarker._4e_remove();
                     this._.nextNode = null;
                     return null;
                 }

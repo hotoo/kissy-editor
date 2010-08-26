@@ -100,7 +100,6 @@ KISSY.Editor.add("font", function(editor) {
                         styles[v].apply(editor.document);
                     }
                     editor.fire("save");
-                    //editor.fire("fontSizeChange", this.get("v"));
                 },
 
                 _change:function() {

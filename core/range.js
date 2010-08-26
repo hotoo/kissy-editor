@@ -18,7 +18,7 @@ KISSY.Editor.add("range", function(KE) {
         SHRINK_TEXT:2
     };
 
-    var S=KISSY,KEN = KE.NODE,
+    var S = KISSY,KEN = KE.NODE,
         KER = KE.RANGE,
         KEP = KE.POSITION,
         Walker = KE.Walker,
@@ -426,10 +426,11 @@ KISSY.Editor.add("range", function(KE) {
 
             // Cleanup any marked node.
             if (removeStartNode)
-                startNode.remove();
+                startNode._4e_remove();
 
             if (removeEndNode && endNode[0].parentNode)
-                endNode.remove();
+            //不能使用remove()
+                endNode._4e_remove();
         },
 
         collapse : function(toStart) {
@@ -814,13 +815,13 @@ KISSY.Editor.add("range", function(KE) {
                 self.setStartBefore(startNode);
 
                 // Remove it, because it may interfere in the setEndBefore call.
-                startNode.remove();
+                startNode._4e_remove();
 
                 // Set the range end at the bookmark end node position, or simply
                 // collapse it if it is not available.
                 if (endNode && endNode[0]) {
                     self.setEndBefore(endNode);
-                    endNode.remove();
+                    endNode._4e_remove();
                 }
                 else
                     self.collapse(true);

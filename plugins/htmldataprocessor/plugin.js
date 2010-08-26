@@ -108,7 +108,7 @@ KISSY.Editor.add("htmldataprocessor", function(
         toDataFormat : function(html, fixForBody) {
             // Certain elements has problem to go through DOM operation, protect
             // them by prefixing 'ke' namespace. (#3591)
-            html = html.replace(protectElementNamesRegex, '$1ke:$2');
+            //html = html.replace(protectElementNamesRegex, '$1ke:$2');
             //fixForBody = fixForBody || "p";
             var writer = new HtmlParser.HtmlWriter(),
                 fragment = HtmlParser.Fragment.FromHtml(html, fixForBody);

@@ -45,14 +45,9 @@ KISSY.Editor.add("definition", function(KE) {
             'document.close();',
         editorHtml = "<div " +
             " class='ke-editor-wrap' " +
-            //!!编辑器内焦点不失去,firefox?
-            " onmousedown='" +
-            "if((event.target||event.srcElement).nodeName.toLowerCase()!=\"select\")" +
-            "return false;" +
-            "' " +
             " > " +
             "<div class='" + ke_editor_tools.substring(1) + "'></div>" +
-            "<div class='" + ke_textarea_wrap.substring(1) + "'><" + "iframe " +
+            "<div class='" + ke_textarea_wrap.substring(1) + "'><iframe " +
             ' style="' + WIDTH + ':100%;' + HEIGHT + ':100%;border:none;" ' +
             ' ' + WIDTH + '="100%" ' +
             ' ' + HEIGHT + '="100%" ' +
@@ -73,6 +68,15 @@ KISSY.Editor.add("definition", function(KE) {
         init:function(textarea) {
             var self = this,
                 editorWrap = new Node(editorHtml.replace(/\$\(tabIndex\)/, textarea.attr("tabIndex")));
+            //!!编辑器内焦点不失去,firefox?
+            editorWrap.on("mousedown", function(ev) {
+                if (UA.webkit) {
+                    //chrome select 弹不出来
+                    var n = DOM._4e_name(ev.target);
+                    if (n == "select" || n == "option")return true;
+                }
+                ev.halt();
+            });
             self.editorWrap = editorWrap;
             self._UUID = INSTANCE_ID++;
             self.wrap = editorWrap.one(ke_textarea_wrap);
@@ -397,7 +401,7 @@ KISSY.Editor.add("definition", function(KE) {
                             // break up the selection, safely manage it here. (#4795)
                             var bookmark = sel.getRanges()[ 0 ].createBookmark();
                             // Remove the control manually.
-                            control.remove();
+                            control._4e_remove();
                             sel.selectBookmarks([ bookmark ]);
                             self.fire('save');
                             evt.preventDefault();
@@ -518,7 +522,7 @@ KISSY.Editor.add("definition", function(KE) {
                             && range.checkEndOfBlock()) {
                             range.setStartBefore(current);
                             range.collapse(true);
-                            current.remove();
+                            current._4e_remove();
                         }
                         else
                             range.splitBlock();

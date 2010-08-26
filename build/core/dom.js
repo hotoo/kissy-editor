@@ -98,7 +98,7 @@ KISSY.Editor.add("dom", function(KE) {
             },
 
             _4e_move : function(thisElement, target, toStart) {
-                thisElement.remove();
+                thisElement._4e_remove();
                 thisElement = normalElDom(thisElement);
                 target = normalElDom(target);
                 if (toStart) {
@@ -209,7 +209,7 @@ KISSY.Editor.add("dom", function(KE) {
                                 pendingNodes.shift()._4e_move(element, !isNext);
 
                             sibling._4e_moveChildren(element, !isNext);
-                            sibling.remove();
+                            sibling._4e_remove();
 
                             // Now check the last inner child (see two comments above).
                             if (innerSibling[0] && innerSibling[0].nodeType == KEN.NODE_ELEMENT)
@@ -674,7 +674,7 @@ KISSY.Editor.add("dom", function(KE) {
                 var docFrag = range.extractContents();
 
                 // Move the element outside the broken element.
-                range.insertNode(el.remove());
+                range.insertNode(el._4e_remove());
 
                 // Re-insert the extracted piece after the element.
                 el[0].parentNode.insertBefore(docFrag, el[0].nextSibling);

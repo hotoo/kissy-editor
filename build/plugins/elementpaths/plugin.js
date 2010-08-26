@@ -36,7 +36,7 @@ KISSY.Editor.add("elementpaths", function(editor) {
 
                     for (i = 0; i < cache.length; i++) {
                         cache[i].detach("click");
-                        cache[i].remove();
+                        cache[i]._4e_remove();
                     }
                     self._cache = [];
                     // For each element into the elements path.

@@ -64,7 +64,7 @@ KISSY.Editor.add("clipboard", function(editor) {
 
                     // Wait a while and grab the pasted contents
                     setTimeout(function() {
-                        pastebin.remove();
+                        pastebin._4e_remove();
 
                         // Grab the HTML contents.
                         // We need to look for a apple style wrapper on webkit it also adds

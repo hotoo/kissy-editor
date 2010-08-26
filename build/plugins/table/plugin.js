@@ -261,7 +261,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                     if (!valid(d.tborder.val()) || d.tborder.val() == "0") {
                         selectedTable.addClass(showBorderClassName);
                     } else {
-                        selectedTable.remoevClass(showBorderClassName);
+                        selectedTable.removeClass(showBorderClassName);
                     }
 
                     if (valid(d.twidth.val()))

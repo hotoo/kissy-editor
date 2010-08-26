@@ -104,7 +104,8 @@ KISSY.Editor.add("fakeobjects", function(editor) {
     }
 
     S.augment(Editor, {
-        createFakeElement:function(realElement, className, realElementType, isResizable) {
+        //ie6 ,object outHTML error
+        createFakeElement:function(realElement, className, realElementType, isResizable,outerHTML) {
             var style = realElement.attr("style") || '';
             if (realElement.attr("width")) {
                 style = "width:" + realElement.attr("width") + "px;" + style;
@@ -115,7 +116,7 @@ KISSY.Editor.add("fakeobjects", function(editor) {
             var self = this,attributes = {
                 'class' : className,
                 src : KE.Config.base + 'assets/spacer.gif',
-                _ke_realelement : encodeURIComponent(realElement._4e_outerHtml()),
+                _ke_realelement : encodeURIComponent(outerHTML||realElement._4e_outerHtml()),
                 _ke_real_node_type : realElement[0].nodeType,
                 align : realElement.attr("align") || '',
                 style:style

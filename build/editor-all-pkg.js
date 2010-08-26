@@ -454,11 +454,6 @@ KISSY.Editor.add("definition", function(KE) {
             'document.close();',
         editorHtml = "<div " +
             " class='ke-editor-wrap' " +
-            //!!编辑器内焦点不失去,firefox?
-            " onmousedown='" +
-            "if((event.target||event.srcElement).nodeName.toLowerCase()!=\"select\")" +
-            "return false;" +
-            "' " +
             " > " +
             "<div class='" + ke_editor_tools.substring(1) + "'></div>" +
             "<div class='" + ke_textarea_wrap.substring(1) + "'><iframe " +
@@ -482,6 +477,15 @@ KISSY.Editor.add("definition", function(KE) {
         init:function(textarea) {
             var self = this,
                 editorWrap = new Node(editorHtml.replace(/\$\(tabIndex\)/, textarea.attr("tabIndex")));
+            //!!编辑器内焦点不失去,firefox?
+            editorWrap.on("mousedown", function(ev) {
+                if (UA.webkit) {
+                    //chrome select 弹不出来
+                    var n = DOM._4e_name(ev.target);
+                    if (n == "select" || n == "option")return true;
+                }
+                ev.halt();
+            });
             self.editorWrap = editorWrap;
             self._UUID = INSTANCE_ID++;
             self.wrap = editorWrap.one(ke_textarea_wrap);
@@ -806,7 +810,7 @@ KISSY.Editor.add("definition", function(KE) {
                             // break up the selection, safely manage it here. (#4795)
                             var bookmark = sel.getRanges()[ 0 ].createBookmark();
                             // Remove the control manually.
-                            control.remove();
+                            control._4e_remove();
                             sel.selectBookmarks([ bookmark ]);
                             self.fire('save');
                             evt.preventDefault();
@@ -927,7 +931,7 @@ KISSY.Editor.add("definition", function(KE) {
                             && range.checkEndOfBlock()) {
                             range.setStartBefore(current);
                             range.collapse(true);
-                            current.remove();
+                            current._4e_remove();
                         }
                         else
                             range.splitBlock();
@@ -1321,7 +1325,7 @@ KISSY.Editor.add("dom", function(KE) {
             },
 
             _4e_move : function(thisElement, target, toStart) {
-                thisElement.remove();
+                thisElement._4e_remove();
                 thisElement = normalElDom(thisElement);
                 target = normalElDom(target);
                 if (toStart) {
@@ -1432,7 +1436,7 @@ KISSY.Editor.add("dom", function(KE) {
                                 pendingNodes.shift()._4e_move(element, !isNext);
 
                             sibling._4e_moveChildren(element, !isNext);
-                            sibling.remove();
+                            sibling._4e_remove();
 
                             // Now check the last inner child (see two comments above).
                             if (innerSibling[0] && innerSibling[0].nodeType == KEN.NODE_ELEMENT)
@@ -1897,7 +1901,7 @@ KISSY.Editor.add("dom", function(KE) {
                 var docFrag = range.extractContents();
 
                 // Move the element outside the broken element.
-                range.insertNode(el.remove());
+                range.insertNode(el._4e_remove());
 
                 // Re-insert the extracted piece after the element.
                 el[0].parentNode.insertBefore(docFrag, el[0].nextSibling);
@@ -2666,7 +2670,7 @@ KISSY.Editor.add("range", function(KE) {
         SHRINK_TEXT:2
     };
 
-    var S=KISSY,KEN = KE.NODE,
+    var S = KISSY,KEN = KE.NODE,
         KER = KE.RANGE,
         KEP = KE.POSITION,
         Walker = KE.Walker,
@@ -3074,10 +3078,11 @@ KISSY.Editor.add("range", function(KE) {
 
             // Cleanup any marked node.
             if (removeStartNode)
-                startNode.remove();
+                startNode._4e_remove();
 
             if (removeEndNode && endNode[0].parentNode)
-                endNode.remove();
+            //不能使用remove()
+                endNode._4e_remove();
         },
 
         collapse : function(toStart) {
@@ -3462,13 +3467,13 @@ KISSY.Editor.add("range", function(KE) {
                 self.setStartBefore(startNode);
 
                 // Remove it, because it may interfere in the setEndBefore call.
-                startNode.remove();
+                startNode._4e_remove();
 
                 // Set the range end at the bookmark end node position, or simply
                 // collapse it if it is not available.
                 if (endNode && endNode[0]) {
                     self.setEndBefore(endNode);
-                    endNode.remove();
+                    endNode._4e_remove();
                 }
                 else
                     self.collapse(true);
@@ -4475,7 +4480,7 @@ KISSY.Editor.add("domiterator", function(KE) {
             if (!block) {
                 // If no range has been found, this is the end.
                 if (!range) {
-                    this._.docEndMarker && this._.docEndMarker.remove();
+                    this._.docEndMarker && this._.docEndMarker._4e_remove();
                     this._.nextNode = null;
                     return null;
                 }
@@ -5261,7 +5266,7 @@ KISSY.Editor.add("selection", function(KE) {
             }
             else {
                 self.setEndBefore(endNode);
-                endNode.remove();
+                endNode._4e_remove();
                 ieRange.select();
             }
 
@@ -5804,7 +5809,7 @@ KISSY.Editor.add("styles", function(KE) {
             temp.appendChild(newBlock[0]);
             newBlock[0].outerHTML = '<pre>' + preHtml + '</pre>';
             newBlock = new Node(temp.firstChild);
-            newBlock.remove();
+            newBlock._4e_remove();
         }
         else
             newBlock.html(preHtml);
@@ -5881,7 +5886,7 @@ KISSY.Editor.add("styles", function(KE) {
         else
             preBlock.html(mergedHtml);
 
-        previousBlock.remove();
+        previousBlock._4e_remove();
     }
 
     /**
@@ -6103,8 +6108,8 @@ KISSY.Editor.add("styles", function(KE) {
             }
         }
 
-        firstNode.remove();
-        lastNode.remove();
+        firstNode._4e_remove();
+        lastNode._4e_remove();
         range.moveToBookmark(bookmark);
         // Minimize the result range to exclude empty text nodes. (#5374)
         range.shrink(KER.SHRINK_TEXT);
@@ -6987,7 +6992,7 @@ KISSY.Editor.add("clipboard", function(editor) {
 
                     // Wait a while and grab the pasted contents
                     setTimeout(function() {
-                        pastebin.remove();
+                        pastebin._4e_remove();
 
                         // Grab the HTML contents.
                         // We need to look for a apple style wrapper on webkit it also adds
@@ -7258,7 +7263,7 @@ KISSY.Editor.add("elementpaths", function(editor) {
 
                     for (i = 0; i < cache.length; i++) {
                         cache[i].detach("click");
-                        cache[i].remove();
+                        cache[i]._4e_remove();
                     }
                     self._cache = [];
                     // For each element into the elements path.
@@ -7423,7 +7428,7 @@ KISSY.Editor.add("enterkey", function(editor) {
                             if (element._4e_equals(elementPath.block) || element._4e_equals(elementPath.blockLimit))
                                 break;
                             //<li><strong>^</strong></li>
-                            if (dtd.$removeEmpty[ element.getName() ]) {
+                            if (dtd.$removeEmpty[ element._4e_name() ]) {
                                 element = element._4e_clone();
                                 newBlock._4e_moveChildren(element);
                                 newBlock.append(element);
@@ -7608,7 +7613,8 @@ KISSY.Editor.add("fakeobjects", function(editor) {
     }
 
     S.augment(Editor, {
-        createFakeElement:function(realElement, className, realElementType, isResizable) {
+        //ie6 ,object outHTML error
+        createFakeElement:function(realElement, className, realElementType, isResizable,outerHTML) {
             var style = realElement.attr("style") || '';
             if (realElement.attr("width")) {
                 style = "width:" + realElement.attr("width") + "px;" + style;
@@ -7619,7 +7625,7 @@ KISSY.Editor.add("fakeobjects", function(editor) {
             var self = this,attributes = {
                 'class' : className,
                 src : KE.Config.base + 'assets/spacer.gif',
-                _ke_realelement : encodeURIComponent(realElement._4e_outerHtml()),
+                _ke_realelement : encodeURIComponent(outerHTML||realElement._4e_outerHtml()),
                 _ke_real_node_type : realElement[0].nodeType,
                 align : realElement.attr("align") || '',
                 style:style
@@ -7657,6 +7663,7 @@ KISSY.Editor.add("flash", function(editor) {
         Event = S.Event,
         ContextMenu = KE.ContextMenu,
         Node = S.Node,
+        KEN = KE.NODE,
         TripleButton = KE.TripleButton,
         Overlay = KE.SimpleOverlay,
         flashFilenameRegex = /\.swf(?:$|\?)/i,
@@ -7690,14 +7697,14 @@ KISSY.Editor.add("flash", function(editor) {
 
             dataFilter && dataFilter.addRules({
                 elements : {
-                    'ke:object' : function(element) {
+                    'object' : function(element) {
                         var attributes = element.attributes,i,
                             classId = attributes.classid && String(attributes.classid).toLowerCase(),
                             cls = CLS_FLASH,type = TYPE_FLASH;
                         if (!classId) {
                             // Look for the inner <embed>
                             for (i = 0; i < element.children.length; i++) {
-                                if (element.children[ i ].name == 'ke:embed') {
+                                if (element.children[ i ].name == 'embed') {
                                     if (!isFlashEmbed(element.children[ i ]))
                                         return null;
                                     if (music(element.children[ i ].attributes.src)) {
@@ -7712,7 +7719,7 @@ KISSY.Editor.add("flash", function(editor) {
 
                         for (i = 0; i < element.children.length; i++) {
                             var c = element.children[ i ];
-                            if (c.name == 'ke:param' && c.attributes.name == "movie") {
+                            if (c.name == 'param' && c.attributes.name == "movie") {
                                 if (music(c.attributes.value)) {
                                     cls = CLS_MUSIC;
                                     type = TYPE_MUSIC;
@@ -7723,7 +7730,7 @@ KISSY.Editor.add("flash", function(editor) {
                         return dataProcessor.createFakeParserElement(element, cls, type, true);
                     },
 
-                    'ke:embed' : function(element) {
+                    'embed' : function(element) {
                         if (!isFlashEmbed(element))
                             return null;
                         var cls = CLS_FLASH,type = TYPE_FLASH;
@@ -7825,22 +7832,19 @@ KISSY.Editor.add("flash", function(editor) {
                         if (r.attr("height")) {
                             self.dHeight.val(parseInt(r.attr("height")));
                         }
-                        if (r._4e_name() == "ke:object") {
-                            var params = r._4e_getElementsByTagName("param", "ke");
+                        if (r._4e_name() == "object") {
+                            var params = r[0].childNodes;
                             for (var i = 0; i < params.length; i++) {
-                                if ((params[i].attr("name") || "").toLowerCase() == "movie") {
-                                    self.dUrl.val(params[i].attr("value"));
+                                if (params[i].nodeType != KEN.NODE_ELEMENT)continue;
+                                if ((DOM.attr(params[i], "name") || "").toLowerCase() == "movie") {
+                                    self.dUrl.val(DOM.attr(params[i], "value"));
+                                } else if (DOM._4e_name(params[i]) == "embed") {
+                                    self.dUrl.val(DOM.attr(params[i], "src"));
+                                } else if (DOM._4e_name(params[i]) == "object") {
+                                    self.dUrl.val(DOM.attr(params[i], "data"));
                                 }
                             }
-                            var embeds = r._4e_getElementsByTagName("embed", "ke");
-                            for (var i = 0; i < embeds.length; i++) {
-                                self.dUrl.val(embeds[i].attr("src"));
-                            }
-                            var objects = r._4e_getElementsByTagName("object", "ke");
-                            for (var i = 0; i < objects.length; i++) {
-                                self.dUrl.val(objects[i].attr("data"));
-                            }
-                        } else if (r._4e_name() == "ke:embed") {
+                        } else if (r._4e_name() == "embed") {
                             self.dUrl.val(r.attr("src"));
                         }
                     }
@@ -7858,21 +7862,22 @@ KISSY.Editor.add("flash", function(editor) {
                     var self = this,editor = self.editor;
                     var url = self.dUrl.val();
                     if (!url)return;
-                    var real = new Node('<ke:object ' +
+                    var outerHTML = '<object ' +
                         (parseInt(self.dWidth.val()) ? " width='" + parseInt(self.dWidth.val()) + "' " : ' ') +
                         (parseInt(self.dHeight.val()) ? " height='" + parseInt(self.dHeight.val()) + "' " : ' ') +
-                        'classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" ' +
-                        'codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0">' +
-                        '<ke:param name="quality" value="high" ></ke:param>' +
-                        '<ke:param name="movie" value="' + url + '" ></ke:param>' +
-                        '<ke:embed ' +
+                        ' classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" ' +
+                        ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0">' +
+                        '<param name="quality" value="high" />' +
+                        '<param name="movie" value="' + url + '" />' +
+                        '<embed ' +
                         (parseInt(self.dWidth.val()) ? " width='" + parseInt(self.dWidth.val()) + "' " : ' ') +
-                        (parseInt(self.dHeight.val()) ? " height='" + parseInt(self.dHeight.val()) + "' " : ' ') + 'pluginspage="http://www.macromedia.com/go/getflashplayer" quality="high" ' +
-                        'src="' + url + '" ' +
-                        'type="application/x-shockwave-flash">' +
-                        '</ke:embed>' +
-                        '</ke:object>', null, editor.document);
-                    var substitute = editor.createFakeElement ? editor.createFakeElement(real, CLS_FLASH, TYPE_FLASH, true) : real;
+                        (parseInt(self.dHeight.val()) ? " height='" + parseInt(self.dHeight.val()) + "' " : ' ') +
+                        'pluginspage="http://www.macromedia.com/go/getflashplayer" ' +
+                        'quality="high" ' +
+                        ' src="' + url + '" ' +
+                        ' type="application/x-shockwave-flash"/>' +
+                        '</object>',real = new Node(outerHTML, null, editor.document);
+                    var substitute = editor.createFakeElement ? editor.createFakeElement(real, CLS_FLASH, TYPE_FLASH, true, outerHTML) : real;
                     editor.insertElement(substitute);
                     self.d.hide();
                 }
@@ -8001,7 +8006,6 @@ KISSY.Editor.add("font", function(editor) {
                         styles[v].apply(editor.document);
                     }
                     editor.fire("save");
-                    //editor.fire("fontSizeChange", this.get("v"));
                 },
 
                 _change:function() {
@@ -9993,7 +9997,7 @@ KISSY.Editor.add("htmldataprocessor", function(
         toDataFormat : function(html, fixForBody) {
             // Certain elements has problem to go through DOM operation, protect
             // them by prefixing 'ke' namespace. (#3591)
-            html = html.replace(protectElementNamesRegex, '$1ke:$2');
+            //html = html.replace(protectElementNamesRegex, '$1ke:$2');
             //fixForBody = fixForBody || "p";
             var writer = new HtmlParser.HtmlWriter(),
                 fragment = HtmlParser.Fragment.FromHtml(html, fixForBody);
@@ -11576,7 +11580,7 @@ KISSY.Editor.add("maximize", function(editor) {
  * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("music", function(editor) {
-    var KE = KISSY.Editor;
+    var KE = KISSY.Editor,KEN = KE.NODE;
     if (!KE.MusicInserter) {
         (function() {
             var S = KISSY,
@@ -11603,23 +11607,23 @@ KISSY.Editor.add("music", function(editor) {
                     "<a href='#' class='ke-music-cancel'>取消</a>" +
                     "</p>" +
                     "</div>",
-                MUSIC_MARKUP = '<ke:object ' +
+                MUSIC_MARKUP = '<object ' +
                     ' width="165" height="37"' +
                     ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"' +
                     ' classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000">' +
-                    '<ke:param value="'
+                    '<param value="'
                     + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
-                    ' name="movie"></ke:param>' +
-                    '<ke:param value="high" name="quality"></ke:param>' +
-                    '<ke:param value="#FFFFFF" name="bgcolor"></ke:param>' +
-                    '<ke:embed width="165" height="37" ' +
+                    ' name="movie"/>' +
+                    '<param value="high" name="quality"/>' +
+                    '<param value="#FFFFFF" name="bgcolor"/>' +
+                    '<embed width="165" height="37" ' +
                     'type="application/x-shockwave-flash" ' +
                     'swliveconnect="true" ' +
                     'src="' + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
                     'quality="high" ' +
                     'pluginspage="http://www.macromedia.com/go/getflashplayer"' +
-                    ' bgcolor="#FFFFFF"></ke:embed>' +
-                    '</ke:object>',
+                    ' bgcolor="#FFFFFF" />' +
+                    '</object>',
                 music_reg = /#\(music\)/g,
                 flashRules = ["img." + CLS_MUSIC];
 
@@ -11709,9 +11713,10 @@ KISSY.Editor.add("music", function(editor) {
                     var self = this,editor = self.get("editor");
                     var url = self.musicUrl.val();
                     if (!url) return;
-                    var music = new Node(MUSIC_MARKUP.replace(music_reg, url), null, editor.document);
+                    var html = MUSIC_MARKUP.replace(music_reg, url),
+                        music = new Node(html, null, editor.document);
                     var substitute = editor.createFakeElement ?
-                        editor.createFakeElement(music, CLS_MUSIC, TYPE_MUSIC, true) :
+                        editor.createFakeElement(music, CLS_MUSIC, TYPE_MUSIC, true, html) :
                         music;
                     editor.insertElement(substitute);
                     self.d.hide();
@@ -11727,25 +11732,21 @@ KISSY.Editor.add("music", function(editor) {
                 show:function() {
                     var self = this;
                     self._prepare();
-
                     if (self.selectedFlash) {
                         var editor = self.get("editor"),r = editor.restoreRealElement(self.selectedFlash);
-                        if (r._4e_name() == "ke:object") {
-                            var params = r._4e_getElementsByTagName("param", "ke");
+                        if (r._4e_name() == "object") {
+                            var params = r[0].childNodes;
                             for (var i = 0; i < params.length; i++) {
-                                if ((params[i].attr("name") || "").toLowerCase() == "movie") {
-                                    self.musicUrl.val(getMusicUrl(params[i].attr("value")));
+                                if (params[i].nodeType != KEN.NODE_ELEMENT)continue;
+                                if ((DOM.attr(params[i], "name") || "").toLowerCase() == "movie") {
+                                    self.musicUrl.val(getMusicUrl(DOM.attr(params[i], "value")));
+                                } else if (DOM._4e_name(params[i]) == "embed") {
+                                    self.musicUrl.val(getMusicUrl(DOM.attr(params[i], "src")));
+                                } else if (DOM._4e_name(params[i]) == "object") {
+                                    self.musicUrl.val(getMusicUrl(DOM.attr(params[i], "data")));
                                 }
                             }
-                            var embeds = r._4e_getElementsByTagName("embed", "ke");
-                            for (var i = 0; i < embeds.length; i++) {
-                                self.musicUrl.val(getMusicUrl(embeds[i].attr("src")));
-                            }
-                            var objects = r._4e_getElementsByTagName("object", "ke");
-                            for (var i = 0; i < objects.length; i++) {
-                                self.musicUrl.val(getMusicUrl(objects[i].attr("data")));
-                            }
-                        } else if (r._4e_name() == "ke:embed") {
+                        } else if (r._4e_name() == "embed") {
                             self.musicUrl.val(getMusicUrl(r.attr("src")));
                         }
                     }
@@ -12404,7 +12405,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                     if (!valid(d.tborder.val()) || d.tborder.val() == "0") {
                         selectedTable.addClass(showBorderClassName);
                     } else {
-                        selectedTable.remoevClass(showBorderClassName);
+                        selectedTable.removeClass(showBorderClassName);
                     }
 
                     if (valid(d.twidth.val()))

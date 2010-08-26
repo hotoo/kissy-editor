@@ -338,7 +338,7 @@ KISSY.Editor.add("styles", function(KE) {
             temp.appendChild(newBlock[0]);
             newBlock[0].outerHTML = '<pre>' + preHtml + '</pre>';
             newBlock = new Node(temp.firstChild);
-            newBlock.remove();
+            newBlock._4e_remove();
         }
         else
             newBlock.html(preHtml);
@@ -415,7 +415,7 @@ KISSY.Editor.add("styles", function(KE) {
         else
             preBlock.html(mergedHtml);
 
-        previousBlock.remove();
+        previousBlock._4e_remove();
     }
 
     /**
@@ -637,8 +637,8 @@ KISSY.Editor.add("styles", function(KE) {
             }
         }
 
-        firstNode.remove();
-        lastNode.remove();
+        firstNode._4e_remove();
+        lastNode._4e_remove();
         range.moveToBookmark(bookmark);
         // Minimize the result range to exclude empty text nodes. (#5374)
         range.shrink(KER.SHRINK_TEXT);

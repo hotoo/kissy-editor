@@ -684,7 +684,7 @@ KISSY.Editor.add("selection", function(KE) {
             }
             else {
                 self.setEndBefore(endNode);
-                endNode.remove();
+                endNode._4e_remove();
                 ieRange.select();
             }
 

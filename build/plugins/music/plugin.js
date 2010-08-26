@@ -3,7 +3,7 @@
  * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("music", function(editor) {
-    var KE = KISSY.Editor;
+    var KE = KISSY.Editor,KEN = KE.NODE;
     if (!KE.MusicInserter) {
         (function() {
             var S = KISSY,
@@ -30,23 +30,23 @@ KISSY.Editor.add("music", function(editor) {
                     "<a href='#' class='ke-music-cancel'>取消</a>" +
                     "</p>" +
                     "</div>",
-                MUSIC_MARKUP = '<ke:object ' +
+                MUSIC_MARKUP = '<object ' +
                     ' width="165" height="37"' +
                     ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"' +
                     ' classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000">' +
-                    '<ke:param value="'
+                    '<param value="'
                     + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
-                    ' name="movie"></ke:param>' +
-                    '<ke:param value="high" name="quality"></ke:param>' +
-                    '<ke:param value="#FFFFFF" name="bgcolor"></ke:param>' +
-                    '<ke:embed width="165" height="37" ' +
+                    ' name="movie"/>' +
+                    '<param value="high" name="quality"/>' +
+                    '<param value="#FFFFFF" name="bgcolor"/>' +
+                    '<embed width="165" height="37" ' +
                     'type="application/x-shockwave-flash" ' +
                     'swliveconnect="true" ' +
                     'src="' + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
                     'quality="high" ' +
                     'pluginspage="http://www.macromedia.com/go/getflashplayer"' +
-                    ' bgcolor="#FFFFFF"></ke:embed>' +
-                    '</ke:object>',
+                    ' bgcolor="#FFFFFF" />' +
+                    '</object>',
                 music_reg = /#\(music\)/g,
                 flashRules = ["img." + CLS_MUSIC];
 
@@ -136,9 +136,10 @@ KISSY.Editor.add("music", function(editor) {
                     var self = this,editor = self.get("editor");
                     var url = self.musicUrl.val();
                     if (!url) return;
-                    var music = new Node(MUSIC_MARKUP.replace(music_reg, url), null, editor.document);
+                    var html = MUSIC_MARKUP.replace(music_reg, url),
+                        music = new Node(html, null, editor.document);
                     var substitute = editor.createFakeElement ?
-                        editor.createFakeElement(music, CLS_MUSIC, TYPE_MUSIC, true) :
+                        editor.createFakeElement(music, CLS_MUSIC, TYPE_MUSIC, true, html) :
                         music;
                     editor.insertElement(substitute);
                     self.d.hide();
@@ -154,25 +155,21 @@ KISSY.Editor.add("music", function(editor) {
                 show:function() {
                     var self = this;
                     self._prepare();
-
                     if (self.selectedFlash) {
                         var editor = self.get("editor"),r = editor.restoreRealElement(self.selectedFlash);
-                        if (r._4e_name() == "ke:object") {
-                            var params = r._4e_getElementsByTagName("param", "ke");
+                        if (r._4e_name() == "object") {
+                            var params = r[0].childNodes;
                             for (var i = 0; i < params.length; i++) {
-                                if ((params[i].attr("name") || "").toLowerCase() == "movie") {
-                                    self.musicUrl.val(getMusicUrl(params[i].attr("value")));
+                                if (params[i].nodeType != KEN.NODE_ELEMENT)continue;
+                                if ((DOM.attr(params[i], "name") || "").toLowerCase() == "movie") {
+                                    self.musicUrl.val(getMusicUrl(DOM.attr(params[i], "value")));
+                                } else if (DOM._4e_name(params[i]) == "embed") {
+                                    self.musicUrl.val(getMusicUrl(DOM.attr(params[i], "src")));
+                                } else if (DOM._4e_name(params[i]) == "object") {
+                                    self.musicUrl.val(getMusicUrl(DOM.attr(params[i], "data")));
                                 }
                             }
-                            var embeds = r._4e_getElementsByTagName("embed", "ke");
-                            for (var i = 0; i < embeds.length; i++) {
-                                self.musicUrl.val(getMusicUrl(embeds[i].attr("src")));
-                            }
-                            var objects = r._4e_getElementsByTagName("object", "ke");
-                            for (var i = 0; i < objects.length; i++) {
-                                self.musicUrl.val(getMusicUrl(objects[i].attr("data")));
-                            }
-                        } else if (r._4e_name() == "ke:embed") {
+                        } else if (r._4e_name() == "embed") {
                             self.musicUrl.val(getMusicUrl(r.attr("src")));
                         }
                     }
