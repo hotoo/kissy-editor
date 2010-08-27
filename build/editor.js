@@ -26,7 +26,6 @@ KISSY.add("editor", function(S, undefined) {
                 });
             }, { order:  true, global:  Editor });
         };
-
         self.init(textarea);
         return undefined;
     }

@@ -19,34 +19,34 @@ KISSY.Editor.add("music", function(editor) {
                 Overlay = KE.SimpleOverlay,
                 TripleButton = KE.TripleButton,
 
-                html = "<div class='ke-popup-wrap' " +
-                    "style='width:250px;padding:10px;'>" +
-                    "<p style='margin:0 0 10px'>" +
-                    "<label>请输入音乐地址：<br/>" +
-                    "<input value='http://' style='width: 250px;' class='ke-music-url'/>" +
-                    "</label></p>" +
+
+
+                bodyHtml = "<div>" +
                     "<p>" +
-                    "<button class='ke-music-insert'>插入</button>&nbsp;" +
-                    "<a href='#' class='ke-music-cancel'>取消</a>" +
+                    "<label><span style='color:#0066CC;font-weight:bold;'>音乐网址：" +
+                    "</span><input class='ke-music-url' style='width:230px' value='http://'/></label>" +
                     "</p>" +
                     "</div>",
-                MUSIC_MARKUP = '<object ' +
-                    ' width="165" height="37"' +
-                    ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"' +
-                    ' classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000">' +
-                    '<param value="'
-                    + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
-                    ' name="movie"/>' +
-                    '<param value="high" name="quality"/>' +
-                    '<param value="#FFFFFF" name="bgcolor"/>' +
-                    '<embed width="165" height="37" ' +
-                    'type="application/x-shockwave-flash" ' +
-                    'swliveconnect="true" ' +
-                    'src="' + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
-                    'quality="high" ' +
-                    'pluginspage="http://www.macromedia.com/go/getflashplayer"' +
-                    ' bgcolor="#FFFFFF" />' +
-                    '</object>',
+                footHtml = "<button class='ke-music-insert'>插入</button> <button class='ke-music-cancel'>取消</button>";
+
+
+            MUSIC_MARKUP = '<object ' +
+                ' width="165" height="37"' +
+                ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"' +
+                ' classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000">' +
+                '<param value="'
+                + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
+                ' name="movie"/>' +
+                '<param value="high" name="quality"/>' +
+                '<param value="#FFFFFF" name="bgcolor"/>' +
+                '<embed width="165" height="37" ' +
+                'type="application/x-shockwave-flash" ' +
+                'swliveconnect="true" ' +
+                'src="' + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
+                'quality="high" ' +
+                'pluginspage="http://www.macromedia.com/go/getflashplayer"' +
+                ' bgcolor="#FFFFFF" />' +
+                '</object>',
                 music_reg = /#\(music\)/g,
                 flashRules = ["img." + CLS_MUSIC];
 
@@ -94,23 +94,30 @@ KISSY.Editor.add("music", function(editor) {
                 },
                 _prepare:function() {
                     var self = this,editor = self.get("editor");
-                    self.content = new Node(html);
                     self.d = new Overlay({
-                        el:self.content
+                        title:"插入音乐",
+                        mask:true,
+                        width:"350px"
                     });
-                    self.d.on("hide", function() {
+                    var d = self.d;
+                    d.body.html(bodyHtml);
+                    d.foot.html(footHtml);
+                    self.content = d.el;
+                    var content = self.content;
+
+                    d.on("hide", function() {
                         //清空
                         self.selectedFlash = null;
                         editor.focus();
                     });
-                    document.body.appendChild(self.content[0]);
-                    var cancel = self.content.one(".ke-music-cancel"),
-                        ok = self.content.one(".ke-music-insert");
-                    self.musicUrl = self.content.one(".ke-music-url");
+
+                    var cancel = content.one(".ke-music-cancel"),
+                        ok = content.one(".ke-music-insert");
+                    self.musicUrl = content.one(".ke-music-url");
                     cancel.on("click", function(ev) {
                         self.d.hide();
                         ev.halt();
-                    }, self);
+                    });
                     Event.on(document, "click", self.hide, self);
                     Event.on(editor.document, "click", self.hide, self);
                     ok.on("click", function() {
@@ -125,12 +132,7 @@ KISSY.Editor.add("music", function(editor) {
                     this.d.hide();
                 },
                 _real:function() {
-                    var self = this,xy = self.el.el.offset();
-                    xy.top += self.el.el.height() + 5;
-                    if (xy.left + self.content.width() > DOM.viewportWidth() - 60) {
-                        xy.left = DOM.viewportWidth() - self.content.width() - 60;
-                    }
-                    this.d.show(xy);
+                    this.d.show();
                 },
                 _insert:function() {
                     var self = this,editor = self.get("editor");

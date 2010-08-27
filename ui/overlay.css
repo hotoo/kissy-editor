@@ -22,8 +22,11 @@
 .ke-dialog {
     position: absolute;
     z-index: 10001;
-    background-color: white;
-    border: 2px solid #61b623;
+    background: none repeat scroll 0 0 #C1D9FF;
+    border: 1px solid #3A5774;
+    color: #000000;
+    padding: 4px;
+    font-size: 13px;
 }
 
 .ke-dialog-iframe {
@@ -32,42 +35,40 @@
     border: none;
 }
 
-.ke-hd-title {
-    float: left;
-    margin-left: 10px;
-}
-
 .ke-hd-x {
-    float: right;
-    padding: 1px;
+    height: 15px;
     width: 15px;
-    text-align: center;
-    border: 1px solid #61b623;
-    background-color: white;
-    margin-right: 10px;
+    right: 10px;
+    top: 12px;
+    vertical-align: middle;
+    position: absolute;
 }
 
 .ke-hd-x a {
     display: block;
     text-decoration: none;
-    background-color: #68aa50;
-    color: white;
-    margin: 0;
-    font-size: 10px;
+    background: url("../assets/toolbar-sprite.png") no-repeat scroll -784px 0 #E0EDFE;
+    height: 15px;
+    text-indent: -9999px;
+    outline: none;
+    width: 15px;
 }
 
-.ke-hd h1 {
-    font-size: 15px;
-    font-weight: normal;
+.ke-hd-x a:hover {
+    background-position: -768px 0;
 }
 
 .ke-hd {
-    padding: 3px;
-    background: #64991e;
-    background: -webkit-gradient(linear, left top, left bottom, from(#84c81d), to(#62a726));
-    background: -moz-linear-gradient(top, #84c81d, #62a726);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#84c81d', endColorstr = '#62a726');
-    border-bottom: 2px solid #61b623;
+    background: none repeat scroll 0 0 #E0EDFE;
+    color: #000000;
+    font-size: 120%;
+    font-weight: bold;
+    padding: 8px 15px 8px 8px;
+}
+
+.ke-bd, .ke-ft {
+    background-color: #FFFFFF;
+    padding: 8px;
 }
 
 .clearfix:after {

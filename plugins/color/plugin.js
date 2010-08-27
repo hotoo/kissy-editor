@@ -154,7 +154,6 @@ KISSY.Editor.add("color", function(editor) {
                         }
                         else {
                             styles["inherit"].remove(editor.document);
-
                         }
                         editor.fire("save");
                         editor.focus();
@@ -166,7 +165,8 @@ KISSY.Editor.add("color", function(editor) {
                     self.colorPanel = new Node(html);
                     self.colorWin = new Overlay({
                         el:this.colorPanel,
-                        mask:false
+                        mask:false,
+                        focusMgr:false
                     });
                     document.body.appendChild(self.colorPanel[0]);
                     self.colorPanel.on("click", self._selectColor, self);

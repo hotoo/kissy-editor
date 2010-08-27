@@ -50,15 +50,16 @@ KISSY.Editor.add("link", function(editor) {
             Link.init = function() {
                 var self = this;
                 self.d = new Overlay({
-                    title:"编辑超链接",
+                    title:"修改链接",
                     mask:true,
                     width:"300px"
                 });
-                self.d.body.html(html);
+                self.d.body.html(bodyHtml);
+                self.d.foot.html(footHtml);
                 self.urlEl = self.d.body.one(".ke-link-url");
                 self.targetEl = self.d.body.one(".ke-link-blank");
-                var cancel = self.d.body.one(".ke-link-cancel");
-                self.ok = self.d.body.one(".ke-link-ok");
+                var cancel = self.d.foot.one(".ke-link-cancel");
+                self.ok = self.d.foot.one(".ke-link-ok");
                 Link.ok.on("click", function(ev) {
                     var link = Link.d.link;
                     link._link();
@@ -99,18 +100,17 @@ KISSY.Editor.add("link", function(editor) {
                 Link.tip = null;
             };
 
-            var html = "<div style='padding: 10px;'>" +
+            var bodyHtml = "<div>" +
                 "<p>" +
-                "<label>URL：<input class='ke-link-url' style='width:230px' value='http://'/></label>" +
+                "<label><span style='color:#0066CC;font-weight:bold;'>网址：</span><input class='ke-link-url' style='width:230px' value='http://'/></label>" +
                 "</p>" +
-                "<p style='margin-top: 5px;padding-left:35px'>" +
+                "<p style='margin-top: 5px;padding-left:45px'>" +
                 "<label><input class='ke-link-blank' type='checkbox'/> &nbsp; 在新窗口打开链接</label>" +
                 "</p>" +
-                "<p style='margin-top: 5px;'>" +
-                "<label><button class='ke-link-ok'>确定</button>&nbsp;" +
-                "<a href='#' class='ke-link-cancel'>取消</a></label>" +
-                "</p>" +
-                "</div>";
+
+                "</div>",
+                footHtml = "<button class='ke-link-ok'>确定</button> " +
+                    "<button class='ke-link-cancel'>取消</button>";
             S.augment(Link, {
                 _init:function() {
                     var self = this,editor = self.editor;

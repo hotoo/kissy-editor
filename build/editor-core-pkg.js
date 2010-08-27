@@ -26,7 +26,6 @@ KISSY.add("editor", function(S, undefined) {
                 });
             }, { order:  true, global:  Editor });
         };
-
         self.init(textarea);
         return undefined;
     }
@@ -366,7 +365,9 @@ KISSY.Editor.add("utils", function(KE) {
 })
     ;
 /**
- * 多实例的焦点控制，主要是为了firefox焦点失去bug，记录当前状态
+ * 多实例的焦点控制，主要是为了
+ * 1.firefox 焦点失去 bug，记录当前状态
+ * 2.窗口隐藏后能够恢复焦点
  * @author: <yiminghe@gmail.com>
  */
 KISSY.Editor.add("focusmanager", function(KE) {
@@ -375,8 +376,12 @@ KISSY.Editor.add("focusmanager", function(KE) {
         Event = S.Event,
         focusManager = {};
 
-    var INSTANCES = {};
-
+    var INSTANCES = {},
+        //当前焦点所在处
+        currentInstance;
+    focusManager.currentInstance = function() {
+        return currentInstance;
+    };
     focusManager.add = function(editor) {
         INSTANCES[editor._UUID] = editor;
         var win = DOM._4e_getWin(editor.document);
@@ -393,6 +398,7 @@ KISSY.Editor.add("focusmanager", function(KE) {
         //console.log(" i got focus");
         var editor = this;
         editor.iframeFocus = true;
+        currentInstance = editor;
         /*for (var i in INSTANCES) {
          if (i != editor._UUID)
          INSTANCES[i].blur();
@@ -403,6 +409,7 @@ KISSY.Editor.add("focusmanager", function(KE) {
         //console.log(" i lost focus");
         var editor = this;
         editor.iframeFocus = false;
+        currentInstance = null;
     }
 
     KE.focusManager = focusManager;

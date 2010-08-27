@@ -84,14 +84,15 @@ KISSY.Editor.add("flash", function(editor) {
                     }
                 }}, 5);
 
-            var html = "<div style='margin:10px;'><p><label>地址：" +
+            var bodyHtml = "<div><p><label>地址：" +
                 "<input class='ke-flash-url' style='width:280px' /></label></p>" +
                 "<p style='margin:5px 0'><label>宽度：" +
-                "<input class='ke-flash-width' style='width:120px' /></label>" +
+                "<input class='ke-flash-width' style='width:110px' /></label>" +
                 "&nbsp;&nbsp;<label>高度：<input class='ke-flash-height' " +
-                "style='width:110px' /></label></p>" +
+                "style='width:110px' /></label></p>" ,
 
-                "<p style='margin:5px 0;text-align:right;'><button>确定</button></p></div>";
+                footHtml = "<button class='ke-flash-ok'>确定</button> " +
+                    "<button class='ke-flash-cancel'>取消</button></div>";
 
             function Flash(editor) {
                 var self = this;
@@ -156,7 +157,8 @@ KISSY.Editor.add("flash", function(editor) {
                         self.selectedFlash = null;
                         editor.focus();
                     });
-                    self.d.body.html(html);
+                    self.d.body.html(bodyHtml);
+                    self.d.foot.html(footHtml);
                     self._initD();
                 },
                 _realShow:function() {
@@ -196,8 +198,12 @@ KISSY.Editor.add("flash", function(editor) {
                     self.dHeight = d.el.one(".ke-flash-height");
                     self.dWidth = d.el.one(".ke-flash-width");
                     self.dUrl = d.el.one(".ke-flash-url");
-                    var action = d.el.one("button");
+                    var action = d.el.one(".ke-flash-ok"),
+                        cancel = d.el.one(".ke-flash-cancel");
                     action.on("click", self._gen, self);
+                    cancel.on("click", function() {
+                        self.d.hide();
+                    });
                 },
 
                 _gen: function() {

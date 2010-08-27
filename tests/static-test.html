@@ -125,7 +125,13 @@
 <script src="http://github.com/kissyteam/kissy/raw/master/build/kissy-min.js?t=20100821.js"></script>
 <!--<script src="../../kissy/src/kissy/loader.js"></script>-->
 <script src="http://github.com/kissyteam/kissy-sandbox/raw/master/attribute/attribute.js"></script>
-
+<script>
+    //document.domain="taobao.com";
+    // just for test
+    var base = location.href.replace(/^(.*kissy-editor\/).*$/i, '$1');
+    KISSY.Config.base = base;
+    KISSY.Config.debug = "dev";
+</script>
 <script src="../editor.js"></script>
 <script src="../core/utils.js"></script>
 <script src="../core/focusmanager.js"></script>
@@ -198,14 +204,11 @@
 <script src="../plugins/enterkey/plugin.js"></script>
 
 <script>
-    // just for test 
-    var base = location.href.replace(/^(.*kissy-editor\/).*$/i, '$1');
-    KISSY.Config.base = base;
 
     KISSY.use('editor', function(S) {
 
         var KE = KISSY.Editor;
-        S.Config.debug = true;
+
         KE.Config.base = base;
 
         KE("#editor", {

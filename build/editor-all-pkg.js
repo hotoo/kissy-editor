@@ -26,7 +26,6 @@ KISSY.add("editor", function(S, undefined) {
                 });
             }, { order:  true, global:  Editor });
         };
-
         self.init(textarea);
         return undefined;
     }
@@ -366,7 +365,9 @@ KISSY.Editor.add("utils", function(KE) {
 })
     ;
 /**
- * 多实例的焦点控制，主要是为了firefox焦点失去bug，记录当前状态
+ * 多实例的焦点控制，主要是为了
+ * 1.firefox 焦点失去 bug，记录当前状态
+ * 2.窗口隐藏后能够恢复焦点
  * @author: <yiminghe@gmail.com>
  */
 KISSY.Editor.add("focusmanager", function(KE) {
@@ -375,8 +376,12 @@ KISSY.Editor.add("focusmanager", function(KE) {
         Event = S.Event,
         focusManager = {};
 
-    var INSTANCES = {};
-
+    var INSTANCES = {},
+        //当前焦点所在处
+        currentInstance;
+    focusManager.currentInstance = function() {
+        return currentInstance;
+    };
     focusManager.add = function(editor) {
         INSTANCES[editor._UUID] = editor;
         var win = DOM._4e_getWin(editor.document);
@@ -393,6 +398,7 @@ KISSY.Editor.add("focusmanager", function(KE) {
         //console.log(" i got focus");
         var editor = this;
         editor.iframeFocus = true;
+        currentInstance = editor;
         /*for (var i in INSTANCES) {
          if (i != editor._UUID)
          INSTANCES[i].blur();
@@ -403,6 +409,7 @@ KISSY.Editor.add("focusmanager", function(KE) {
         //console.log(" i lost focus");
         var editor = this;
         editor.iframeFocus = false;
+        currentInstance = null;
     }
 
     KE.focusManager = focusManager;
@@ -6742,8 +6749,9 @@ KISSY.Editor.add("contextmenu", function() {
  */
 KISSY.Editor.add("overlay", function() {
 
-    var KE=KISSY.Editor,
+    var KE = KISSY.Editor,
         S = KISSY,
+        focusManager = KE.focusManager,
         Node = S.Node,
         //Event = S.Event,
         DOM = S.DOM;
@@ -6803,9 +6811,9 @@ KISSY.Editor.add("overlay", function() {
         mask.appendTo(body);
 
         if (S.UA.ie == 6) {
-            d_iframe = new Node("<iframe class='ke-dialog-iframe'></iframe>");
+            d_iframe = new Node("<" + "iframe class='ke-dialog-iframe'></iframe>");
             body.appendChild(d_iframe[0]);
-            mask_iframe = new Node("<iframe class='ke-mask'></iframe>");
+            mask_iframe = new Node("<" + "iframe class='ke-mask'></iframe>");
             mask_iframe.css({"left":"-9999px",top:"-9999px"});
             mask_iframe.css({
                 "width": "100%",
@@ -6829,6 +6837,8 @@ KISSY.Editor.add("overlay", function() {
         title:{value:""},
         width:{value:"450px"},
         visible:{value:true},
+        //帮你管理焦点
+        focusMgr:{value:true},
         mask:{value:false}
     };
 
@@ -6849,56 +6859,56 @@ KISSY.Editor.add("overlay", function() {
                     self.fire("hide");
                 }
             });
+            if (self.get("focusMgr"))
+                self.on("beforeVisibleChange", self._editorFocusMg, self);
 
             if (el) {
                 //焦点管理，显示时用a获得焦点
-                /*
-                 el[0].appendChild(new Node("<a href='#' class='ke-focus' " +
-                 "style='" +
-                 "width:0;height:0;outline:none;font-size:0;'" +
-                 "></a>")[0]);*/
+                el[0].appendChild(new Node("<a href='#' class='ke-focus' " +
+                    "style='" +
+                    "width:0;height:0;outline:none;font-size:0;'" +
+                    "></a>")[0]);
+                self.el = el;
                 return;
             }
 
             //also gen html
             el = new Node("<div class='ke-dialog' style='width:" +
                 self.get("width") +
-                "'><div class='ke-hd clearfix'>" +
-                "<div class='ke-hd-title'><h1>" +
+                "'><div class='ke-hd'>" +
+                "<span class='ke-hd-title'>" +
                 self.get("title") +
-                "</h1></div>"
-                + "<div class='ke-hd-x'><a class='ke-close' href='#'>X</a></div>"
+                "</span>"
+                + "<span class='ke-hd-x'><a class='ke-close' href='#'>X</a></span>"
                 + "</div>" +
                 "<div class='ke-bd'></div>" +
                 "<div class='ke-ft'>" +
-                "<a href='#' class='ke-focus'></a>" +
                 "</div>" +
+                "<a href='#' class='ke-focus'></a>" +
                 "</div>");
             document.body.appendChild(el[0]);
             self.set("el", el);
             self.el = el;
             self.body = el.one(".ke-bd");
+            self.foot = el.one(".ke-ft");
             self._close = el.one(".ke-close");
             self._title = el.one(".ke-hd-title").one("h1");
-            self.on("titleChange", function(ev) {
-                self._title.html(ev.newVal);
-            });
-            self.on("widthChange", function(ev) {
-                self.el.css("width", ev.newVal);
-            });
+
             self._close.on("click", function(ev) {
                 ev.preventDefault();
                 self.hide();
             });
+
         },
         center:function() {
-            var el = this.get("el");
-            var bw = parseInt(el.css("width")),
-                bh = el[0].offsetHeight;
-            var vw = DOM.viewportWidth(),
-                vh = DOM.viewportHeight();
-            var bl = (vw - bw) / 2 + DOM.scrollLeft(),
+            var el = this.get("el"),
+                bw = parseInt(el.css("width")),
+                bh = el[0].offsetHeight,
+                vw = DOM.viewportWidth(),
+                vh = DOM.viewportHeight(),
+                bl = (vw - bw) / 2 + DOM.scrollLeft(),
                 bt = (vh - bh) / 2 + DOM.scrollTop();
+            if ((bt - DOM.scrollTop()) > 200) bt -= 150;
             el.css({
                 left: bl + "px",
                 top: bt + "px"
@@ -6907,10 +6917,34 @@ KISSY.Editor.add("overlay", function() {
         _prepareShow:function() {
             Overlay.init();
         },
+        _getFocusEl:function() {
+            var self = this;
+            if (self._focusEl) {
+                return self._focusEl;
+            }
+            return (self._focusEl = self.el.one(".ke-focus")[0]);
+        },
+        /**
+         * 焦点管理，弹出前记住当前的焦点所在editor
+         * 隐藏好重新focus当前的editor
+         */
+        _editorFocusMg:function(ev) {
+            var v = ev.newVal,self = this;
+            //将要出现
+            if (v) {
+                //保存当前焦点editor
+                self._focusEditor = focusManager.currentInstance();
+                //聚焦到当前窗口
+                self._getFocusEl().focus();
+            }
+            //将要隐藏
+            else {
+                self._focusEditor && self._focusEditor.focus();
+            }
+        },
         _realShow:function(v) {
             var el = this.get("el");
             this.set("visible", v || true);
-            // el.one(".ke-focus")[0].focus();
         },
         show:function(v) {
             this._prepareShow(v);
@@ -6918,7 +6952,6 @@ KISSY.Editor.add("overlay", function() {
         hide:function() {
             var el = this.get("el");
             this.set("visible", false);
-            // el.one(".ke-focus")[0].blur();
         }
     });
     KE.Utils.lazyRun(Overlay.prototype, "_prepareShow", "_realShow");
@@ -7172,7 +7205,6 @@ KISSY.Editor.add("color", function(editor) {
                         }
                         else {
                             styles["inherit"].remove(editor.document);
-
                         }
                         editor.fire("save");
                         editor.focus();
@@ -7184,7 +7216,8 @@ KISSY.Editor.add("color", function(editor) {
                     self.colorPanel = new Node(html);
                     self.colorWin = new Overlay({
                         el:this.colorPanel,
-                        mask:false
+                        mask:false,
+                        focusMgr:false
                     });
                     document.body.appendChild(self.colorPanel[0]);
                     self.colorPanel.on("click", self._selectColor, self);
@@ -7742,14 +7775,15 @@ KISSY.Editor.add("flash", function(editor) {
                     }
                 }}, 5);
 
-            var html = "<div style='margin:10px;'><p><label>地址：" +
+            var bodyHtml = "<div><p><label>地址：" +
                 "<input class='ke-flash-url' style='width:280px' /></label></p>" +
                 "<p style='margin:5px 0'><label>宽度：" +
-                "<input class='ke-flash-width' style='width:120px' /></label>" +
+                "<input class='ke-flash-width' style='width:110px' /></label>" +
                 "&nbsp;&nbsp;<label>高度：<input class='ke-flash-height' " +
-                "style='width:110px' /></label></p>" +
+                "style='width:110px' /></label></p>" ,
 
-                "<p style='margin:5px 0;text-align:right;'><button>确定</button></p></div>";
+                footHtml = "<button class='ke-flash-ok'>确定</button> " +
+                    "<button class='ke-flash-cancel'>取消</button></div>";
 
             function Flash(editor) {
                 var self = this;
@@ -7814,7 +7848,8 @@ KISSY.Editor.add("flash", function(editor) {
                         self.selectedFlash = null;
                         editor.focus();
                     });
-                    self.d.body.html(html);
+                    self.d.body.html(bodyHtml);
+                    self.d.foot.html(footHtml);
                     self._initD();
                 },
                 _realShow:function() {
@@ -7854,8 +7889,12 @@ KISSY.Editor.add("flash", function(editor) {
                     self.dHeight = d.el.one(".ke-flash-height");
                     self.dWidth = d.el.one(".ke-flash-width");
                     self.dUrl = d.el.one(".ke-flash-url");
-                    var action = d.el.one("button");
+                    var action = d.el.one(".ke-flash-ok"),
+                        cancel = d.el.one(".ke-flash-cancel");
                     action.on("click", self._gen, self);
+                    cancel.on("click", function() {
+                        self.d.hide();
+                    });
                 },
 
                 _gen: function() {
@@ -10025,14 +10064,14 @@ KISSY.Editor.add("image", function(editor) {
                 this._init();
             }
 
-            var TripleButton = KE.TripleButton,html = "<div class='ke-popup-wrap' style='width:250px;padding:10px;'>" +
-                "<p style='margin:0 0 10px'><label>请输入图片地址：<br/>" +
-                "<input value='http://' style='width: 250px;' class='ke-img-url'/>" +
-                "</label></p>" +
-                "<p>" +
-                "<button class='ke-img-insert'>插入</button>&nbsp;<a href='#' class='ke-img-cancel'>取消</a>" +
-                "</p>" +
-                "</div>";
+            var TripleButton = KE.TripleButton,
+                bodyHtml = "<div>" +
+                    "<p>" +
+                    "<label><span style='color:#0066CC;font-weight:bold;'>图片网址：" +
+                    "</span><input class='ke-img-url' style='width:230px' value='http://'/></label>" +
+                    "</p>" +
+                    "</div>",
+                footHtml = "<button class='ke-img-insert'>插入</button> <button class='ke-img-cancel'>取消</button>";
 
             ImageInserter.ATTRS = {
                 editor:{}
@@ -10041,53 +10080,48 @@ KISSY.Editor.add("image", function(editor) {
             S.extend(ImageInserter, S.Base, {
                 _init:function() {
                     var editor = this.get("editor"),toolBarDiv = editor.toolBarDiv;
-
                     this.el = new TripleButton({
                         contentCls:"ke-toolbar-image",
                         //text:"img",
                         title:"图像",
                         container:toolBarDiv
                     });
-
                     this.el.on("offClick", this.show, this);
                     KE.Utils.lazyRun(this, "_prepare", "_real");
-
                 },
                 _prepare:function() {
-                    var self = this,editor = this.get("editor");
-                    this.content = new Node(html);
-                    this.d = new Overlay({
-                        el:this.content
+                    var self = this,editor = self.get("editor");
+                    self.d = new Overlay({
+                        title:"插入图片",
+                        mask:true,
+                        width:"350px"
                     });
-                    document.body.appendChild(this.content[0]);
-                    var cancel = this.content.one(".ke-img-cancel"),ok = this.content.one(".ke-img-insert");
-                    this.imgUrl = this.content.one(".ke-img-url");
+                    var d = self.d;
+                    d.body.html(bodyHtml);
+                    d.foot.html(footHtml);
+                    self.content = d.el;
+                    var content = self.content;
+                    var cancel = content.one(".ke-img-cancel"),ok = content.one(".ke-img-insert");
+                    self.imgUrl = content.one(".ke-img-url");
                     cancel.on("click", function(ev) {
-                        this.d.hide();
+                        self.d.hide();
                         ev.halt();
-                    }, this);
-                    Event.on(document, "click", this.hide, this);
-                    Event.on(editor.document, "click", this.hide, this);
+                    });
+                    Event.on(document, "click", self.hide, self);
+                    Event.on(editor.document, "click", self.hide, self);
                     ok.on("click", function() {
                         self._insert();
                     });
                 },
                 hide:function(ev) {
                     var self = this;
-
                     if (DOM._4e_ascendant(ev.target, function(node) {
                         return node[0] === self.content[0] || node[0] === self.el.el[0];
                     }, true))return;
                     this.d.hide();
                 },
                 _real:function() {
-                    var xy = this.el.el.offset();
-                    xy.top += this.el.el.height() + 5;
-                    //console.log(this.content.width(), xy.left, DOM.viewportWidth());
-                    if (xy.left + this.content.width() > DOM.viewportWidth() - 60) {
-                        xy.left = DOM.viewportWidth() - this.content.width() - 60;
-                    }
-                    this.d.show(xy);
+                    this.d.show();
                 },
                 _insert:function() {
                     var editor = this.get("editor");
@@ -10567,15 +10601,16 @@ KISSY.Editor.add("link", function(editor) {
             Link.init = function() {
                 var self = this;
                 self.d = new Overlay({
-                    title:"编辑超链接",
+                    title:"修改链接",
                     mask:true,
                     width:"300px"
                 });
-                self.d.body.html(html);
+                self.d.body.html(bodyHtml);
+                self.d.foot.html(footHtml);
                 self.urlEl = self.d.body.one(".ke-link-url");
                 self.targetEl = self.d.body.one(".ke-link-blank");
-                var cancel = self.d.body.one(".ke-link-cancel");
-                self.ok = self.d.body.one(".ke-link-ok");
+                var cancel = self.d.foot.one(".ke-link-cancel");
+                self.ok = self.d.foot.one(".ke-link-ok");
                 Link.ok.on("click", function(ev) {
                     var link = Link.d.link;
                     link._link();
@@ -10616,18 +10651,17 @@ KISSY.Editor.add("link", function(editor) {
                 Link.tip = null;
             };
 
-            var html = "<div style='padding: 10px;'>" +
+            var bodyHtml = "<div>" +
                 "<p>" +
-                "<label>URL：<input class='ke-link-url' style='width:230px' value='http://'/></label>" +
+                "<label><span style='color:#0066CC;font-weight:bold;'>网址：</span><input class='ke-link-url' style='width:230px' value='http://'/></label>" +
                 "</p>" +
-                "<p style='margin-top: 5px;padding-left:35px'>" +
+                "<p style='margin-top: 5px;padding-left:45px'>" +
                 "<label><input class='ke-link-blank' type='checkbox'/> &nbsp; 在新窗口打开链接</label>" +
                 "</p>" +
-                "<p style='margin-top: 5px;'>" +
-                "<label><button class='ke-link-ok'>确定</button>&nbsp;" +
-                "<a href='#' class='ke-link-cancel'>取消</a></label>" +
-                "</p>" +
-                "</div>";
+
+                "</div>",
+                footHtml = "<button class='ke-link-ok'>确定</button> " +
+                    "<button class='ke-link-cancel'>取消</button>";
             S.augment(Link, {
                 _init:function() {
                     var self = this,editor = self.editor;
@@ -11596,34 +11630,34 @@ KISSY.Editor.add("music", function(editor) {
                 Overlay = KE.SimpleOverlay,
                 TripleButton = KE.TripleButton,
 
-                html = "<div class='ke-popup-wrap' " +
-                    "style='width:250px;padding:10px;'>" +
-                    "<p style='margin:0 0 10px'>" +
-                    "<label>请输入音乐地址：<br/>" +
-                    "<input value='http://' style='width: 250px;' class='ke-music-url'/>" +
-                    "</label></p>" +
+
+
+                bodyHtml = "<div>" +
                     "<p>" +
-                    "<button class='ke-music-insert'>插入</button>&nbsp;" +
-                    "<a href='#' class='ke-music-cancel'>取消</a>" +
+                    "<label><span style='color:#0066CC;font-weight:bold;'>音乐网址：" +
+                    "</span><input class='ke-music-url' style='width:230px' value='http://'/></label>" +
                     "</p>" +
                     "</div>",
-                MUSIC_MARKUP = '<object ' +
-                    ' width="165" height="37"' +
-                    ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"' +
-                    ' classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000">' +
-                    '<param value="'
-                    + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
-                    ' name="movie"/>' +
-                    '<param value="high" name="quality"/>' +
-                    '<param value="#FFFFFF" name="bgcolor"/>' +
-                    '<embed width="165" height="37" ' +
-                    'type="application/x-shockwave-flash" ' +
-                    'swliveconnect="true" ' +
-                    'src="' + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
-                    'quality="high" ' +
-                    'pluginspage="http://www.macromedia.com/go/getflashplayer"' +
-                    ' bgcolor="#FFFFFF" />' +
-                    '</object>',
+                footHtml = "<button class='ke-music-insert'>插入</button> <button class='ke-music-cancel'>取消</button>";
+
+
+            MUSIC_MARKUP = '<object ' +
+                ' width="165" height="37"' +
+                ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"' +
+                ' classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000">' +
+                '<param value="'
+                + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
+                ' name="movie"/>' +
+                '<param value="high" name="quality"/>' +
+                '<param value="#FFFFFF" name="bgcolor"/>' +
+                '<embed width="165" height="37" ' +
+                'type="application/x-shockwave-flash" ' +
+                'swliveconnect="true" ' +
+                'src="' + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)&amp;as=0"') +
+                'quality="high" ' +
+                'pluginspage="http://www.macromedia.com/go/getflashplayer"' +
+                ' bgcolor="#FFFFFF" />' +
+                '</object>',
                 music_reg = /#\(music\)/g,
                 flashRules = ["img." + CLS_MUSIC];
 
@@ -11671,23 +11705,30 @@ KISSY.Editor.add("music", function(editor) {
                 },
                 _prepare:function() {
                     var self = this,editor = self.get("editor");
-                    self.content = new Node(html);
                     self.d = new Overlay({
-                        el:self.content
+                        title:"插入音乐",
+                        mask:true,
+                        width:"350px"
                     });
-                    self.d.on("hide", function() {
+                    var d = self.d;
+                    d.body.html(bodyHtml);
+                    d.foot.html(footHtml);
+                    self.content = d.el;
+                    var content = self.content;
+
+                    d.on("hide", function() {
                         //清空
                         self.selectedFlash = null;
                         editor.focus();
                     });
-                    document.body.appendChild(self.content[0]);
-                    var cancel = self.content.one(".ke-music-cancel"),
-                        ok = self.content.one(".ke-music-insert");
-                    self.musicUrl = self.content.one(".ke-music-url");
+
+                    var cancel = content.one(".ke-music-cancel"),
+                        ok = content.one(".ke-music-insert");
+                    self.musicUrl = content.one(".ke-music-url");
                     cancel.on("click", function(ev) {
                         self.d.hide();
                         ev.halt();
-                    }, self);
+                    });
                     Event.on(document, "click", self.hide, self);
                     Event.on(editor.document, "click", self.hide, self);
                     ok.on("click", function() {
@@ -11702,12 +11743,7 @@ KISSY.Editor.add("music", function(editor) {
                     this.d.hide();
                 },
                 _real:function() {
-                    var self = this,xy = self.el.el.offset();
-                    xy.top += self.el.el.height() + 5;
-                    if (xy.left + self.content.width() > DOM.viewportWidth() - 60) {
-                        xy.left = DOM.viewportWidth() - self.content.width() - 60;
-                    }
-                    this.d.show(xy);
+                    this.d.show();
                 },
                 _insert:function() {
                     var self = this,editor = self.get("editor");
@@ -12176,21 +12212,11 @@ KISSY.Editor.add("table", function(editor, undefined) {
             "<label>列数： <input class='ke-table-cols ke-table-create-only' value='3' size='" + IN_SIZE + "'/></label>" +
             "</td>" +
             "<td>" +
-            "<label>高度： <input value='200' class='ke-table-height' size='" + IN_SIZE + "'/></label> &nbsp;像素</select>" +
+            "<label>高度： <input value='' class='ke-table-height' size='" + IN_SIZE + "'/></label> &nbsp;像素</select>" +
             "</td>" +
             "</tr>" +
             "<tr>" +
-            "<td>" +
-            "<label>标题格： <select class='ke-table-head ke-table-create-only'>" +
-            "<option value=''>无</option>" +
-            "<option value='1'>有</option>" +
-            "</select>" +
-            "</td>" +
-            "<td>" +
-            "<label>间距： <input value='1' class='ke-table-cellspacing' size='" + IN_SIZE + "'/></label> &nbsp;像素</select>" +
-            "</td>" +
-            "</tr>" +
-            "<tr>" +
+
             "<td>" +
             "<label>对齐： <select class='ke-table-align'>" +
             "<option value=''>无</option>" +
@@ -12199,7 +12225,23 @@ KISSY.Editor.add("table", function(editor, undefined) {
             "<option value='center'>中间对齐</option>" +
             "</select>" +
             "</label>" + "</td>" +
+
+
             "<td>" +
+            "<label>间距： <input value='1' class='ke-table-cellspacing' size='" + IN_SIZE + "'/></label> &nbsp;像素</select>" +
+            "</td>" +
+            "</tr>" +
+            "<tr>" +
+
+
+            "<td>" +
+            "<label>标题格： <select class='ke-table-head ke-table-create-only'>" +
+            "<option value=''>无</option>" +
+            "<option value='1'>有</option>" +
+            "</select>" +
+            "</td>" +
+            "<td>" +
+
             "<label>边距： <input value='1' class='ke-table-cellpadding' size='" + IN_SIZE + "'/></label> &nbsp;像素</select>" +
             "</td>" +
             "</tr>" +
@@ -12218,12 +12260,8 @@ KISSY.Editor.add("table", function(editor, undefined) {
             "</label>" +
             "</td>" +
             "</tr>" +
-            "<tr>" +
-            "<td colspan='2' style='text-align:center'>" +
-            "<button class='ke-table-ok'>确定</button>" +
-            "</td>" +
-            "</tr>" +
             "</table>",
+        footHtml = "<button class='ke-table-ok'>确定</button> <button class='ke-table-cancel'>取消</button>",
         ContextMenu = KE.ContextMenu,
         tableRules = ["tr","th","td","tbody","table"],trim = S.trim;
 
@@ -12353,7 +12391,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                         }),
                         body = d.body;
                     d.body.html(TABLE_HTML);
-
+                    d.foot.html(footHtml);
                     d.twidth = d.body.one(".ke-table-width");
                     d.theight = d.body.one(".ke-table-height");
                     d.tcellspacing = d.body.one(".ke-table-cellspacing");
@@ -12364,16 +12402,18 @@ KISSY.Editor.add("table", function(editor, undefined) {
                     d.trows = d.body.one(".ke-table-rows");
                     d.tcols = d.body.one(".ke-table-cols");
                     d.thead = d.body.one(".ke-table-head");
-                    d.tok = d.body.one(".ke-table-ok");
-                    d.tclose = d.body.one(".ke-table-close");
+                    var tok = d.foot.one(".ke-table-ok"),
+                        tclose = d.foot.one(".ke-table-cancel");
                     d.twidthunit = d.body.one(".ke-table-width-unit");
-                    //console.log(d.twidthunit);
                     self.tableDialog = d;
-                    d.tok.on("click", self._tableOk, self);
+                    tok.on("click", self._tableOk, self);
                     d.on("hide", function() {
                         //清空
                         self.selectedTable = null;
                         editor.focus();
+                    });
+                    tclose.on("click", function() {
+                        d.hide();
                     });
                 },
                 _tableOk:function() {

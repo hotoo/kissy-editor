@@ -32,21 +32,11 @@ KISSY.Editor.add("table", function(editor, undefined) {
             "<label>列数： <input class='ke-table-cols ke-table-create-only' value='3' size='" + IN_SIZE + "'/></label>" +
             "</td>" +
             "<td>" +
-            "<label>高度： <input value='200' class='ke-table-height' size='" + IN_SIZE + "'/></label> &nbsp;像素</select>" +
+            "<label>高度： <input value='' class='ke-table-height' size='" + IN_SIZE + "'/></label> &nbsp;像素</select>" +
             "</td>" +
             "</tr>" +
             "<tr>" +
-            "<td>" +
-            "<label>标题格： <select class='ke-table-head ke-table-create-only'>" +
-            "<option value=''>无</option>" +
-            "<option value='1'>有</option>" +
-            "</select>" +
-            "</td>" +
-            "<td>" +
-            "<label>间距： <input value='1' class='ke-table-cellspacing' size='" + IN_SIZE + "'/></label> &nbsp;像素</select>" +
-            "</td>" +
-            "</tr>" +
-            "<tr>" +
+
             "<td>" +
             "<label>对齐： <select class='ke-table-align'>" +
             "<option value=''>无</option>" +
@@ -55,7 +45,23 @@ KISSY.Editor.add("table", function(editor, undefined) {
             "<option value='center'>中间对齐</option>" +
             "</select>" +
             "</label>" + "</td>" +
+
+
             "<td>" +
+            "<label>间距： <input value='1' class='ke-table-cellspacing' size='" + IN_SIZE + "'/></label> &nbsp;像素</select>" +
+            "</td>" +
+            "</tr>" +
+            "<tr>" +
+
+
+            "<td>" +
+            "<label>标题格： <select class='ke-table-head ke-table-create-only'>" +
+            "<option value=''>无</option>" +
+            "<option value='1'>有</option>" +
+            "</select>" +
+            "</td>" +
+            "<td>" +
+
             "<label>边距： <input value='1' class='ke-table-cellpadding' size='" + IN_SIZE + "'/></label> &nbsp;像素</select>" +
             "</td>" +
             "</tr>" +
@@ -74,12 +80,8 @@ KISSY.Editor.add("table", function(editor, undefined) {
             "</label>" +
             "</td>" +
             "</tr>" +
-            "<tr>" +
-            "<td colspan='2' style='text-align:center'>" +
-            "<button class='ke-table-ok'>确定</button>" +
-            "</td>" +
-            "</tr>" +
             "</table>",
+        footHtml = "<button class='ke-table-ok'>确定</button> <button class='ke-table-cancel'>取消</button>",
         ContextMenu = KE.ContextMenu,
         tableRules = ["tr","th","td","tbody","table"],trim = S.trim;
 
@@ -209,7 +211,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                         }),
                         body = d.body;
                     d.body.html(TABLE_HTML);
-
+                    d.foot.html(footHtml);
                     d.twidth = d.body.one(".ke-table-width");
                     d.theight = d.body.one(".ke-table-height");
                     d.tcellspacing = d.body.one(".ke-table-cellspacing");
@@ -220,16 +222,18 @@ KISSY.Editor.add("table", function(editor, undefined) {
                     d.trows = d.body.one(".ke-table-rows");
                     d.tcols = d.body.one(".ke-table-cols");
                     d.thead = d.body.one(".ke-table-head");
-                    d.tok = d.body.one(".ke-table-ok");
-                    d.tclose = d.body.one(".ke-table-close");
+                    var tok = d.foot.one(".ke-table-ok"),
+                        tclose = d.foot.one(".ke-table-cancel");
                     d.twidthunit = d.body.one(".ke-table-width-unit");
-                    //console.log(d.twidthunit);
                     self.tableDialog = d;
-                    d.tok.on("click", self._tableOk, self);
+                    tok.on("click", self._tableOk, self);
                     d.on("hide", function() {
                         //清空
                         self.selectedTable = null;
                         editor.focus();
+                    });
+                    tclose.on("click", function() {
+                        d.hide();
                     });
                 },
                 _tableOk:function() {

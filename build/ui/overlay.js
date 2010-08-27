@@ -5,8 +5,9 @@
  */
 KISSY.Editor.add("overlay", function() {
 
-    var KE=KISSY.Editor,
+    var KE = KISSY.Editor,
         S = KISSY,
+        focusManager = KE.focusManager,
         Node = S.Node,
         //Event = S.Event,
         DOM = S.DOM;
@@ -66,9 +67,9 @@ KISSY.Editor.add("overlay", function() {
         mask.appendTo(body);
 
         if (S.UA.ie == 6) {
-            d_iframe = new Node("<iframe class='ke-dialog-iframe'></iframe>");
+            d_iframe = new Node("<" + "iframe class='ke-dialog-iframe'></iframe>");
             body.appendChild(d_iframe[0]);
-            mask_iframe = new Node("<iframe class='ke-mask'></iframe>");
+            mask_iframe = new Node("<" + "iframe class='ke-mask'></iframe>");
             mask_iframe.css({"left":"-9999px",top:"-9999px"});
             mask_iframe.css({
                 "width": "100%",
@@ -92,6 +93,8 @@ KISSY.Editor.add("overlay", function() {
         title:{value:""},
         width:{value:"450px"},
         visible:{value:true},
+        //帮你管理焦点
+        focusMgr:{value:true},
         mask:{value:false}
     };
 
@@ -112,56 +115,56 @@ KISSY.Editor.add("overlay", function() {
                     self.fire("hide");
                 }
             });
+            if (self.get("focusMgr"))
+                self.on("beforeVisibleChange", self._editorFocusMg, self);
 
             if (el) {
                 //焦点管理，显示时用a获得焦点
-                /*
-                 el[0].appendChild(new Node("<a href='#' class='ke-focus' " +
-                 "style='" +
-                 "width:0;height:0;outline:none;font-size:0;'" +
-                 "></a>")[0]);*/
+                el[0].appendChild(new Node("<a href='#' class='ke-focus' " +
+                    "style='" +
+                    "width:0;height:0;outline:none;font-size:0;'" +
+                    "></a>")[0]);
+                self.el = el;
                 return;
             }
 
             //also gen html
             el = new Node("<div class='ke-dialog' style='width:" +
                 self.get("width") +
-                "'><div class='ke-hd clearfix'>" +
-                "<div class='ke-hd-title'><h1>" +
+                "'><div class='ke-hd'>" +
+                "<span class='ke-hd-title'>" +
                 self.get("title") +
-                "</h1></div>"
-                + "<div class='ke-hd-x'><a class='ke-close' href='#'>X</a></div>"
+                "</span>"
+                + "<span class='ke-hd-x'><a class='ke-close' href='#'>X</a></span>"
                 + "</div>" +
                 "<div class='ke-bd'></div>" +
                 "<div class='ke-ft'>" +
-                "<a href='#' class='ke-focus'></a>" +
                 "</div>" +
+                "<a href='#' class='ke-focus'></a>" +
                 "</div>");
             document.body.appendChild(el[0]);
             self.set("el", el);
             self.el = el;
             self.body = el.one(".ke-bd");
+            self.foot = el.one(".ke-ft");
             self._close = el.one(".ke-close");
             self._title = el.one(".ke-hd-title").one("h1");
-            self.on("titleChange", function(ev) {
-                self._title.html(ev.newVal);
-            });
-            self.on("widthChange", function(ev) {
-                self.el.css("width", ev.newVal);
-            });
+
             self._close.on("click", function(ev) {
                 ev.preventDefault();
                 self.hide();
             });
+
         },
         center:function() {
-            var el = this.get("el");
-            var bw = parseInt(el.css("width")),
-                bh = el[0].offsetHeight;
-            var vw = DOM.viewportWidth(),
-                vh = DOM.viewportHeight();
-            var bl = (vw - bw) / 2 + DOM.scrollLeft(),
+            var el = this.get("el"),
+                bw = parseInt(el.css("width")),
+                bh = el[0].offsetHeight,
+                vw = DOM.viewportWidth(),
+                vh = DOM.viewportHeight(),
+                bl = (vw - bw) / 2 + DOM.scrollLeft(),
                 bt = (vh - bh) / 2 + DOM.scrollTop();
+            if ((bt - DOM.scrollTop()) > 200) bt -= 150;
             el.css({
                 left: bl + "px",
                 top: bt + "px"
@@ -170,10 +173,34 @@ KISSY.Editor.add("overlay", function() {
         _prepareShow:function() {
             Overlay.init();
         },
+        _getFocusEl:function() {
+            var self = this;
+            if (self._focusEl) {
+                return self._focusEl;
+            }
+            return (self._focusEl = self.el.one(".ke-focus")[0]);
+        },
+        /**
+         * 焦点管理，弹出前记住当前的焦点所在editor
+         * 隐藏好重新focus当前的editor
+         */
+        _editorFocusMg:function(ev) {
+            var v = ev.newVal,self = this;
+            //将要出现
+            if (v) {
+                //保存当前焦点editor
+                self._focusEditor = focusManager.currentInstance();
+                //聚焦到当前窗口
+                self._getFocusEl().focus();
+            }
+            //将要隐藏
+            else {
+                self._focusEditor && self._focusEditor.focus();
+            }
+        },
         _realShow:function(v) {
             var el = this.get("el");
             this.set("visible", v || true);
-            // el.one(".ke-focus")[0].focus();
         },
         show:function(v) {
             this._prepareShow(v);
@@ -181,7 +208,6 @@ KISSY.Editor.add("overlay", function() {
         hide:function() {
             var el = this.get("el");
             this.set("visible", false);
-            // el.one(".ke-focus")[0].blur();
         }
     });
     KE.Utils.lazyRun(Overlay.prototype, "_prepareShow", "_realShow");
