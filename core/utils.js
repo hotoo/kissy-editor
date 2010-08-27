@@ -4,7 +4,7 @@
  */
 KISSY.Editor.add("utils", function(KE) {
 
-    var S = KISSY,Node = S.Node,DOM = S.DOM,debug=S.Config.debug;
+    var S = KISSY,Node = S.Node,DOM = S.DOM,debug = S.Config.debug,UA = S.UA;
     KE.Utils = {
         debugUrl:function (url) {
             if (!debug) return "build/" + url.replace(/\.(js|css)/i, "-min.$1");
@@ -145,6 +145,16 @@ KISSY.Editor.add("utils", function(KE) {
                 r = S.mix(r, ob);
             }
             return r;
+        },
+        isCustomDomain : function() {
+            if (!UA.ie)
+                return false;
+
+            var domain = document.domain,
+                hostname = window.location.hostname;
+
+            return domain != hostname &&
+                domain != ( '[' + hostname + ']' );	// IPv6 IP support (#5434)
         }
     };
 })

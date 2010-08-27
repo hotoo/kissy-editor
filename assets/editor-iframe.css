@@ -4,7 +4,6 @@ for kissy editor iframe
 @from:resource://gre/res/html.css
 **/
 html{
-    _overflow-x:auto;
     _overflow-y:scroll;
 }
 /*

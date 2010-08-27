@@ -58,6 +58,7 @@ KISSY.Editor.add("maximize", function(editor) {
                         height:"",
                         overflow:""
                     });
+                    document.documentElement.style.overflow = "";
                     editor.editorWrap.css({
                         position:"static",
                         width:self.editorWrapWidth
@@ -98,13 +99,12 @@ KISSY.Editor.add("maximize", function(editor) {
                 _restoreEditorStatus:function() {
                     var self = this,
                         editor = self.editor;
-                    var sel;
+                    var sel = editor.getSelection();
 
                     //firefox焦点bug
                     if (UA.gecko && editor.iframeFocus) {
 
                         //原来是聚焦，现在刷新designmode
-                        sel = editor.getSelection();
                         //firefox 先失去焦点才行
                         self.el.el[0].focus();
                         editor.focus();
@@ -120,7 +120,7 @@ KISSY.Editor.add("maximize", function(editor) {
                         var element = sel.getStartElement();
                         //使用原生不行的，会使主窗口滚动
                         //element[0] && element[0].scrollIntoView(true);
-                        element && element[0] && element.scrollIntoView(editor.document, false);
+                        element && element[0] && element._4e_scrollIntoView();
                     }
 
                     //firefox焦点bug
@@ -150,8 +150,10 @@ KISSY.Editor.add("maximize", function(editor) {
                             height:0,
                             overflow:"hidden"
                         });
-                    else
+                    else {
+                        document.documentElement.style.overflow = "hidden";
                         document.body.style.overflow = "hidden";
+                    }
                     editor.editorWrap.css({
                         position:"absolute",
                         zIndex:9999,

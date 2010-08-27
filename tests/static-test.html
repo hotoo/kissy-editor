@@ -12,7 +12,7 @@
 
 <div style="width: 90%; margin: 0 auto">
     <label for="editor">Editor Instance 1:</label>
-    <textarea id="editor" tabindex="1" style="width:100%;height:400px;margin:0 auto;">
+    <textarea id="editor" tabindex="0" style="width:100%;height:400px;margin:0 auto;">
         <script>alert(1);</script>
         <p>我是音乐：</p>
 
@@ -210,6 +210,7 @@
         var KE = KISSY.Editor;
 
         KE.Config.base = base;
+
 
         KE("#editor", {
             pluginConfig: {

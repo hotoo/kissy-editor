@@ -574,7 +574,7 @@ KISSY.Editor.add("selection", function(KE) {
             // If we have split the block, adds a temporary span at the
             // range position and scroll relatively to it.
             var start = this.getStartElement();
-            start.scrollIntoView();
+            start._4e_scrollIntoView();
         }
     });
 

@@ -1,5 +1,5 @@
 /**
- * 多实例的焦点控制，主要是为了
+ * 多实例的管理，主要是焦点控制，主要是为了
  * 1.firefox 焦点失去 bug，记录当前状态
  * 2.窗口隐藏后能够恢复焦点
  * @author: <yiminghe@gmail.com>
@@ -8,26 +8,40 @@ KISSY.Editor.add("focusmanager", function(KE) {
     var S = KISSY,
         DOM = S.DOM,
         Event = S.Event,
-        focusManager = {};
-
-    var INSTANCES = {},
+        focusManager = {},
+        INSTANCES = {},
         //当前焦点所在处
-        currentInstance;
-    focusManager.currentInstance = function() {
-        return currentInstance;
-    };
-    focusManager.add = function(editor) {
-        INSTANCES[editor._UUID] = editor;
-        var win = DOM._4e_getWin(editor.document);
-        Event.on(win, "focus", focus, editor);
-        Event.on(win, "blur", blur, editor);
-    };
-    focusManager.remove = function(editor) {
-        delete INSTANCES[editor._UUID];
-        var win = DOM._4e_getWin(editor.document);
-        Event.remove(win, "focus", focus, editor);
-        Event.remove(win, "blur", blur, editor);
-    };
+        currentInstance,
+        focusManager = {
+            refreshAll:function() {
+                for (var i in INSTANCES) {
+                    var e = INSTANCES[i];
+                    e.document.designMode = "off";
+                    e.document.designMode = "on";
+                }
+            },
+            currentInstance :function() {
+                return currentInstance;
+            },
+            getInstance : function(id) {
+                return INSTANCES[id];
+            },
+            add : function(editor) {
+                var win = DOM._4e_getWin(editor.document);
+                Event.on(win, "focus", focus, editor);
+                Event.on(win, "blur", blur, editor);
+            },
+            register : function(editor) {
+                INSTANCES[editor._UUID] = editor;
+            },
+            remove : function(editor) {
+                delete INSTANCES[editor._UUID];
+                var win = DOM._4e_getWin(editor.document);
+                Event.remove(win, "focus", focus, editor);
+                Event.remove(win, "blur", blur, editor);
+            }
+        };
+
     function focus() {
         //console.log(" i got focus");
         var editor = this;

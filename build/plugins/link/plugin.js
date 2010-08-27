@@ -83,7 +83,7 @@ KISSY.Editor.add("link", function(editor) {
             Link.tip = function() {
                 var el = new Node(tipHtml);
                 el._4e_unselectable();
-                this.tipwin = new Overlay({el:el});
+                this.tipwin = new Overlay({el:el,focusMgr:false});
                 document.body.appendChild(el[0]);
                 this.tipurl = el.one(".ke-bubbleview-url");
                 var tipchange = el.one(".ke-bubbleview-change");
