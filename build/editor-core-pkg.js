@@ -6261,8 +6261,13 @@ KISSY.Editor.add("styles", function(KE) {
                          * them before removal.
                          */
                         element._4e_mergeSiblings();
-                        removeFromElement(this, element);
-
+                        //yiminghe:note,bug for ckeditor
+                        //qc #3700 for chengyu(yiminghe)
+                        //从word复制过来的已编辑文本无法使用粗体和斜体等功能取消
+                        if (element._4e_name() == this.element)
+                            removeFromElement(this, element);
+                        else
+                            removeOverrides(element, getOverrides(this)[ element._4e_name() ]);
                     }
                 }
             }

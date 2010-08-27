@@ -29,14 +29,21 @@ KISSY.Editor.add("htmldataprocessor", function(
                 'class' : function(value
                     // , element
                     ) {
-                    if (/ke_/.test(value)) return value;
+                    if (/^ke_/.test(value)) return value;
+                    return false;
+                },
+                'style':function(value) {
+                    if (S.trim(value))
+                    //去除<i style="mso-bidi-font-style: normal">微软垃圾
+                        return S.trim(value).replace(/mso-.+?(;|$)/g, "$1");
                     return false;
                 }
             },
             attributeNames :  [
                 // Event attributes (onXYZ) must not be directly set. They can become
                 // active in the editing area (IE|WebKit).
-                [ ( /^on/ ), 'ck_on' ]
+                [ ( /^on/ ), 'ck_on' ],
+                [/^lang$/,'']
             ]
         },
         defaultHtmlFilterRules = {

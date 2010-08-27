@@ -6261,8 +6261,13 @@ KISSY.Editor.add("styles", function(KE) {
                          * them before removal.
                          */
                         element._4e_mergeSiblings();
-                        removeFromElement(this, element);
-
+                        //yiminghe:note,bug for ckeditor
+                        //qc #3700 for chengyu(yiminghe)
+                        //从word复制过来的已编辑文本无法使用粗体和斜体等功能取消
+                        if (element._4e_name() == this.element)
+                            removeFromElement(this, element);
+                        else
+                            removeOverrides(element, getOverrides(this)[ element._4e_name() ]);
                     }
                 }
             }
@@ -8141,6 +8146,7 @@ KISSY.Editor.add("font", function(editor) {
                         styles[v].apply(editor.document);
                     }
                     editor.fire("save");
+                    editor.notifySelectionChange();
                 },
 
                 _change:function() {
@@ -8216,7 +8222,9 @@ KISSY.Editor.add("font", function(editor) {
                         text = self.get("text"),
                         style = self.get("style"),
                         title = self.get("title");
+                    editor.fire("save");
                     style.apply(editor.document);
+                    editor.fire("save");
                     editor.notifySelectionChange();
                     editor.focus();
                 },
@@ -8226,7 +8234,9 @@ KISSY.Editor.add("font", function(editor) {
                         text = self.get("text"),
                         style = self.get("style"),
                         title = self.get("title");
+                    editor.fire("save");
                     style.remove(editor.document);
+                    editor.fire("save");
                     editor.notifySelectionChange();
                     editor.focus();
                 },
@@ -8267,7 +8277,13 @@ KISSY.Editor.add("font", function(editor) {
             title:"粗体",
             editor:editor,
             style:new KEStyle({
-                element : 'strong'
+                element        : 'span',
+                styles        : { 'font-weight' : 'bold' },
+                overrides    : [
+                    { element : 'b' },
+                    
+                    { strong : 'strong'}
+                ]
             })
         });
 
@@ -8276,7 +8292,12 @@ KISSY.Editor.add("font", function(editor) {
             title:"斜体",
             editor:editor,
             style:new KEStyle({
-                element : 'em'
+                element        : 'span',
+                styles        : { 'font-style' : 'italic' },
+                overrides    : [
+                    { element : 'i' },
+                    { strong : 'em' }
+                ]
             })
         });
 
@@ -8285,7 +8306,11 @@ KISSY.Editor.add("font", function(editor) {
             title:"下划线",
             editor:editor,
             style:new KEStyle({
-                element : 'u'
+                element        : 'span',
+                styles        : { 'text-decoration' : 'underline' },
+                overrides    : [
+                    { element : 'u' }
+                ]
             })
         });
 
@@ -8294,7 +8319,12 @@ KISSY.Editor.add("font", function(editor) {
             title:"删除线",
             editor:editor,
             style:new KEStyle({
-                element : 'del'
+                element        : 'span',
+                styles        : { 'text-decoration' : 'line-through' },
+                overrides    : [
+                    { element : 'del' },
+                    { element : 's' }
+                ]
             })
         });
 
@@ -10053,14 +10083,21 @@ KISSY.Editor.add("htmldataprocessor", function(
                 'class' : function(value
                     // , element
                     ) {
-                    if (/ke_/.test(value)) return value;
+                    if (/^ke_/.test(value)) return value;
+                    return false;
+                },
+                'style':function(value) {
+                    if (S.trim(value))
+                    //去除<i style="mso-bidi-font-style: normal">微软垃圾
+                        return S.trim(value).replace(/mso-.+?(;|$)/g, "$1");
                     return false;
                 }
             },
             attributeNames :  [
                 // Event attributes (onXYZ) must not be directly set. They can become
                 // active in the editing area (IE|WebKit).
-                [ ( /^on/ ), 'ck_on' ]
+                [ ( /^on/ ), 'ck_on' ],
+                [/^lang$/,'']
             ]
         },
         defaultHtmlFilterRules = {
@@ -13327,6 +13364,7 @@ KISSY.Editor.add("undo", function(editor) {
                             history:self.history,
                             index:this.index
                         });
+                        editor.notifySelectionChange();
                     }
                 }
             });

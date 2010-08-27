@@ -205,6 +205,7 @@ KISSY.Editor.add("undo", function(editor) {
                             history:self.history,
                             index:this.index
                         });
+                        editor.notifySelectionChange();
                     }
                 }
             });

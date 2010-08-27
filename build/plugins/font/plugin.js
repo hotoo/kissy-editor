@@ -100,6 +100,7 @@ KISSY.Editor.add("font", function(editor) {
                         styles[v].apply(editor.document);
                     }
                     editor.fire("save");
+                    editor.notifySelectionChange();
                 },
 
                 _change:function() {
@@ -175,7 +176,9 @@ KISSY.Editor.add("font", function(editor) {
                         text = self.get("text"),
                         style = self.get("style"),
                         title = self.get("title");
+                    editor.fire("save");
                     style.apply(editor.document);
+                    editor.fire("save");
                     editor.notifySelectionChange();
                     editor.focus();
                 },
@@ -185,7 +188,9 @@ KISSY.Editor.add("font", function(editor) {
                         text = self.get("text"),
                         style = self.get("style"),
                         title = self.get("title");
+                    editor.fire("save");
                     style.remove(editor.document);
+                    editor.fire("save");
                     editor.notifySelectionChange();
                     editor.focus();
                 },
@@ -226,7 +231,13 @@ KISSY.Editor.add("font", function(editor) {
             title:"粗体",
             editor:editor,
             style:new KEStyle({
-                element : 'strong'
+                element        : 'span',
+                styles        : { 'font-weight' : 'bold' },
+                overrides    : [
+                    { element : 'b' },
+                    
+                    { strong : 'strong'}
+                ]
             })
         });
 
@@ -235,7 +246,12 @@ KISSY.Editor.add("font", function(editor) {
             title:"斜体",
             editor:editor,
             style:new KEStyle({
-                element : 'em'
+                element        : 'span',
+                styles        : { 'font-style' : 'italic' },
+                overrides    : [
+                    { element : 'i' },
+                    { strong : 'em' }
+                ]
             })
         });
 
@@ -244,7 +260,11 @@ KISSY.Editor.add("font", function(editor) {
             title:"下划线",
             editor:editor,
             style:new KEStyle({
-                element : 'u'
+                element        : 'span',
+                styles        : { 'text-decoration' : 'underline' },
+                overrides    : [
+                    { element : 'u' }
+                ]
             })
         });
 
@@ -253,7 +273,12 @@ KISSY.Editor.add("font", function(editor) {
             title:"删除线",
             editor:editor,
             style:new KEStyle({
-                element : 'del'
+                element        : 'span',
+                styles        : { 'text-decoration' : 'line-through' },
+                overrides    : [
+                    { element : 'del' },
+                    { element : 's' }
+                ]
             })
         });
 
