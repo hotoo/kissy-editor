@@ -6,6 +6,25 @@ KISSY.Editor.add("utils", function(KE) {
 
     var S = KISSY,Node = S.Node,DOM = S.DOM,debug = S.Config.debug,UA = S.UA;
     KE.Utils = {
+        getFlashUrl: function (r) {
+            var url = "",KEN=KE.NODE;
+            if (r._4e_name() == "object") {
+                var params = r[0].childNodes;
+                for (var i = 0; i < params.length; i++) {
+                    if (params[i].nodeType != KEN.NODE_ELEMENT)continue;
+                    if ((DOM.attr(params[i], "name") || "").toLowerCase() == "movie") {
+                        url = DOM.attr(params[i], "value");
+                    } else if (DOM._4e_name(params[i]) == "embed") {
+                        url = DOM.attr(params[i], "src");
+                    } else if (DOM._4e_name(params[i]) == "object") {
+                        url == DOM.attr(params[i], "data");
+                    }
+                }
+            } else if (r._4e_name() == "embed") {
+                url = r.attr("src");
+            }
+            return url;
+        },
         debugUrl:function (url) {
             if (!debug) return "build/" + url.replace(/\.(js|css)/i, "-min.$1");
             if (debug === "dev") {
@@ -145,7 +164,8 @@ KISSY.Editor.add("utils", function(KE) {
                 r = S.mix(r, ob);
             }
             return r;
-        },
+        }
+        ,
         isCustomDomain : function() {
             if (!UA.ie)
                 return false;

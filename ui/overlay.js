@@ -122,7 +122,12 @@ KISSY.Editor.add("overlay", function() {
                 //焦点管理，显示时用a获得焦点
                 el[0].appendChild(new Node("<a href='#' class='ke-focus' " +
                     "style='" +
-                    "width:0;height:0;outline:none;font-size:0;'" +
+                    "width:0;" +
+                    "height:0;" +
+                    "outline:none;" +
+                    "font-size:0;" +
+                    "padding:0;" +
+                    "margin:0;'" +
                     "></a>")[0]);
                 self.el = el;
                 return;

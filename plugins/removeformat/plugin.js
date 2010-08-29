@@ -3,7 +3,7 @@
  * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("removeformat", function(editor) {
-    var KE=KISSY.Editor,
+    var KE = KISSY.Editor,
         S = KISSY,
         KER = KE.RANGE,
         ElementPath = KE.ElementPath,
@@ -16,16 +16,16 @@ KISSY.Editor.add("removeformat", function(editor) {
          * @default 'b,big,code,del,dfn,em,font,i,ins,kbd,q,samp,small,span,strike,strong,sub,sup,tt,u,var'
          * @example
          */
-        removeFormatTags = 'b,big,code,del,dfn,em,font,i,ins,kbd,q,samp,small,span,strike,strong,sub,sup,tt,u,var';
+        removeFormatTags = 'b,big,code,del,dfn,em,font,i,ins,kbd,q,samp,small,span,strike,strong,sub,sup,tt,u,var',
 
-    /**
-     * A comma separated list of elements attributes to be removed when executing
-     * the "remove format" command.
-     * @type String
-     * @default 'class,style,lang,width,height,align,hspace,valign'
-     * @example
-     */
-    removeFormatAttributes = 'class,style,lang,width,height,align,hspace,valign'.split(',');
+        /**
+         * A comma separated list of elements attributes to be removed when executing
+         * the "remove format" command.
+         * @type String
+         * @default 'class,style,lang,width,height,align,hspace,valign'
+         * @example
+         */
+        removeFormatAttributes = 'class,style,lang,width,height,align,hspace,valign'.split(',');
 
     removeFormatTags = new RegExp('^(?:' + removeFormatTags.replace(/,/g, '|') + ')$', 'i');
 
@@ -135,7 +135,7 @@ KISSY.Editor.add("removeformat", function(editor) {
             el.removeAttr(attrs[i]);
     }
 
-    editor.addPlugin( function() {
+    editor.addPlugin(function() {
         new RemoveFormat(editor);
     });
 

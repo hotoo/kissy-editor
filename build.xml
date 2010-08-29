@@ -13,21 +13,31 @@ build file for kissy editor
     <property name="charset" value="utf-8"/>
     <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
     <filelist dir="."
-              files="editor.js" id="editor_js"/>
-    <filelist dir="core" id="core_js"
+              files="build/editor.js" id="editor_js"/>
+    <filelist dir="build/core" id="core_js"
               files="utils.js,focusmanager.js,definition.js,
                       dtd.js,dom.js,elementpath.js
                       ,walker.js,range.js,domiterator.js,selection.js
                       ,styles.js"/>
+    <tstamp>
+        <format property="timestamp.isoformat"
+                pattern="yyyy-MM-dd' 'HH:mm:ss" locale="en"/>
+    </tstamp>
     <!--
     create dir necessarily
     -->
     <target name="prepare">
-
         <mkdir dir="build"/>
         <copy todir="build">
-            <fileset dir="." includes="assets/**,core/**,plugins/**,ui/**,editor.js">
+            <fileset dir="." includes="assets/*" excludes="assets/*.js,assets/*.css">
             </fileset>
+        </copy>
+        <copy todir="build">
+            <fileset dir="." includes="assets/*.js,assets/*.css,core/**,plugins/**,ui/**,editor.js">
+            </fileset>
+            <filterset>
+                <filter token="TIMESTAMP" value="${timestamp.isoformat}"/>
+            </filterset>
         </copy>
     </target>
 
