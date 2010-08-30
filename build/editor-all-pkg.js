@@ -10236,7 +10236,12 @@ KISSY.Editor.add("htmldataprocessor", function(
                 'style':function(value) {
                     if (S.trim(value))
                     //去除<i style="mso-bidi-font-style: normal">微软垃圾
-                        return S.trim(value).replace(/mso-.+?(;|$)/g, "$1");
+                        return S.trim(value).replace(/mso-.+?(;|$)/ig, "$1")
+                            //qc 3701，去除行高，防止乱掉
+                            .replace(/line-height.+?(;|$)/ig, "")
+                            //qc 3711，word pt 完全去掉
+                            .replace(/font-size:.+?pt(;|$)/ig, "")
+                            .replace(/font-family:.+?(;|$)/ig, "");
                     return false;
                 }
             },
@@ -13140,7 +13145,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                         break;
                 }
 
-                return targetCell ? new Node(targetCell) : table.previous();
+                return targetCell ? new Node(targetCell) : table._4e_previous();
             }
 
             function deleteColumns(selectionOrCell) {
@@ -13235,7 +13240,6 @@ KISSY.Editor.add("table", function(editor, undefined) {
                 '删除行 ': function(editor) {
                     var selection = editor.getSelection();
                     placeCursorInCell(deleteRows(selection), undefined);
-
                 },
 
                 '删除列 ' : function(editor) {

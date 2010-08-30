@@ -25,7 +25,7 @@ KISSY.Editor.add("htmldataprocessor", function(
             elements : {
             },
             attributes :  {
-                //防止word的垃圾class，全部杀掉算了，除了以ke_开头的编辑器内置class
+                //防止word的垃圾class，全部杀掉算了，除了以ke_�?��的编辑器内置class
                 'class' : function(value
                     // , element
                     ) {
@@ -35,7 +35,12 @@ KISSY.Editor.add("htmldataprocessor", function(
                 'style':function(value) {
                     if (S.trim(value))
                     //去除<i style="mso-bidi-font-style: normal">微软垃圾
-                        return S.trim(value).replace(/mso-.+?(;|$)/g, "$1");
+                        return S.trim(value).replace(/mso-.+?(;|$)/ig, "$1")
+                            //qc 3701，去除行高，防止乱掉
+                            .replace(/line-height.+?(;|$)/ig, "")
+                            //qc 3711，word pt 完全去掉
+                            .replace(/font-size:.+?pt(;|$)/ig, "")
+                            .replace(/font-family:.+?(;|$)/ig, "");
                     return false;
                 }
             },
@@ -111,7 +116,7 @@ KISSY.Editor.add("htmldataprocessor", function(
             fragment.writeHtml(writer, htmlFilter);
             return writer.getHtml(true);
         },
-        //外部html进入编辑器
+        //外部html进入编辑�?
         toDataFormat : function(html, fixForBody) {
             // Certain elements has problem to go through DOM operation, protect
             // them by prefixing 'ke' namespace. (#3591)

@@ -609,7 +609,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                         break;
                 }
 
-                return targetCell ? new Node(targetCell) : table.previous();
+                return targetCell ? new Node(targetCell) : table._4e_previous();
             }
 
             function deleteColumns(selectionOrCell) {
@@ -704,7 +704,6 @@ KISSY.Editor.add("table", function(editor, undefined) {
                 '删除�?': function(editor) {
                     var selection = editor.getSelection();
                     placeCursorInCell(deleteRows(selection), undefined);
-
                 },
 
                 '删除�?' : function(editor) {

@@ -35,7 +35,12 @@ KISSY.Editor.add("htmldataprocessor", function(
                 'style':function(value) {
                     if (S.trim(value))
                     //去除<i style="mso-bidi-font-style: normal">微软垃圾
-                        return S.trim(value).replace(/mso-.+?(;|$)/g, "$1");
+                        return S.trim(value).replace(/mso-.+?(;|$)/ig, "$1")
+                            //qc 3701，去除行高，防止乱掉
+                            .replace(/line-height.+?(;|$)/ig, "")
+                            //qc 3711，word pt 完全去掉
+                            .replace(/font-size:.+?pt(;|$)/ig, "")
+                            .replace(/font-family:.+?(;|$)/ig, "");
                     return false;
                 }
             },
