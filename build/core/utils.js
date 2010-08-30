@@ -34,7 +34,7 @@ KISSY.Editor.add("utils", function(KE) {
         }
         ,
         /**
-         * 懒惰一下
+         * 懒惰�?��
          * @param obj
          * @param before
          * @param after

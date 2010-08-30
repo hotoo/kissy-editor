@@ -2,7 +2,7 @@
  * Constructor for kissy editor and module dependency definition
  * @author: yiminghe@gmail.com, lifesinger@gmail.com
  * @version: 2.0
- * @buildtime: 2010-08-29 20:58:20
+ * @buildtime: 2010-08-30 13:22:57
  */
 KISSY.add("editor", function(S, undefined) {
 
@@ -251,7 +251,7 @@ KISSY.Editor.add("utils", function(KE) {
         }
         ,
         /**
-         * 懒惰一下
+         * 懒惰�?��
          * @param obj
          * @param before
          * @param after
@@ -4901,7 +4901,7 @@ KISSY.Editor.add("selection", function(KE) {
                                     comparisonEnd = testRange.compareEndPoints('EndToStart', range);
 
                                 testRange.collapse();
-                                //中间有其他标签
+                                //中间有其他标�?
                                 if (comparisonStart > 0)
                                     break;
                                 // When selection stay at the side of certain self-closing elements, e.g. BR,
@@ -4932,7 +4932,7 @@ KISSY.Editor.add("selection", function(KE) {
                             while (distance > 0)
                                 //bug? 可能不是文本节点 nodeValue undefined
                                 //永远不会出现 textnode<img/>textnode
-                                //停止时，前面一定为textnode
+                                //停止时，前面�?��为textnode
                                 distance -= siblings[ --i ].nodeValue.length;
                         }
                             // Measurement in IE could be somtimes wrong because of <select> element. (#4611)
@@ -4979,8 +4979,7 @@ KISSY.Editor.add("selection", function(KE) {
                             boundaryInfo = getBoundaryInformation(nativeRange);
                             range.setEnd(new Node(boundaryInfo.container), boundaryInfo.offset);
                             return ( cache.ranges = [ range ] );
-                        }
-                        else if (type == KES.SELECTION_ELEMENT) {
+                        } else if (type == KES.SELECTION_ELEMENT) {
                             var retval = this._.cache.ranges = [];
 
                             for (var i = 0; i < nativeRange.length; i++) {
@@ -5291,20 +5290,32 @@ KISSY.Editor.add("selection", function(KE) {
     KERange.prototype.select = UA.ie ?
         // V2
         function(forceExpand) {
+
             var self = this,
                 collapsed = self.collapsed,isStartMarkerAlone,dummySpan;
-
+            //选的是元素，直接使用selectElement
+            //还是有差异的，特别是img选择框问�?
+            if (self.startContainer[0] === self.endContainer[0] && self.endOffset - self.startOffset == 1) {
+                var selEl = self.startContainer[0].childNodes[self.startOffset];
+                if (selEl.nodeType == KEN.NODE_ELEMENT) {
+                    new KESelection(self.document).selectElement(new Node(selEl));
+                    return;
+                }
+            }
             // IE doesn't support selecting the entire table row/cell, move the selection into cells, e.g.
             // <table><tbody><tr>[<td>cell</b></td>... => <table><tbody><tr><td>[cell</td>...
-            if (self.startContainer[0].nodeType == KEN.NODE_ELEMENT && self.startContainer._4e_name() in nonCells
-                || self.endContainer[0].nodeType == KEN.NODE_ELEMENT && self.endContainer._4e_name() in nonCells) {
+            if (self.startContainer[0].nodeType == KEN.NODE_ELEMENT &&
+                self.startContainer._4e_name() in nonCells
+                || self.endContainer[0].nodeType == KEN.NODE_ELEMENT &&
+                self.endContainer._4e_name() in nonCells) {
                 self.shrink(KEN.NODE_ELEMENT, true);
             }
 
             var bookmark = self.createBookmark(),
-
                 // Create marker tags for the start and end boundaries.
-                startNode = bookmark.startNode,endNode;
+                startNode = bookmark.startNode,
+                endNode;
+
             if (!collapsed)
                 endNode = bookmark.endNode;
 
@@ -5320,10 +5331,8 @@ KISSY.Editor.add("selection", function(KE) {
             if (endNode) {
                 // Create a tool range for the end.
                 var ieRangeEnd = self.document.body.createTextRange();
-
                 // Position the tool range at the end.
                 ieRangeEnd.moveToElementText(endNode[0]);
-
                 // Move the end boundary of the main range to match the tool range.
                 ieRange.setEndPoint('EndToEnd', ieRangeEnd);
                 ieRange.moveEnd('character', -1);
@@ -5359,9 +5368,7 @@ KISSY.Editor.add("selection", function(KE) {
                 dummySpan = self.document.createElement('span');
                 dummySpan.innerHTML = '&#65279;';	// Zero Width No-Break Space (U+FEFF). See #1359.
                 dummySpan = new Node(dummySpan);
-
                 DOM.insertBefore(dummySpan[0], startNode[0]);
-
                 if (isStartMarkerAlone) {
                     // To expand empty blocks or line spaces after <br>, we need
                     // instead to have any char, which will be later deleted using the
@@ -5394,7 +5401,6 @@ KISSY.Editor.add("selection", function(KE) {
                 endNode._4e_remove();
                 ieRange.select();
             }
-
             // this.document.fire('selectionchange');
         } : function() {
         var self = this,startContainer = self.startContainer;
@@ -5442,12 +5448,12 @@ KISSY.Editor.add("selection", function(KE) {
             html = new Node(doc.documentElement);
 
         if (UA.ie) {
-            //wokao,ie 焦点管理不行啊
+            //wokao,ie 焦点管理不行�?
             // In IE6/7 the blinking cursor appears, but contents are
             // not editable. (#5634)
-            //终于和ck同步了，我也发现了这个bug，哈哈,ck3.3.2解决
+            //终于和ck同步了，我也发现了这个bug，哈�?ck3.3.2解决
             if (UA.ie < 8 ||
-                //ie8 的 7 兼容模式
+                //ie8 �?7 兼容模式
                 document.documentMode == 7) {
                 // The 'click' event is not fired when clicking the
                 // scrollbars, so we can use it to check whether

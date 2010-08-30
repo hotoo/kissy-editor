@@ -117,8 +117,9 @@ KISSY.Editor.add("link", function(editor) {
                     self.el = new TripleButton({
                         container:editor.toolBarDiv,
                         contentCls:"ke-toolbar-link",
+                        title:"编辑超链接 "
+                        //"编辑超链接"
                         //text:'link',
-                        title:'插入编辑超链接'
                     });
                     self.el.on("click", self.show, self);
                     editor.on("selectionChange", self._selectionChange, self);
@@ -202,7 +203,7 @@ KISSY.Editor.add("link", function(editor) {
                 },
 
                 _link:function() {
-                    var self = this;
+                    var self = this,range;
                     var editor = this.editor,url = Link.urlEl.val();
                     //ie6 先要focus
                     editor.focus();
@@ -212,7 +213,7 @@ KISSY.Editor.add("link", function(editor) {
                     var link = self._getSelectedLink();
                     //是修改行为
                     if (link) {
-                        var range = new KERange(editor.document);
+                        range = new KERange(editor.document);
                         range.selectNodeContents(link);
                         editor.getSelection().selectRanges([range]);
                         self._removeLink();
@@ -225,10 +226,19 @@ KISSY.Editor.add("link", function(editor) {
                     } else {
                         attr.target = "_self";
                     }
-                    var linkStyle = new KEStyle(link_Style, attr);
-                    editor.fire("save");
-                    linkStyle.apply(editor.document);
-                    editor.fire("save");
+
+                    range = editor.getSelection().getRanges()[0];
+                    //没有选择区域时直接插入链接地址
+                    if (range.collapsed) {
+                        var a = new Node("<a href='" + url +
+                            "' target='" + attr.target + "'>" + url + "</a>", null, editor.document);
+                        editor.insertElement(a);
+                    } else {
+                        editor.fire("save");
+                        var linkStyle = new KEStyle(link_Style, attr);
+                        linkStyle.apply(editor.document);
+                        editor.fire("save");
+                    }
                     self.hide();
                     editor.focus();
                     editor.notifySelectionChange();

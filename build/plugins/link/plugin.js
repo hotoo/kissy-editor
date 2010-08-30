@@ -45,7 +45,7 @@ KISSY.Editor.add("link", function(editor) {
 
 
             /**
-             * 所有编辑器实例共享同一功能窗口
+             * �?��编辑器实例共享同�?��能窗�?
              */
             Link.init = function() {
                 var self = this;
@@ -72,9 +72,9 @@ KISSY.Editor.add("link", function(editor) {
                 Link.init = null;
             };
             /**
-             * tip初始化，所有共享一个tip
+             * tip初始化，�?��共享�?��tip
              */
-            var tipHtml = '<div class="ke-bubbleview-bubble" onmousedown="return false;">前往链接： '
+            var tipHtml = '<div class="ke-bubbleview-bubble" onmousedown="return false;">前往链接�?'
                 + ' <a href="" '
                 + ' target="_blank" class="ke-bubbleview-url"></a> - '
                 + '    <span class="ke-bubbleview-link ke-bubbleview-change">编辑</span> - '
@@ -102,7 +102,7 @@ KISSY.Editor.add("link", function(editor) {
 
             var bodyHtml = "<div>" +
                 "<p>" +
-                "<label><span style='color:#0066CC;font-weight:bold;'>网址：</span><input class='ke-link-url' style='width:230px' value='http://'/></label>" +
+                "<label><span style='color:#0066CC;font-weight:bold;'>网址�?/span><input class='ke-link-url' style='width:230px' value='http://'/></label>" +
                 "</p>" +
                 "<p style='margin-top: 5px;padding-left:45px'>" +
                 "<label><input class='ke-link-blank' type='checkbox'/> &nbsp; 在新窗口打开链接</label>" +
@@ -117,8 +117,9 @@ KISSY.Editor.add("link", function(editor) {
                     self.el = new TripleButton({
                         container:editor.toolBarDiv,
                         contentCls:"ke-toolbar-link",
+                        title:"编辑超链�?"
+                        //"编辑超链�?
                         //text:'link',
-                        title:'插入编辑超链接'
                     });
                     self.el.on("click", self.show, self);
                     editor.on("selectionChange", self._selectionChange, self);
@@ -185,7 +186,7 @@ KISSY.Editor.add("link", function(editor) {
                     Link.d.hide();
                 },
 
-                //得到当前选中的 link a
+                //得到当前选中�?link a
                 _getSelectedLink:function() {
                     var self = this;
                     var editor = this.editor;
@@ -202,7 +203,7 @@ KISSY.Editor.add("link", function(editor) {
                 },
 
                 _link:function() {
-                    var self = this;
+                    var self = this,range;
                     var editor = this.editor,url = Link.urlEl.val();
                     //ie6 先要focus
                     editor.focus();
@@ -210,9 +211,9 @@ KISSY.Editor.add("link", function(editor) {
                         return;
                     }
                     var link = self._getSelectedLink();
-                    //是修改行为
+                    //是修改行�?
                     if (link) {
-                        var range = new KERange(editor.document);
+                        range = new KERange(editor.document);
                         range.selectNodeContents(link);
                         editor.getSelection().selectRanges([range]);
                         self._removeLink();
@@ -225,10 +226,19 @@ KISSY.Editor.add("link", function(editor) {
                     } else {
                         attr.target = "_self";
                     }
-                    var linkStyle = new KEStyle(link_Style, attr);
-                    editor.fire("save");
-                    linkStyle.apply(editor.document);
-                    editor.fire("save");
+
+                    range = editor.getSelection().getRanges()[0];
+                    //没有选择区域时直接插入链接地�?
+                    if (range.collapsed) {
+                        var a = new Node("<a href='" + url +
+                            "' target='" + attr.target + "'>" + url + "</a>", null, editor.document);
+                        editor.insertElement(a);
+                    } else {
+                        editor.fire("save");
+                        var linkStyle = new KEStyle(link_Style, attr);
+                        linkStyle.apply(editor.document);
+                        editor.fire("save");
+                    }
                     self.hide();
                     editor.focus();
                     editor.notifySelectionChange();
@@ -242,7 +252,7 @@ KISSY.Editor.add("link", function(editor) {
                     Link.d.link = this;
 
                     var link = self._getSelectedLink();
-                    //是修改行为
+                    //是修改行�?
 
                     if (link) {
                         Link.urlEl.val(link.attr("href"));

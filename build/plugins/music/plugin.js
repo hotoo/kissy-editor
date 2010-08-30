@@ -22,7 +22,7 @@ KISSY.Editor.add("music", function(editor) {
 
                 bodyHtml = "<div>" +
                     "<p>" +
-                    "<label><span style='color:#0066CC;font-weight:bold;'>音乐网址：" +
+                    "<label><span style='color:#0066CC;font-weight:bold;'>音乐网址�? +
                     "</span><input class='ke-music-url' style='width:230px' value='http://'/></label>" +
                     "</p>" +
                     "</div>",
@@ -61,9 +61,9 @@ KISSY.Editor.add("music", function(editor) {
                 editor:{}
             };
             /**
-             * tip初始化，所有共享一个tip
+             * tip初始化，�?��共享�?��tip
              */
-            var tipHtml = '<div class="ke-bubbleview-bubble" onmousedown="return false;">音乐网址： '
+            var tipHtml = '<div class="ke-bubbleview-bubble" onmousedown="return false;">音乐网址�?'
                 + ' <a class="ke-bubbleview-url" target="_blank" href="#"></a> - '
                 + '    <span class="ke-bubbleview-link ke-bubbleview-change">编辑</span> - '
                 + '    <span class="ke-bubbleview-link ke-bubbleview-remove">删除</span>'

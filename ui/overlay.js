@@ -7,6 +7,7 @@ KISSY.Editor.add("overlay", function() {
 
     var KE = KISSY.Editor,
         S = KISSY,
+        UA = S.UA,
         focusManager = KE.focusManager,
         Node = S.Node,
         //Event = S.Event,
@@ -124,10 +125,11 @@ KISSY.Editor.add("overlay", function() {
                     "style='" +
                     "width:0;" +
                     "height:0;" +
-                    "outline:none;" +
-                    "font-size:0;" +
+                    "margin:0;" +
                     "padding:0;" +
-                    "margin:0;'" +
+                    "overflow:hidden;" +
+                    "outline:none;" +
+                    "font-size:0;'" +
                     "></a>")[0]);
                 self.el = el;
                 return;
@@ -145,7 +147,7 @@ KISSY.Editor.add("overlay", function() {
                 "<div class='ke-bd'></div>" +
                 "<div class='ke-ft'>" +
                 "</div>" +
-                "<a href='#' class='ke-focus'></a>" +
+                "<a href='#' tabindex='-1' class='ke-focus'></a>" +
                 "</div>");
             document.body.appendChild(el[0]);
             self.set("el", el);
@@ -159,7 +161,6 @@ KISSY.Editor.add("overlay", function() {
                 ev.preventDefault();
                 self.hide();
             });
-
         },
         center:function() {
             var el = this.get("el"),
@@ -190,31 +191,61 @@ KISSY.Editor.add("overlay", function() {
          * 隐藏好重新focus当前的editor
          */
         _editorFocusMg:function(ev) {
-            var v = ev.newVal,self = this;
+            var self = this,editor = self._focusEditor, v = ev.newVal;
             //将要出现
             if (v) {
                 //保存当前焦点editor
                 self._focusEditor = focusManager.currentInstance();
                 //聚焦到当前窗口
                 self._getFocusEl().focus();
+                editor = self._focusEditor;
+                var input = self.el.one("input");
+                if (input) {
+                    setTimeout(function() {
+                        input[0].focus();
+                        input[0].select();
+                        //必须延迟！选中第一个input
+                    }, 0);
+                } else {
+                    /*
+                     * IE BUG: If the initial focus went into a non-text element (e.g. button),
+                     * then IE would still leave the caret inside the editing area.
+                     */
+                    if (UA.ie && editor) {
+                        var $selection = editor.document.selection,
+                            $range = $selection.createRange();
+                        if ($range) {
+                            if (
+                            //修改ckeditor，如果单纯选择文字就不用管了
+                            //$range.parentElement && $range.parentElement().ownerDocument == editor.document
+                            //||
+                            //缩放图片那个框在ie下会突出浮动层来
+                                $range.item && $range.item(0).ownerDocument == editor.document) {
+                                var $myRange = document.body.createTextRange();
+                                $myRange.moveToElementText(self.el._4e_first()[0]);
+                                $myRange.collapse(true);
+                                $myRange.select();
+                            }
+                        }
+                    }
+                }
             }
             //将要隐藏
             else {
-                self._focusEditor && self._focusEditor.focus();
+                editor && editor.focus();
             }
         },
-        _realShow:function(v) {
+        _realShow : function(v) {
             var el = this.get("el");
             this.set("visible", v || true);
-        },
+        } ,
         show:function(v) {
             this._prepareShow(v);
-        },
+        }  ,
         hide:function() {
             var el = this.get("el");
             this.set("visible", false);
-        }
-    });
+        }});
     KE.Utils.lazyRun(Overlay.prototype, "_prepareShow", "_realShow");
 
     KE.SimpleOverlay = Overlay;
