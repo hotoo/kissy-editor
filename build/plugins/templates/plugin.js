@@ -46,10 +46,7 @@ KISSY.Editor.add("templates", function(editor) {
                     var ui = new Overlay({mask:true,title:"内容模板"});
                     ui.body.html(HTML);
                     var list = ui.body.all(".ke-tpl-list");
-                    ui.on("hide", function() {
-                        editor.focus();
-                    });
-                    list.on("click", function(ev) {
+                                        list.on("click", function(ev) {
                         ev.halt();
                         var t = new Node(ev.target);
                         var index = t._4e_index();

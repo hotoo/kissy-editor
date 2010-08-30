@@ -273,12 +273,14 @@ KISSY.Editor.add("dom", function(KE) {
                     currentWindow = elem.ownerDocument.defaultView || elem.ownerDocument.parentWindow,
                     currentDoc = elem.ownerDocument,
                     currentDocElem = currentDoc.documentElement;
+                refDocument = refDocument || currentDoc;
                 //same with DOM.offset
                 if (elem[GET_BOUNDING_CLIENT_RECT]) {
                     if (elem !== currentDoc.body && currentDocElem !== elem) {
                         box = elem[GET_BOUNDING_CLIENT_RECT]();
-                        x = box.left + DOM["scrollLeft"](currentWindow);
-                        y = box.top + DOM["scrollTop"](currentWindow);
+                        //相对于refDocument，里层iframe的滚动不计
+                        x = box.left + (refDocument === currentDoc ? DOM["scrollLeft"](currentWindow) : 0);
+                        y = box.top + (refDocument === currentDoc ? DOM["scrollTop"](currentWindow) : 0);
                     }
                     if (refDocument) {
                         var refWindow = refDocument.defaultView || refDocument.parentWindow;

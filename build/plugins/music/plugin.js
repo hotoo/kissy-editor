@@ -3,14 +3,14 @@
  * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("music", function(editor) {
-    var KE = KISSY.Editor,KEN = KE.NODE;
+    var S = KISSY,
+        Node = S.Node,
+        DOM = S.DOM,
+        KE = S.Editor,
+        Event = S.Event;
     if (!KE.MusicInserter) {
         (function() {
-            var S = KISSY,
-                Node = S.Node,
-                DOM = S.DOM,
-                ContextMenu = KE.ContextMenu,
-                Event = S.Event,
+            var ContextMenu = KE.ContextMenu,
                 //MUSIC_PLAYER = KE.Config.base+"niftyplayer.swf",
                 //CLS_FLASH = 'ke_flash',
                 CLS_MUSIC = 'ke_music',
@@ -22,7 +22,7 @@ KISSY.Editor.add("music", function(editor) {
 
                 bodyHtml = "<div>" +
                     "<p>" +
-                    "<label><span style='color:#0066CC;font-weight:bold;'>音乐网址�? +
+                    "<label><span style='color:#0066CC;font-weight:bold;'>音乐网址�?" +
                     "</span><input class='ke-music-url' style='width:230px' value='http://'/></label>" +
                     "</p>" +
                     "</div>",
@@ -177,7 +177,6 @@ KISSY.Editor.add("music", function(editor) {
                     d.on("hide", function() {
                         //清空
                         self.selectedFlash = null;
-                        editor.focus();
                     });
 
                     var cancel = content.one(".ke-music-cancel"),
@@ -258,6 +257,10 @@ KISSY.Editor.add("music", function(editor) {
     editor.addPlugin(function() {
         new KE.MusicInserter({
             editor:editor
+        });
+        var win = DOM._4e_getWin(editor.document);
+        Event.on(win, "scroll", function() {
+            KE.MusicInserter.tipwin && KE.MusicInserter.tipwin.hide();
         });
     });
 

@@ -200,10 +200,15 @@ KISSY.Editor.add("overlay", function() {
                 self._getFocusEl().focus();
                 editor = self._focusEditor;
                 var input = self.el.one("input");
+
                 if (input) {
                     setTimeout(function() {
-                        input[0].focus();
-                        input[0].select();
+                        //ie 不可聚焦会错哦 disabled ?
+                        try {
+                            input[0].focus();
+                            input[0].select();
+                        } catch(e) {
+                        }
                         //必须延迟！选中第一个input
                     }, 0);
                 } else {

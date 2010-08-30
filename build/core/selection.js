@@ -446,35 +446,36 @@ KISSY.Editor.add("selection", function(KE) {
         },
 
         selectElement : function(element) {
-            var range;
+            var range,self = this;
             if (UA.ie) {
-                this.getNative().empty();
+                //do not use empty()，滚动条重置�?
+                self.getNative().clear();
                 try {
                     // Try to select the node as a control.
-                    range = this.document.body.createControlRange();
+                    range = self.document.body.createControlRange();
                     range.addElement(element[0]);
                     range.select();
                 }
                 catch(e) {
                     // If failed, select it as a text range.
-                    range = this.document.body.createTextRange();
+                    range = self.document.body.createTextRange();
                     range.moveToElementText(element[0]);
                     range.select();
                 }
                 finally {
                     //this.document.fire('selectionchange');
                 }
-                this.reset();
+                self.reset();
             }
             else {
                 // Create the range for the element.
-                range = this.document.createRange();
+                range = self.document.createRange();
                 range.selectNode(element[0]);
                 // Select the range.
-                var sel = this.getNative();
+                var sel = self.getNative();
                 sel.removeAllRanges();
                 sel.addRange(range);
-                this.reset();
+                self.reset();
             }
         },
 

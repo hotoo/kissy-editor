@@ -230,7 +230,6 @@ KISSY.Editor.add("table", function(editor, undefined) {
                     d.on("hide", function() {
                         //清空
                         self.selectedTable = null;
-                        editor.focus();
                     });
                     tclose.on("click", function() {
                         d.hide();
@@ -702,13 +701,13 @@ KISSY.Editor.add("table", function(editor, undefined) {
                         table._4e_remove();
                 },
 
-                '删除行': function(editor) {
+                '删除行 ': function(editor) {
                     var selection = editor.getSelection();
                     placeCursorInCell(deleteRows(selection), undefined);
 
                 },
 
-                '删除列' : function(editor) {
+                '删除列 ' : function(editor) {
                     var selection = editor.getSelection(),
                         element = deleteColumns(selection);
                     element && placeCursorInCell(element, true);

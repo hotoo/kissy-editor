@@ -495,16 +495,16 @@ KISSY.Editor.add("definition", function(KE) {
             + "' rel='stylesheet'/>"
             + "</head>"
             + "<body class='ke-editor'>"
-            //firefox 必须里面有东西，否则编辑前不能删除!
+            //firefox 必须里面有东西，否则编辑前不能删�?
             + "&nbsp;"
-            //使用 setData 加强安全性
+            //使用 setData 加强安全�?
             // + (textarea.value || "")
             + "</body>"
             + "<html>" +
             (id ?
                 // The script that launches the bootstrap logic on 'domReady', so the document
                 // is fully editable even before the editing iframe is fully loaded (#4455).
-                //确保iframe确实载入成功,过早的话 document.domain 会出现无法访问
+                //确保iframe确实载入成功,过早的话 document.domain 会出现无法访�?
                 '<script id="ke_actscrpt" type="text/javascript">' +
                     ( KE.Utils.isCustomDomain() ? ( 'document.domain="' + document.domain + '";' ) : '' ) +
                     'window.parent.KISSY.Editor._initIFrame("' + id + '");' +
@@ -544,7 +544,7 @@ KISSY.Editor.add("definition", function(KE) {
         init:function(textarea) {
             var self = this,
                 editorWrap = new Node(editorHtml.replace(/\$\(tabIndex\)/, textarea.attr("tabIndex")));
-            //!!编辑器内焦点不失去,firefox?
+            //!!编辑器内焦点不失�?firefox?
             editorWrap.on("mousedown", function(ev) {
                 if (UA.webkit) {
                     //chrome select 弹不出来
@@ -563,7 +563,7 @@ KISSY.Editor.add("definition", function(KE) {
             self.toolBarDiv = editorWrap.one(ke_editor_tools);
             self.textarea = textarea;
             self.statusDiv = editorWrap.one(ke_editor_status);
-            //ie 点击按钮不丢失焦点
+            //ie 点击按钮不丢失焦�?
             self.toolBarDiv._4e_unselectable();
             //可以直接调用插件功能
             self._commands = {};
@@ -678,7 +678,7 @@ KISSY.Editor.add("definition", function(KE) {
             self.document && self.document.body.blur();
             //self.notifySelectionChange();
 
-            //firefox 焦点相关，强制 mousedown 刷新光标
+            //firefox 焦点相关，强�?mousedown 刷新光标
             //this.iframeFocus = false;
         },
         _setUpIFrame:function() {
@@ -749,7 +749,7 @@ KISSY.Editor.add("definition", function(KE) {
         }
         ,
         /**
-         * 强制通知插件更新状态，防止插件修改编辑器内容，自己反而得不到通知
+         * 强制通知插件更新状�?，防止插件修改编辑器内容，自己反而得不到通知
          */
         notifySelectionChange:function() {
             this.previousPath = null;
@@ -1009,7 +1009,7 @@ KISSY.Editor.add("definition", function(KE) {
             //console.log(" i am  focus inner");
             /**
              * yiminghe特别注意：firefox光标丢失bug
-             * blink后光标出现在最后，这就需要实现保存range
+             * blink后光标出现在�?��，这就需要实现保存range
              * focus后再恢复range
              */
             if (UA.gecko)
@@ -1017,14 +1017,14 @@ KISSY.Editor.add("definition", function(KE) {
             else if (UA.opera)
                 body.focus();
 
-            // focus 后强制刷新自己状态
+            // focus 后强制刷新自己状�?
             self.notifySelectionChange();
         });
 
 
         if (UA.gecko) {
             /**
-             * firefox 焦点丢失后，再点编辑器区域焦点会移不过来，要点两下
+             * firefox 焦点丢失后，再点编辑器区域焦点会移不过来，要点两�?
              */
             Event.on(self.document, "mousedown", function() {
                 if (!self.iframeFocus) {
@@ -1061,7 +1061,7 @@ KISSY.Editor.add("definition", function(KE) {
 
             // PageUp/PageDown scrolling is broken in document
             // with standard doctype, manually fix it. (#4736)
-            //ie8 主窗口滚动？？
+            //ie8 主窗口滚动？�?
             if (doc.compatMode == 'CSS1Compat') {
                 var pageUpDownKeys = { 33 : 1, 34 : 1 };
                 Event.on(doc, 'keydown', function(evt) {
@@ -1099,12 +1099,12 @@ KISSY.Editor.add("definition", function(KE) {
         setTimeout(function() {
             self.fire("dataReady");
         }, 10);
-        //注意：必须放在这个位置，等iframe加载好再开始运行
+        //注意：必须放在这个位置，等iframe加载好再�?��运行
         //加入焦点管理，和其他实例联系起来
         focusManager.add(self);
     };
     // Fixing Firefox 'Back-Forward Cache' break design mode. (#4514)
-    //不知道为什么
+    //不知道为�?��
     if (UA.gecko) {
         ( function () {
             var body = document.body;
@@ -1410,7 +1410,7 @@ KISSY.Editor.add("dom", function(KE) {
             _4e_equals:function(e1, e2) {
                 //全部为空
                 if (!e1 && !e2)return true;
-                //一个为空，一个不为空
+                //�?��为空，一个不为空
                 if (!e1 || !e2)return false;
                 e1 = normalElDom(e1);
                 e2 = normalElDom(e2);
@@ -1625,12 +1625,14 @@ KISSY.Editor.add("dom", function(KE) {
                     currentWindow = elem.ownerDocument.defaultView || elem.ownerDocument.parentWindow,
                     currentDoc = elem.ownerDocument,
                     currentDocElem = currentDoc.documentElement;
+                refDocument = refDocument || currentDoc;
                 //same with DOM.offset
                 if (elem[GET_BOUNDING_CLIENT_RECT]) {
                     if (elem !== currentDoc.body && currentDocElem !== elem) {
                         box = elem[GET_BOUNDING_CLIENT_RECT]();
-                        x = box.left + DOM["scrollLeft"](currentWindow);
-                        y = box.top + DOM["scrollTop"](currentWindow);
+                        //相对于refDocument，里层iframe的滚动不�?
+                        x = box.left + (refDocument === currentDoc ? DOM["scrollLeft"](currentWindow) : 0);
+                        y = box.top + (refDocument === currentDoc ? DOM["scrollTop"](currentWindow) : 0);
                     }
                     if (refDocument) {
                         var refWindow = refDocument.defaultView || refDocument.parentWindow;
@@ -1869,7 +1871,7 @@ KISSY.Editor.add("dom", function(KE) {
                         return node._4e_name() == n;
                     };
                 }
-                //到document就完了
+                //到document就完�?
                 while ($ && $.nodeType != 9) {
                     if (!name || name(new Node($)) === true)
                         return new Node($);
@@ -1919,7 +1921,7 @@ KISSY.Editor.add("dom", function(KE) {
                 :
                 function(el) {
                     el = normalElDom(el);
-                    //删除firefox自己添加的标志
+                    //删除firefox自己添加的标�?
                     UA.gecko && el.removeAttribute("_moz_dirty");
                     var attributes = el.attributes;
                     return ( attributes.length > 1 || ( attributes.length == 1 && attributes[0].nodeName != '_ke_expando' ) );
@@ -2226,7 +2228,7 @@ KISSY.Editor.add("dom", function(KE) {
                 el = normalElDom(el);
                 var expandoNumber = el.getAttribute('_ke_expando');
                 expandoNumber && delete customData[ expandoNumber ];
-                //ie inner html 会把属性带上，删掉！
+                //ie inner html 会把属�?带上，删掉！
                 expandoNumber && el.removeAttribute("_ke_expando");
             },
             _4e_getUniqueId : function(el) {
@@ -2283,7 +2285,7 @@ KISSY.Editor.add("dom", function(KE) {
                 return ( dtd && dtd['#'] );
             },
             /**
-             * 修正scrollIntoView在可视区域内不需要滚动
+             * 修正scrollIntoView在可视区域内不需要滚�?
              * @param elem
              */
             _4e_scrollIntoView:function(elem) {
@@ -5153,35 +5155,36 @@ KISSY.Editor.add("selection", function(KE) {
         },
 
         selectElement : function(element) {
-            var range;
+            var range,self = this;
             if (UA.ie) {
-                this.getNative().empty();
+                //do not use empty()，滚动条重置�?
+                self.getNative().clear();
                 try {
                     // Try to select the node as a control.
-                    range = this.document.body.createControlRange();
+                    range = self.document.body.createControlRange();
                     range.addElement(element[0]);
                     range.select();
                 }
                 catch(e) {
                     // If failed, select it as a text range.
-                    range = this.document.body.createTextRange();
+                    range = self.document.body.createTextRange();
                     range.moveToElementText(element[0]);
                     range.select();
                 }
                 finally {
                     //this.document.fire('selectionchange');
                 }
-                this.reset();
+                self.reset();
             }
             else {
                 // Create the range for the element.
-                range = this.document.createRange();
+                range = self.document.createRange();
                 range.selectNode(element[0]);
                 // Select the range.
-                var sel = this.getNative();
+                var sel = self.getNative();
                 sel.removeAllRanges();
                 sel.addRange(range);
-                this.reset();
+                self.reset();
             }
         },
 
