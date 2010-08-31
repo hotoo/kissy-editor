@@ -483,17 +483,17 @@ KISSY.Editor.add("definition", function(KE) {
             tryThese(
                 function() {
                     doc.designMode = 'on';
-                    //异步引起时序问题，算了同�?
-                    //setTimeout(function () {
-                    doc.designMode = 'off';
-                    //console.log("path1");
-                    body.focus();
-                    // Try it again once..
-                    if (!arguments.callee.retry) {
-                        arguments.callee.retry = true;
-                        //arguments.callee();
-                    }
-                    //}, 50);
+                    //异步引起时序问题，尽可能小间�?
+                    setTimeout(function () {
+                        doc.designMode = 'off';
+                        //console.log("path1");
+                        body.focus();
+                        // Try it again once..
+                        if (!arguments.callee.retry) {
+                            arguments.callee.retry = true;
+                            //arguments.callee();
+                        }
+                    }, 10);
                 },
                 function() {
                     // The above call is known to fail when parent DOM

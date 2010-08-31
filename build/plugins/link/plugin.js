@@ -163,7 +163,6 @@ KISSY.Editor.add("link", function(editor) {
                     editor.fire("save");
                     linkStyle.remove(editor.document);
                     editor.fire("save");
-                    this._hideTip();
                     editor.focus();
                     editor.notifySelectionChange();
                 },
