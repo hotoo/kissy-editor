@@ -80,6 +80,10 @@ KISSY.Editor.add("music", function(editor) {
                     self.tipwin.music.show();
                     ev.halt();
                 });
+                self.tipwin.on("hide", function() {
+                    var music = self.tipwin.music;
+                    music && (music.selectedFlash = null);
+                });
                 tipremove.on("click", function(ev) {
                     var music = self.tipwin.music;
                     music.selectedFlash._4e_remove();
@@ -228,6 +232,8 @@ KISSY.Editor.add("music", function(editor) {
                     if (self.selectedFlash) {
                         var editor = self.get("editor"),r = editor.restoreRealElement(self.selectedFlash);
                         self.musicUrl.val(getMusicUrl(getFlashUrl(r)));
+                    } else {
+                        self.musicUrl.val("");
                     }
                 }
             });

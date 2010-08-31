@@ -65,7 +65,7 @@ KISSY.Editor.add("styles", function(KE) {
         document.body.focus();
         var selection = new KESelection(document),ranges = selection.getRanges();
         for (var i = 0; i < ranges.length; i++)
-            //格式化后，range进入格式标签内
+            //格式化后，range进入格式标签�?
             func.call(self, ranges[ i ]);
         // Select the ranges again.
         selection.selectRanges(ranges);
@@ -157,7 +157,6 @@ KISSY.Editor.add("styles", function(KE) {
                     var actualAttrValue = element.attr(attName);
                     if (actualAttrValue) {
                         var attValue = attribs[i][1];
-
                         // Remove the attribute if:
                         //    - The override definition value is null;
                         //    - The override definition value is a string that
@@ -166,7 +165,7 @@ KISSY.Editor.add("styles", function(KE) {
                         //      has matches in the attribute value.
                         if (attValue === null ||
                             ( typeof attValue == 'string' && actualAttrValue == attValue ) ||
-                            attValue.test(actualAttrValue))
+                            attValue.test && attValue.test(actualAttrValue))
                             return true;
                     }
                 }
@@ -589,7 +588,7 @@ KISSY.Editor.add("styles", function(KE) {
                         }
                         //bug notice add by yiminghe@gmail.com
                         //<span style="font-size:70px"><span style="font-size:30px">xcxx</span></span>
-                        //下一次格式xxx为70px
+                        //下一次格式xxx�?0px
                         //var exit = false;
                         for (var styleName in def.styles) {
                             if (styleNode._4e_style(styleName) == parent._4e_style(styleName)) {
@@ -770,7 +769,7 @@ KISSY.Editor.add("styles", function(KE) {
                  * the current node from DOM tree.
                  */
                 var nextNode = currentNode._4e_nextSourceNode();
-                if (currentNode[0].nodeType == KEN.NODE_ELEMENT && this.checkElementRemovable(currentNode)) {
+                if (currentNode[0] && currentNode[0].nodeType == KEN.NODE_ELEMENT && this.checkElementRemovable(currentNode)) {
                     // Remove style from element or overriding element.
                     if (currentNode._4e_name() == this.element)
                         removeFromElement(this, currentNode);

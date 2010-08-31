@@ -157,7 +157,6 @@ KISSY.Editor.add("styles", function(KE) {
                     var actualAttrValue = element.attr(attName);
                     if (actualAttrValue) {
                         var attValue = attribs[i][1];
-
                         // Remove the attribute if:
                         //    - The override definition value is null;
                         //    - The override definition value is a string that
@@ -166,7 +165,7 @@ KISSY.Editor.add("styles", function(KE) {
                         //      has matches in the attribute value.
                         if (attValue === null ||
                             ( typeof attValue == 'string' && actualAttrValue == attValue ) ||
-                            attValue.test(actualAttrValue))
+                            attValue.test && attValue.test(actualAttrValue))
                             return true;
                     }
                 }
@@ -770,7 +769,7 @@ KISSY.Editor.add("styles", function(KE) {
                  * the current node from DOM tree.
                  */
                 var nextNode = currentNode._4e_nextSourceNode();
-                if (currentNode[0].nodeType == KEN.NODE_ELEMENT && this.checkElementRemovable(currentNode)) {
+                if (currentNode[0] && currentNode[0].nodeType == KEN.NODE_ELEMENT && this.checkElementRemovable(currentNode)) {
                     // Remove style from element or overriding element.
                     if (currentNode._4e_name() == this.element)
                         removeFromElement(this, currentNode);

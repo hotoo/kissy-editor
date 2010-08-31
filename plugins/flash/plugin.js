@@ -229,6 +229,10 @@ KISSY.Editor.add("flash", function(editor) {
                         } else if (r._4e_name() == "embed") {
                             self.dUrl.val(r.attr("src"));
                         }
+                    } else {
+                        self.dUrl.val("");
+                        self.dWidth.val("");
+                        self.dHeight.val("");
                     }
                 },
                 _initD:function() {
@@ -288,7 +292,10 @@ KISSY.Editor.add("flash", function(editor) {
                 self.tipwin = new Overlay({el:el,focusMgr:false});
                 document.body.appendChild(el[0]);
                 self.tipurl = el.one(".ke-bubbleview-url");
-
+                self.tipwin.on("hide", function() {
+                    var flash = self.tipwin.flash;
+                    flash && (flash.selectedFlash = null);
+                });
                 tipchange.on("click", function(ev) {
                     self.tipwin.flash._showConfig();
                     ev.halt();
@@ -297,6 +304,7 @@ KISSY.Editor.add("flash", function(editor) {
                     var flash = self.tipwin.flash;
                     flash.selectedFlash._4e_remove();
                     flash.editor.notifySelectionChange();
+                    flash.selectedFlash = null;
                     ev.halt();
                 });
                 self.tip = null;

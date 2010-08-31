@@ -228,55 +228,55 @@ KISSY.Editor.add("font", function(editor) {
 
         new KE.Font.SingleFont({
             contentCls:"ke-toolbar-bold",
-            title:"粗体",
+            title:"粗体 ",
             editor:editor,
             style:new KEStyle({
-                element        : 'span',
+                element        : 'strong',
                 styles        : { 'font-weight' : 'bold' },
                 overrides    : [
                     { element : 'b' },
-                    
-                    { strong : 'strong'}
+                    {element        : 'span',
+                        attributes         : { style:'font-weight: bold;' }}
                 ]
             })
         });
 
         new KE.Font.SingleFont({
             contentCls:"ke-toolbar-italic",
-            title:"斜体",
+            title:"斜体 ",
             editor:editor,
             style:new KEStyle({
-                element        : 'span',
-                styles        : { 'font-style' : 'italic' },
+                element        : 'em',
                 overrides    : [
                     { element : 'i' },
-                    { strong : 'em' }
+                    {element        : 'span',
+                        attributes         : { style:'font-style: italic;' }}
                 ]
             })
         });
 
         new KE.Font.SingleFont({
             contentCls:"ke-toolbar-underline",
-            title:"下划线",
+            title:"下划线 ",
             editor:editor,
             style:new KEStyle({
-                element        : 'span',
-                styles        : { 'text-decoration' : 'underline' },
+                element        : 'u',
                 overrides    : [
-                    { element : 'u' }
+                    {element        : 'span',
+                        attributes         : { style:'text-decoration: underline;' }}
                 ]
             })
         });
 
         new KE.Font.SingleFont({
             contentCls:"ke-toolbar-strikeThrough",
-            title:"删除线",
+            title:"删除线 ",
             editor:editor,
             style:new KEStyle({
-                element        : 'span',
-                styles        : { 'text-decoration' : 'line-through' },
+                element        : 'del',
                 overrides    : [
-                    { element : 'del' },
+                    {element        : 'span',
+                        attributes         : { style:'text-decoration: line-through;' }},
                     { element : 's' }
                 ]
             })

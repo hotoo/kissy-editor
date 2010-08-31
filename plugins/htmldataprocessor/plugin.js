@@ -16,13 +16,21 @@ KISSY.Editor.add("htmldataprocessor", function(
         defaultDataFilterRules = {
             elementNames : [
                 // Remove script,iframe style,link,meta
-                [ ( /^script$/ ), '' ],
-                [ ( /^iframe$/ ), '' ],
-                [ ( /^style$/ ), '' ],
-                [ ( /^link$/ ), '' ],
-                [ ( /^meta$/ ), '' ]
+                [  /^script$/ , '' ],
+                [  /^iframe$/ , '' ],
+                [  /^style$/ , '' ],
+                [  /^link$/ , '' ],
+                [  /^meta$/ , '' ],
+                [/^namespace$/,''],
+                [  /^.+?:(.+)/,'$1' ]
             ],
             elements : {
+                table:function(el) {
+                    var border = el.attributes.border;
+                    if (!border || border == "0") {
+                        el.attributes['class']="ke_show_border";
+                    }
+                }
             },
             attributes :  {
                 //防止word的垃圾class，全部杀掉算了，除了以ke_开头的编辑器内置class
@@ -48,6 +56,7 @@ KISSY.Editor.add("htmldataprocessor", function(
                 // Event attributes (onXYZ) must not be directly set. They can become
                 // active in the editing area (IE|WebKit).
                 [ ( /^on/ ), 'ck_on' ],
+
                 [/^lang$/,'']
             ]
         },

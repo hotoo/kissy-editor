@@ -449,7 +449,8 @@ KISSY.Editor.add("selection", function(KE) {
             var range,self = this;
             if (UA.ie) {
                 //do not use empty()，滚动条重置�?
-                self.getNative().clear();
+                //选择�?img 内容前后莫名被清�?
+                //self.getNative().clear();
                 try {
                     // Try to select the node as a control.
                     range = self.document.body.createControlRange();

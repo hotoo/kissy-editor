@@ -5158,7 +5158,8 @@ KISSY.Editor.add("selection", function(KE) {
             var range,self = this;
             if (UA.ie) {
                 //do not use empty()，滚动条重置�?
-                self.getNative().clear();
+                //选择�?img 内容前后莫名被清�?
+                //self.getNative().clear();
                 try {
                     // Try to select the node as a control.
                     range = self.document.body.createControlRange();
@@ -5670,7 +5671,7 @@ KISSY.Editor.add("styles", function(KE) {
         document.body.focus();
         var selection = new KESelection(document),ranges = selection.getRanges();
         for (var i = 0; i < ranges.length; i++)
-            //格式化后，range进入格式标签内
+            //格式化后，range进入格式标签�?
             func.call(self, ranges[ i ]);
         // Select the ranges again.
         selection.selectRanges(ranges);
@@ -5762,7 +5763,6 @@ KISSY.Editor.add("styles", function(KE) {
                     var actualAttrValue = element.attr(attName);
                     if (actualAttrValue) {
                         var attValue = attribs[i][1];
-
                         // Remove the attribute if:
                         //    - The override definition value is null;
                         //    - The override definition value is a string that
@@ -5771,7 +5771,7 @@ KISSY.Editor.add("styles", function(KE) {
                         //      has matches in the attribute value.
                         if (attValue === null ||
                             ( typeof attValue == 'string' && actualAttrValue == attValue ) ||
-                            attValue.test(actualAttrValue))
+                            attValue.test && attValue.test(actualAttrValue))
                             return true;
                     }
                 }
@@ -6194,7 +6194,7 @@ KISSY.Editor.add("styles", function(KE) {
                         }
                         //bug notice add by yiminghe@gmail.com
                         //<span style="font-size:70px"><span style="font-size:30px">xcxx</span></span>
-                        //下一次格式xxx为70px
+                        //下一次格式xxx�?0px
                         //var exit = false;
                         for (var styleName in def.styles) {
                             if (styleNode._4e_style(styleName) == parent._4e_style(styleName)) {
@@ -6375,7 +6375,7 @@ KISSY.Editor.add("styles", function(KE) {
                  * the current node from DOM tree.
                  */
                 var nextNode = currentNode._4e_nextSourceNode();
-                if (currentNode[0].nodeType == KEN.NODE_ELEMENT && this.checkElementRemovable(currentNode)) {
+                if (currentNode[0] && currentNode[0].nodeType == KEN.NODE_ELEMENT && this.checkElementRemovable(currentNode)) {
                     // Remove style from element or overriding element.
                     if (currentNode._4e_name() == this.element)
                         removeFromElement(this, currentNode);
@@ -8093,6 +8093,10 @@ KISSY.Editor.add("flash", function(editor) {
                         } else if (r._4e_name() == "embed") {
                             self.dUrl.val(r.attr("src"));
                         }
+                    } else {
+                        self.dUrl.val("");
+                        self.dWidth.val("");
+                        self.dHeight.val("");
                     }
                 },
                 _initD:function() {
@@ -8152,7 +8156,10 @@ KISSY.Editor.add("flash", function(editor) {
                 self.tipwin = new Overlay({el:el,focusMgr:false});
                 document.body.appendChild(el[0]);
                 self.tipurl = el.one(".ke-bubbleview-url");
-
+                self.tipwin.on("hide", function() {
+                    var flash = self.tipwin.flash;
+                    flash && (flash.selectedFlash = null);
+                });
                 tipchange.on("click", function(ev) {
                     self.tipwin.flash._showConfig();
                     ev.halt();
@@ -8161,6 +8168,7 @@ KISSY.Editor.add("flash", function(editor) {
                     var flash = self.tipwin.flash;
                     flash.selectedFlash._4e_remove();
                     flash.editor.notifySelectionChange();
+                    flash.selectedFlash = null;
                     ev.halt();
                 });
                 self.tip = null;
@@ -8421,55 +8429,55 @@ KISSY.Editor.add("font", function(editor) {
 
         new KE.Font.SingleFont({
             contentCls:"ke-toolbar-bold",
-            title:"粗体",
+            title:"粗体 ",
             editor:editor,
             style:new KEStyle({
-                element        : 'span',
+                element        : 'strong',
                 styles        : { 'font-weight' : 'bold' },
                 overrides    : [
                     { element : 'b' },
-                    
-                    { strong : 'strong'}
+                    {element        : 'span',
+                        attributes         : { style:'font-weight: bold;' }}
                 ]
             })
         });
 
         new KE.Font.SingleFont({
             contentCls:"ke-toolbar-italic",
-            title:"斜体",
+            title:"斜体 ",
             editor:editor,
             style:new KEStyle({
-                element        : 'span',
-                styles        : { 'font-style' : 'italic' },
+                element        : 'em',
                 overrides    : [
                     { element : 'i' },
-                    { strong : 'em' }
+                    {element        : 'span',
+                        attributes         : { style:'font-style: italic;' }}
                 ]
             })
         });
 
         new KE.Font.SingleFont({
             contentCls:"ke-toolbar-underline",
-            title:"下划线",
+            title:"下划线 ",
             editor:editor,
             style:new KEStyle({
-                element        : 'span',
-                styles        : { 'text-decoration' : 'underline' },
+                element        : 'u',
                 overrides    : [
-                    { element : 'u' }
+                    {element        : 'span',
+                        attributes         : { style:'text-decoration: underline;' }}
                 ]
             })
         });
 
         new KE.Font.SingleFont({
             contentCls:"ke-toolbar-strikeThrough",
-            title:"删除线",
+            title:"删除线 ",
             editor:editor,
             style:new KEStyle({
-                element        : 'span',
-                styles        : { 'text-decoration' : 'line-through' },
+                element        : 'del',
                 overrides    : [
-                    { element : 'del' },
+                    {element        : 'span',
+                        attributes         : { style:'text-decoration: line-through;' }},
                     { element : 's' }
                 ]
             })
@@ -10217,13 +10225,21 @@ KISSY.Editor.add("htmldataprocessor", function(
         defaultDataFilterRules = {
             elementNames : [
                 // Remove script,iframe style,link,meta
-                [ ( /^script$/ ), '' ],
-                [ ( /^iframe$/ ), '' ],
-                [ ( /^style$/ ), '' ],
-                [ ( /^link$/ ), '' ],
-                [ ( /^meta$/ ), '' ]
+                [  /^script$/ , '' ],
+                [  /^iframe$/ , '' ],
+                [  /^style$/ , '' ],
+                [  /^link$/ , '' ],
+                [  /^meta$/ , '' ],
+                [/^namespace$/,''],
+                [  /^.+?:(.+)/,'$1' ]
             ],
             elements : {
+                table:function(el) {
+                    var border = el.attributes.border;
+                    if (!border || border == "0") {
+                        el.attributes['class']="ke_show_border";
+                    }
+                }
             },
             attributes :  {
                 //防止word的垃圾class，全部杀掉算了，除了以ke_开头的编辑器内置class
@@ -10249,6 +10265,7 @@ KISSY.Editor.add("htmldataprocessor", function(
                 // Event attributes (onXYZ) must not be directly set. They can become
                 // active in the editing area (IE|WebKit).
                 [ ( /^on/ ), 'ck_on' ],
+
                 [/^lang$/,'']
             ]
         },
@@ -11987,6 +12004,10 @@ KISSY.Editor.add("music", function(editor) {
                     self.tipwin.music.show();
                     ev.halt();
                 });
+                self.tipwin.on("hide", function() {
+                    var music = self.tipwin.music;
+                    music && (music.selectedFlash = null);
+                });
                 tipremove.on("click", function(ev) {
                     var music = self.tipwin.music;
                     music.selectedFlash._4e_remove();
@@ -12135,6 +12156,8 @@ KISSY.Editor.add("music", function(editor) {
                     if (self.selectedFlash) {
                         var editor = self.get("editor"),r = editor.restoreRealElement(self.selectedFlash);
                         self.musicUrl.val(getMusicUrl(getFlashUrl(r)));
+                    } else {
+                        self.musicUrl.val("");
                     }
                 }
             });
