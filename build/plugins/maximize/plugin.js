@@ -74,6 +74,7 @@ KISSY.Editor.add("maximize", function(editor) {
                         //editor.focus();
                         self._restoreEditorStatus();
                     }, 30);
+                    editor.notifySelectionChange();
                 },
 
                 _saveSate:function() {
@@ -81,7 +82,7 @@ KISSY.Editor.add("maximize", function(editor) {
                         editor = self.editor;
                     self.iframeHeight = editor.wrap._4e_style("height");
                     self.editorWrapWidth = editor.editorWrap._4e_style("width");
-                    //主窗口滚动条也要保存哦
+                    //主窗口滚动条也要保存�?
                     self.scrollLeft = DOM.scrollLeft();
                     self.scrollTop = DOM.scrollTop();
                     window.scrollTo(0, 0);
@@ -105,7 +106,7 @@ KISSY.Editor.add("maximize", function(editor) {
                     if (UA.gecko && editor.iframeFocus) {
 
                         //原来是聚焦，现在刷新designmode
-                        //firefox 先失去焦点才行
+                        //firefox 先失去焦点才�?
                         self.el.el[0].focus();
                         editor.focus();
                         if (self.savedRanges && sel) {
@@ -113,19 +114,19 @@ KISSY.Editor.add("maximize", function(editor) {
                         }
 
                     }
-                    //firefox 有焦点时才重新聚焦
+                    //firefox 有焦点时才重新聚�?
 
 
                     if (editor.iframeFocus && sel) {
                         var element = sel.getStartElement();
-                        //使用原生不行的，会使主窗口滚动
+                        //使用原生不行的，会使主窗口滚�?
                         //element[0] && element[0].scrollIntoView(true);
                         element && element[0] && element._4e_scrollIntoView();
                     }
 
                     //firefox焦点bug
                     if (UA.gecko) {
-                        //原来不聚焦
+                        //原来不聚�?
                         if (!editor.iframeFocus) {
                             //移到核心mousedown判断
                             //刷新designmode
@@ -156,11 +157,11 @@ KISSY.Editor.add("maximize", function(editor) {
                     }
                     editor.editorWrap.css({
                         position:"absolute",
-                        zIndex:9999,
+                        zIndex:990,
                         width:viewportWidth + "px"
                     });
                     iframe.css({
-                        zIndex:9998,
+                        zIndex:985,
                         height:viewportHeight + "px",
                         width:viewportWidth + "px"
                     });
@@ -175,6 +176,7 @@ KISSY.Editor.add("maximize", function(editor) {
                     editor.wrap.css({
                         height:(viewportHeight - statusHeight - toolHeight - 14) + "px"
                     });
+                    editor.notifySelectionChange();
                 },
                 _real:function() {
                     var self = this,
@@ -183,7 +185,7 @@ KISSY.Editor.add("maximize", function(editor) {
                     this._saveEditorStatus();
                     this._saveSate();
                     this._maximize();
-                    //firefox第一次最大化bug，重做一次
+                    //firefox第一次最大化bug，重做一�?
                     if (true || UA.gecko) {
                         this._maximize();
                     }
@@ -209,5 +211,4 @@ KISSY.Editor.add("maximize", function(editor) {
     editor.addPlugin(function() {
         new KE.Maximize(editor);
     });
-
 });

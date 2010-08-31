@@ -8,7 +8,7 @@ KISSY.Editor.add("contextmenu", function() {
         Node = S.Node,
         DOM = S.DOM,
         Event = S.Event;
-    var HTML = "<div class='ke-contextmenu'></div>";
+    var HTML = "<div class='ke-contextmenu' onmousedown='return false;'></div>";
 
 
     function ContextMenu(config) {
@@ -18,7 +18,7 @@ KISSY.Editor.add("contextmenu", function() {
 
     var global_rules = [];
     /**
-     * 多菜单管理
+     * 多菜单管�?
      */
     ContextMenu.register = function(doc, cfg) {
 
@@ -78,7 +78,7 @@ KISSY.Editor.add("contextmenu", function() {
     var Overlay = KE.SimpleOverlay;
     S.augment(ContextMenu, {
         /**
-         * 根据配置构造右键菜单内容
+         * 根据配置构�?右键菜单内容
          */
         _init:function() {
             var self = this,cfg = self.cfg,funcs = cfg.funcs;
@@ -93,10 +93,14 @@ KISSY.Editor.add("contextmenu", function() {
                 var a = new Node("<a href='#'>" + f + "</a>");
                 el[0].appendChild(a[0]);
                 (function(a, func) {
+                    a._4e_unselectable();
                     a.on("click", function(ev) {
-                        func();
+                        //�?hide 还原编辑器内焦点
                         self.hide();
+                        //console.log("contextmenu hide");
                         ev.halt();
+                        //�?ie �?�� hide() 中的事件触发 handler 运行机会，原编辑器获得焦点后再进行下步操�?
+                        setTimeout(func, 30);
                     });
                 })(a, funcs[f]);
             }

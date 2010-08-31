@@ -835,6 +835,7 @@ KISSY.Editor.add("selection", function(KE) {
 
             // IE is the only to provide the "selectionchange"
             // event.
+            // 注意：ie右键短暂点击并不能改变选择范围
             Event.on(doc, 'selectionchange', saveSelection);
 
             function disableSave() {

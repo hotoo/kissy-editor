@@ -398,8 +398,8 @@ KISSY.Editor.add("utils", function(KE) {
     ;
 /**
  * 多实例的管理，主要是焦点控制，主要是为了
- * 1.firefox 焦点失去 bug，记录当前状态
- * 2.窗口隐藏后能够恢复焦点
+ * 1.firefox 焦点失去 bug，记录当前状�?
+ * 2.窗口隐藏后能够恢复焦�?
  * @author: <yiminghe@gmail.com>
  */
 KISSY.Editor.add("focusmanager", function(KE) {
@@ -408,7 +408,7 @@ KISSY.Editor.add("focusmanager", function(KE) {
         Event = S.Event,
         focusManager = {},
         INSTANCES = {},
-        //当前焦点所在处
+        //当前焦点�?���?
         currentInstance,
         focusManager = {
             refreshAll:function() {
@@ -522,7 +522,7 @@ KISSY.Editor.add("definition", function(KE) {
             " class='ke-editor-wrap' " +
             " > " +
             "<div class='" + ke_editor_tools.substring(1) + "'></div>" +
-            "<div class='" + ke_textarea_wrap.substring(1) + "'><iframe " +
+            "<div class='" + ke_textarea_wrap.substring(1) + "'><" + "iframe " +
             ' style="' + WIDTH + ':100%;' + HEIGHT + ':100%;border:none;" ' +
             ' ' + WIDTH + '="100%" ' +
             ' ' + HEIGHT + '="100%" ' +
@@ -539,7 +539,8 @@ KISSY.Editor.add("definition", function(KE) {
             "<div class='" + ke_editor_status.substring(1) + "'></div>" +
             "</div>";
 
-
+    //�?��link,flash,music的悬浮小提示
+    //KE.Tips = {};
     S.augment(KE, {
         init:function(textarea) {
             var self = this,
@@ -652,6 +653,7 @@ KISSY.Editor.add("definition", function(KE) {
             return ( !sel || sel.isInvalid ) ? null : sel;
         } ,
         focus:function() {
+            //console.log("manually focus");
             var self = this,
                 win = DOM._4e_getWin(self.document);
             UA.webkit && win && win.parent && win.parent.focus();
@@ -742,6 +744,7 @@ KISSY.Editor.add("definition", function(KE) {
                         currentPath = new KE.ElementPath(startElement);
                     if (!self.previousPath || !self.previousPath.compare(currentPath)) {
                         self.previousPath = currentPath;
+                        //console.log("selectionChange");
                         self.fire("selectionChange", { selection : self, path : currentPath, element : startElement });
                     }
                 }
@@ -942,16 +945,17 @@ KISSY.Editor.add("definition", function(KE) {
             tryThese(
                 function() {
                     doc.designMode = 'on';
-                    setTimeout(function () {
-                        doc.designMode = 'off';
-                        //console.log("path1");
-                        body.focus();
-                        // Try it again once..
-                        if (!arguments.callee.retry) {
-                            arguments.callee.retry = true;
-                            //arguments.callee();
-                        }
-                    }, 50);
+                    //异步引起时序问题，算了同�?
+                    //setTimeout(function () {
+                    doc.designMode = 'off';
+                    //console.log("path1");
+                    body.focus();
+                    // Try it again once..
+                    if (!arguments.callee.retry) {
+                        arguments.callee.retry = true;
+                        //arguments.callee();
+                    }
+                    //}, 50);
                 },
                 function() {
                     // The above call is known to fail when parent DOM
@@ -5544,6 +5548,7 @@ KISSY.Editor.add("selection", function(KE) {
 
             // IE is the only to provide the "selectionchange"
             // event.
+            // 注意：ie右键短暂点击并不能改变�?择范�?
             Event.on(doc, 'selectionchange', saveSelection);
 
             function disableSave() {
@@ -6763,7 +6768,7 @@ KISSY.Editor.add("contextmenu", function() {
         Node = S.Node,
         DOM = S.DOM,
         Event = S.Event;
-    var HTML = "<div class='ke-contextmenu'></div>";
+    var HTML = "<div class='ke-contextmenu' onmousedown='return false;'></div>";
 
 
     function ContextMenu(config) {
@@ -6848,10 +6853,14 @@ KISSY.Editor.add("contextmenu", function() {
                 var a = new Node("<a href='#'>" + f + "</a>");
                 el[0].appendChild(a[0]);
                 (function(a, func) {
+                    a._4e_unselectable();
                     a.on("click", function(ev) {
-                        func();
+                        //先 hide 还原编辑器内焦点
                         self.hide();
+                        //console.log("contextmenu hide");
                         ev.halt();
+                        //给 ie 一点 hide() 中的事件触发 handler 运行机会，原编辑器获得焦点后再进行下步操作
+                        setTimeout(func, 30);
                     });
                 })(a, funcs[f]);
             }
@@ -6969,7 +6978,7 @@ KISSY.Editor.add("overlay", function() {
     Overlay.ATTRS = {
         title:{value:""},
         width:{value:"450px"},
-        visible:{value:true},
+        visible:{value:false},
         //帮你管理焦点
         focusMgr:{value:true},
         mask:{value:false}
@@ -7008,35 +7017,38 @@ KISSY.Editor.add("overlay", function() {
                     "font-size:0;'" +
                     "></a>")[0]);
                 self.el = el;
-                return;
+
+            } else {
+
+                //also gen html
+                el = new Node("<div class='ke-dialog' style='width:" +
+                    self.get("width") +
+                    "'><div class='ke-hd'>" +
+                    "<span class='ke-hd-title'>" +
+                    self.get("title") +
+                    "</span>"
+                    + "<span class='ke-hd-x'><a class='ke-close' href='#'>X</a></span>"
+                    + "</div>" +
+                    "<div class='ke-bd'></div>" +
+                    "<div class='ke-ft'>" +
+                    "</div>" +
+                    "<a href='#' tabindex='-1' class='ke-focus'></a>" +
+                    "</div>");
+                document.body.appendChild(el[0]);
+                self.set("el", el);
+                self.el = el;
+                self.body = el.one(".ke-bd");
+                self.foot = el.one(".ke-ft");
+                self._close = el.one(".ke-close");
+                self._title = el.one(".ke-hd-title").one("h1");
+
+                self._close.on("click", function(ev) {
+                    ev.preventDefault();
+                    self.hide();
+                });
             }
-
-            //also gen html
-            el = new Node("<div class='ke-dialog' style='width:" +
-                self.get("width") +
-                "'><div class='ke-hd'>" +
-                "<span class='ke-hd-title'>" +
-                self.get("title") +
-                "</span>"
-                + "<span class='ke-hd-x'><a class='ke-close' href='#'>X</a></span>"
-                + "</div>" +
-                "<div class='ke-bd'></div>" +
-                "<div class='ke-ft'>" +
-                "</div>" +
-                "<a href='#' tabindex='-1' class='ke-focus'></a>" +
-                "</div>");
-            document.body.appendChild(el[0]);
-            self.set("el", el);
-            self.el = el;
-            self.body = el.one(".ke-bd");
-            self.foot = el.one(".ke-ft");
-            self._close = el.one(".ke-close");
-            self._title = el.one(".ke-hd-title").one("h1");
-
-            self._close.on("click", function(ev) {
-                ev.preventDefault();
-                self.hide();
-            });
+            //初始状态隐藏
+            el.css({"left":"-9999px",top:"-9999px"});
         },
         center:function() {
             var el = this.get("el"),
@@ -7070,13 +7082,14 @@ KISSY.Editor.add("overlay", function() {
             var self = this,editor = self._focusEditor, v = ev.newVal;
             //将要出现
             if (v) {
+
                 //保存当前焦点editor
                 self._focusEditor = focusManager.currentInstance();
+                editor = self._focusEditor;
+                //console.log("give up focus : " + editor);
                 //聚焦到当前窗口
                 self._getFocusEl().focus();
-                editor = self._focusEditor;
                 var input = self.el.one("input");
-
                 if (input) {
                     setTimeout(function() {
                         //ie 不可聚焦会错哦 disabled ?
@@ -8133,6 +8146,10 @@ KISSY.Editor.add("flash", function(editor) {
                         '</object>',real = new Node(outerHTML, null, editor.document);
                     var substitute = editor.createFakeElement ? editor.createFakeElement(real, CLS_FLASH, TYPE_FLASH, true, outerHTML) : real;
                     editor.insertElement(substitute);
+                    //如果是修改，就再选中
+                    if (self.selectedFlash) {
+                        editor.getSelection().selectElement(substitute);
+                    }
                     self.d.hide();
                 }
             });
@@ -8155,10 +8172,15 @@ KISSY.Editor.add("flash", function(editor) {
                 el._4e_unselectable();
                 self.tipwin = new Overlay({el:el,focusMgr:false});
                 document.body.appendChild(el[0]);
+                //KE.Tips["flash"]=self.tipwin;
                 self.tipurl = el.one(".ke-bubbleview-url");
                 self.tipwin.on("hide", function() {
                     var flash = self.tipwin.flash;
                     flash && (flash.selectedFlash = null);
+                });
+                //点击source要关闭
+                Event.on(document, "click", function() {
+                    self.tipwin.hide();
                 });
                 tipchange.on("click", function(ev) {
                     self.tipwin.flash._showConfig();
@@ -10908,6 +10930,7 @@ KISSY.Editor.add("link", function(editor) {
                     mask:true,
                     width:"300px"
                 });
+
                 self.d.body.html(bodyHtml);
                 self.d.foot.html(footHtml);
                 self.urlEl = self.d.body.one(".ke-link-url");
@@ -10935,16 +10958,20 @@ KISSY.Editor.add("link", function(editor) {
                 + '    <span class="ke-bubbleview-link ke-bubbleview-remove">去除</span>'
                 + '</div>';
             Link.tip = function() {
-                var el = new Node(tipHtml);
+                var self = this,el = new Node(tipHtml);
                 el._4e_unselectable();
-                this.tipwin = new Overlay({el:el,focusMgr:false});
+                self.tipwin = new Overlay({el:el,focusMgr:false});
+                //KE.Tips["link"] = self.tipwin;
                 document.body.appendChild(el[0]);
-                this.tipurl = el.one(".ke-bubbleview-url");
+                self.tipurl = el.one(".ke-bubbleview-url");
                 var tipchange = el.one(".ke-bubbleview-change");
                 var tipremove = el.one(".ke-bubbleview-remove");
                 tipchange.on("click", function(ev) {
                     Link.tipwin.link.show();
                     ev.halt();
+                });
+                Event.on(document, "click", function() {
+                    self.tipwin.hide();
                 });
                 tipremove.on("click", function(ev) {
                     var link = Link.tipwin.link;
@@ -11786,6 +11813,7 @@ KISSY.Editor.add("maximize", function(editor) {
                         //editor.focus();
                         self._restoreEditorStatus();
                     }, 30);
+                    editor.notifySelectionChange();
                 },
 
                 _saveSate:function() {
@@ -11868,11 +11896,11 @@ KISSY.Editor.add("maximize", function(editor) {
                     }
                     editor.editorWrap.css({
                         position:"absolute",
-                        zIndex:9999,
+                        zIndex:990,
                         width:viewportWidth + "px"
                     });
                     iframe.css({
-                        zIndex:9998,
+                        zIndex:985,
                         height:viewportHeight + "px",
                         width:viewportWidth + "px"
                     });
@@ -11887,6 +11915,7 @@ KISSY.Editor.add("maximize", function(editor) {
                     editor.wrap.css({
                         height:(viewportHeight - statusHeight - toolHeight - 14) + "px"
                     });
+                    editor.notifySelectionChange();
                 },
                 _real:function() {
                     var self = this,
@@ -11921,7 +11950,6 @@ KISSY.Editor.add("maximize", function(editor) {
     editor.addPlugin(function() {
         new KE.Maximize(editor);
     });
-
 });
 /**
  * insert music for kissy editor
@@ -11997,6 +12025,7 @@ KISSY.Editor.add("music", function(editor) {
                 var self = this,el = new Node(tipHtml);
                 el._4e_unselectable();
                 self.tipwin = new Overlay({el:el,focusMgr:false});
+                //KE.Tips["music"] = self.tipwin;
                 document.body.appendChild(el[0]);
                 self.tipurl = el.one(".ke-bubbleview-url");
                 var tipchange = el.one(".ke-bubbleview-change");
@@ -12008,6 +12037,9 @@ KISSY.Editor.add("music", function(editor) {
                 self.tipwin.on("hide", function() {
                     var music = self.tipwin.music;
                     music && (music.selectedFlash = null);
+                });
+                Event.on(document, "click", function() {
+                    self.tipwin.hide();
                 });
                 tipremove.on("click", function(ev) {
                     var music = self.tipwin.music;
@@ -12033,10 +12065,10 @@ KISSY.Editor.add("music", function(editor) {
                     for (var f in contextMenu) {
                         (function(f) {
                             myContexts[f] = function() {
-                                editor.fire("save");
-                                editor.focus();
+                                //editor.fire("save");
+                                //editor.focus();
                                 contextMenu[f](editor);
-                                editor.fire("save");
+                                //editor.fire("save");
                             }
                         })(f);
                     }
@@ -12141,6 +12173,9 @@ KISSY.Editor.add("music", function(editor) {
                         editor.createFakeElement(music, CLS_MUSIC, TYPE_MUSIC, true, html) :
                         music;
                     editor.insertElement(substitute);
+                    if (self.selectedFlash) {
+                        editor.getSelection().selectElement(substitute);
+                    }
                     self.d.hide();
                 },
                 _dblclick:function(ev) {

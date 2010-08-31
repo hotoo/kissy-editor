@@ -93,7 +93,7 @@ KISSY.Editor.add("overlay", function() {
     Overlay.ATTRS = {
         title:{value:""},
         width:{value:"450px"},
-        visible:{value:true},
+        visible:{value:false},
         //帮你管理焦点
         focusMgr:{value:true},
         mask:{value:false}
@@ -132,35 +132,38 @@ KISSY.Editor.add("overlay", function() {
                     "font-size:0;'" +
                     "></a>")[0]);
                 self.el = el;
-                return;
+
+            } else {
+
+                //also gen html
+                el = new Node("<div class='ke-dialog' style='width:" +
+                    self.get("width") +
+                    "'><div class='ke-hd'>" +
+                    "<span class='ke-hd-title'>" +
+                    self.get("title") +
+                    "</span>"
+                    + "<span class='ke-hd-x'><a class='ke-close' href='#'>X</a></span>"
+                    + "</div>" +
+                    "<div class='ke-bd'></div>" +
+                    "<div class='ke-ft'>" +
+                    "</div>" +
+                    "<a href='#' tabindex='-1' class='ke-focus'></a>" +
+                    "</div>");
+                document.body.appendChild(el[0]);
+                self.set("el", el);
+                self.el = el;
+                self.body = el.one(".ke-bd");
+                self.foot = el.one(".ke-ft");
+                self._close = el.one(".ke-close");
+                self._title = el.one(".ke-hd-title").one("h1");
+
+                self._close.on("click", function(ev) {
+                    ev.preventDefault();
+                    self.hide();
+                });
             }
-
-            //also gen html
-            el = new Node("<div class='ke-dialog' style='width:" +
-                self.get("width") +
-                "'><div class='ke-hd'>" +
-                "<span class='ke-hd-title'>" +
-                self.get("title") +
-                "</span>"
-                + "<span class='ke-hd-x'><a class='ke-close' href='#'>X</a></span>"
-                + "</div>" +
-                "<div class='ke-bd'></div>" +
-                "<div class='ke-ft'>" +
-                "</div>" +
-                "<a href='#' tabindex='-1' class='ke-focus'></a>" +
-                "</div>");
-            document.body.appendChild(el[0]);
-            self.set("el", el);
-            self.el = el;
-            self.body = el.one(".ke-bd");
-            self.foot = el.one(".ke-ft");
-            self._close = el.one(".ke-close");
-            self._title = el.one(".ke-hd-title").one("h1");
-
-            self._close.on("click", function(ev) {
-                ev.preventDefault();
-                self.hide();
-            });
+            //初始状�?隐藏
+            el.css({"left":"-9999px",top:"-9999px"});
         },
         center:function() {
             var el = this.get("el"),
@@ -194,13 +197,14 @@ KISSY.Editor.add("overlay", function() {
             var self = this,editor = self._focusEditor, v = ev.newVal;
             //将要出现
             if (v) {
+
                 //保存当前焦点editor
                 self._focusEditor = focusManager.currentInstance();
+                editor = self._focusEditor;
+                //console.log("give up focus : " + editor);
                 //聚焦到当前窗�?
                 self._getFocusEl().focus();
-                editor = self._focusEditor;
                 var input = self.el.one("input");
-
                 if (input) {
                     setTimeout(function() {
                         //ie 不可聚焦会错�?disabled ?

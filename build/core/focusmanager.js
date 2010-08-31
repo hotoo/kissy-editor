@@ -1,7 +1,7 @@
 /**
  * 多实例的管理，主要是焦点控制，主要是为了
- * 1.firefox 焦点失去 bug，记录当前状态
- * 2.窗口隐藏后能够恢复焦点
+ * 1.firefox 焦点失去 bug，记录当前状�?
+ * 2.窗口隐藏后能够恢复焦�?
  * @author: <yiminghe@gmail.com>
  */
 KISSY.Editor.add("focusmanager", function(KE) {
@@ -10,7 +10,7 @@ KISSY.Editor.add("focusmanager", function(KE) {
         Event = S.Event,
         focusManager = {},
         INSTANCES = {},
-        //当前焦点所在处
+        //当前焦点�?���?
         currentInstance,
         focusManager = {
             refreshAll:function() {

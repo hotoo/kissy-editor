@@ -398,8 +398,8 @@ KISSY.Editor.add("utils", function(KE) {
     ;
 /**
  * 多实例的管理，主要是焦点控制，主要是为了
- * 1.firefox 焦点失去 bug，记录当前状态
- * 2.窗口隐藏后能够恢复焦点
+ * 1.firefox 焦点失去 bug，记录当前状�?
+ * 2.窗口隐藏后能够恢复焦�?
  * @author: <yiminghe@gmail.com>
  */
 KISSY.Editor.add("focusmanager", function(KE) {
@@ -408,7 +408,7 @@ KISSY.Editor.add("focusmanager", function(KE) {
         Event = S.Event,
         focusManager = {},
         INSTANCES = {},
-        //当前焦点所在处
+        //当前焦点�?���?
         currentInstance,
         focusManager = {
             refreshAll:function() {
@@ -522,7 +522,7 @@ KISSY.Editor.add("definition", function(KE) {
             " class='ke-editor-wrap' " +
             " > " +
             "<div class='" + ke_editor_tools.substring(1) + "'></div>" +
-            "<div class='" + ke_textarea_wrap.substring(1) + "'><iframe " +
+            "<div class='" + ke_textarea_wrap.substring(1) + "'><" + "iframe " +
             ' style="' + WIDTH + ':100%;' + HEIGHT + ':100%;border:none;" ' +
             ' ' + WIDTH + '="100%" ' +
             ' ' + HEIGHT + '="100%" ' +
@@ -539,7 +539,8 @@ KISSY.Editor.add("definition", function(KE) {
             "<div class='" + ke_editor_status.substring(1) + "'></div>" +
             "</div>";
 
-
+    //�?��link,flash,music的悬浮小提示
+    //KE.Tips = {};
     S.augment(KE, {
         init:function(textarea) {
             var self = this,
@@ -652,6 +653,7 @@ KISSY.Editor.add("definition", function(KE) {
             return ( !sel || sel.isInvalid ) ? null : sel;
         } ,
         focus:function() {
+            //console.log("manually focus");
             var self = this,
                 win = DOM._4e_getWin(self.document);
             UA.webkit && win && win.parent && win.parent.focus();
@@ -742,6 +744,7 @@ KISSY.Editor.add("definition", function(KE) {
                         currentPath = new KE.ElementPath(startElement);
                     if (!self.previousPath || !self.previousPath.compare(currentPath)) {
                         self.previousPath = currentPath;
+                        //console.log("selectionChange");
                         self.fire("selectionChange", { selection : self, path : currentPath, element : startElement });
                     }
                 }
@@ -942,16 +945,17 @@ KISSY.Editor.add("definition", function(KE) {
             tryThese(
                 function() {
                     doc.designMode = 'on';
-                    setTimeout(function () {
-                        doc.designMode = 'off';
-                        //console.log("path1");
-                        body.focus();
-                        // Try it again once..
-                        if (!arguments.callee.retry) {
-                            arguments.callee.retry = true;
-                            //arguments.callee();
-                        }
-                    }, 50);
+                    //异步引起时序问题，算了同�?
+                    //setTimeout(function () {
+                    doc.designMode = 'off';
+                    //console.log("path1");
+                    body.focus();
+                    // Try it again once..
+                    if (!arguments.callee.retry) {
+                        arguments.callee.retry = true;
+                        //arguments.callee();
+                    }
+                    //}, 50);
                 },
                 function() {
                     // The above call is known to fail when parent DOM
@@ -5544,6 +5548,7 @@ KISSY.Editor.add("selection", function(KE) {
 
             // IE is the only to provide the "selectionchange"
             // event.
+            // 注意：ie右键短暂点击并不能改变�?择范�?
             Event.on(doc, 'selectionchange', saveSelection);
 
             function disableSave() {

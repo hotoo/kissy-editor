@@ -72,6 +72,7 @@ KISSY.Editor.add("music", function(editor) {
                 var self = this,el = new Node(tipHtml);
                 el._4e_unselectable();
                 self.tipwin = new Overlay({el:el,focusMgr:false});
+                //KE.Tips["music"] = self.tipwin;
                 document.body.appendChild(el[0]);
                 self.tipurl = el.one(".ke-bubbleview-url");
                 var tipchange = el.one(".ke-bubbleview-change");
@@ -83,6 +84,9 @@ KISSY.Editor.add("music", function(editor) {
                 self.tipwin.on("hide", function() {
                     var music = self.tipwin.music;
                     music && (music.selectedFlash = null);
+                });
+                Event.on(document, "click", function() {
+                    self.tipwin.hide();
                 });
                 tipremove.on("click", function(ev) {
                     var music = self.tipwin.music;
@@ -108,10 +112,10 @@ KISSY.Editor.add("music", function(editor) {
                     for (var f in contextMenu) {
                         (function(f) {
                             myContexts[f] = function() {
-                                editor.fire("save");
-                                editor.focus();
+                                //editor.fire("save");
+                                //editor.focus();
                                 contextMenu[f](editor);
-                                editor.fire("save");
+                                //editor.fire("save");
                             }
                         })(f);
                     }
@@ -216,6 +220,9 @@ KISSY.Editor.add("music", function(editor) {
                         editor.createFakeElement(music, CLS_MUSIC, TYPE_MUSIC, true, html) :
                         music;
                     editor.insertElement(substitute);
+                    if (self.selectedFlash) {
+                        editor.getSelection().selectElement(substitute);
+                    }
                     self.d.hide();
                 },
                 _dblclick:function(ev) {

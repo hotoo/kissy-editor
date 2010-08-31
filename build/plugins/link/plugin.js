@@ -54,6 +54,7 @@ KISSY.Editor.add("link", function(editor) {
                     mask:true,
                     width:"300px"
                 });
+
                 self.d.body.html(bodyHtml);
                 self.d.foot.html(footHtml);
                 self.urlEl = self.d.body.one(".ke-link-url");
@@ -81,16 +82,20 @@ KISSY.Editor.add("link", function(editor) {
                 + '    <span class="ke-bubbleview-link ke-bubbleview-remove">去除</span>'
                 + '</div>';
             Link.tip = function() {
-                var el = new Node(tipHtml);
+                var self = this,el = new Node(tipHtml);
                 el._4e_unselectable();
-                this.tipwin = new Overlay({el:el,focusMgr:false});
+                self.tipwin = new Overlay({el:el,focusMgr:false});
+                //KE.Tips["link"] = self.tipwin;
                 document.body.appendChild(el[0]);
-                this.tipurl = el.one(".ke-bubbleview-url");
+                self.tipurl = el.one(".ke-bubbleview-url");
                 var tipchange = el.one(".ke-bubbleview-change");
                 var tipremove = el.one(".ke-bubbleview-remove");
                 tipchange.on("click", function(ev) {
                     Link.tipwin.link.show();
                     ev.halt();
+                });
+                Event.on(document, "click", function() {
+                    self.tipwin.hide();
                 });
                 tipremove.on("click", function(ev) {
                     var link = Link.tipwin.link;

@@ -269,6 +269,10 @@ KISSY.Editor.add("flash", function(editor) {
                         '</object>',real = new Node(outerHTML, null, editor.document);
                     var substitute = editor.createFakeElement ? editor.createFakeElement(real, CLS_FLASH, TYPE_FLASH, true, outerHTML) : real;
                     editor.insertElement(substitute);
+                    //如果是修改，就再选中
+                    if (self.selectedFlash) {
+                        editor.getSelection().selectElement(substitute);
+                    }
                     self.d.hide();
                 }
             });
@@ -291,10 +295,15 @@ KISSY.Editor.add("flash", function(editor) {
                 el._4e_unselectable();
                 self.tipwin = new Overlay({el:el,focusMgr:false});
                 document.body.appendChild(el[0]);
+                //KE.Tips["flash"]=self.tipwin;
                 self.tipurl = el.one(".ke-bubbleview-url");
                 self.tipwin.on("hide", function() {
                     var flash = self.tipwin.flash;
                     flash && (flash.selectedFlash = null);
+                });
+                //点击source要关�?
+                Event.on(document, "click", function() {
+                    self.tipwin.hide();
                 });
                 tipchange.on("click", function(ev) {
                     self.tipwin.flash._showConfig();

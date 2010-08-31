@@ -8,7 +8,7 @@ KISSY.Editor.add("contextmenu", function() {
         Node = S.Node,
         DOM = S.DOM,
         Event = S.Event;
-    var HTML = "<div class='ke-contextmenu'></div>";
+    var HTML = "<div class='ke-contextmenu' onmousedown='return false;'></div>";
 
 
     function ContextMenu(config) {
@@ -93,10 +93,14 @@ KISSY.Editor.add("contextmenu", function() {
                 var a = new Node("<a href='#'>" + f + "</a>");
                 el[0].appendChild(a[0]);
                 (function(a, func) {
+                    a._4e_unselectable();
                     a.on("click", function(ev) {
-                        func();
+                        //先 hide 还原编辑器内焦点
                         self.hide();
+                        //console.log("contextmenu hide");
                         ev.halt();
+                        //给 ie 一点 hide() 中的事件触发 handler 运行机会，原编辑器获得焦点后再进行下步操作
+                        setTimeout(func, 30);
                     });
                 })(a, funcs[f]);
             }

@@ -74,6 +74,7 @@ KISSY.Editor.add("maximize", function(editor) {
                         //editor.focus();
                         self._restoreEditorStatus();
                     }, 30);
+                    editor.notifySelectionChange();
                 },
 
                 _saveSate:function() {
@@ -156,11 +157,11 @@ KISSY.Editor.add("maximize", function(editor) {
                     }
                     editor.editorWrap.css({
                         position:"absolute",
-                        zIndex:9999,
+                        zIndex:990,
                         width:viewportWidth + "px"
                     });
                     iframe.css({
-                        zIndex:9998,
+                        zIndex:985,
                         height:viewportHeight + "px",
                         width:viewportWidth + "px"
                     });
@@ -175,6 +176,7 @@ KISSY.Editor.add("maximize", function(editor) {
                     editor.wrap.css({
                         height:(viewportHeight - statusHeight - toolHeight - 14) + "px"
                     });
+                    editor.notifySelectionChange();
                 },
                 _real:function() {
                     var self = this,
@@ -209,5 +211,4 @@ KISSY.Editor.add("maximize", function(editor) {
     editor.addPlugin(function() {
         new KE.Maximize(editor);
     });
-
 });
