@@ -77,6 +77,7 @@ KISSY.Editor.add("clipboard", function(editor) {
                             && ( bogusSpan[0] && bogusSpan.hasClass('Apple-style-span') ) ?
                             bogusSpan : pastebin );
                         sel.selectBookmarks(bms);
+                        //console.log(pastebin.html());
                         editor.insertHtml(pastebin.html());
                     }, 0);
                 }

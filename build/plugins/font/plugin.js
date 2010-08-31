@@ -232,7 +232,6 @@ KISSY.Editor.add("font", function(editor) {
             editor:editor,
             style:new KEStyle({
                 element        : 'strong',
-                styles        : { 'font-weight' : 'bold' },
                 overrides    : [
                     { element : 'b' },
                     {element        : 'span',

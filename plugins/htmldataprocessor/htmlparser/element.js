@@ -1,6 +1,6 @@
 KISSY.Editor.add("htmlparser-element", function(editor) {
-    var KE=KISSY.Editor;
-    if(KE.HtmlParser.Element)return;
+    var KE = KISSY.Editor;
+    if (KE.HtmlParser.Element)return;
     /**
      * A lightweight representation of an HTML element.
      * @param {String} name The element name.
@@ -105,7 +105,7 @@ KISSY.Editor.add("htmlparser-element", function(editor) {
                 if (!isChildrenFiltered) {
                     var writer = new KE.HtmlParser.BasicWriter();
                     KE.HtmlParser.Fragment.prototype.writeChildrenHtml.call(element, writer, filter);
-                    element.children = new KE.HtmlParser.Fragment.fromHtml(writer.getHtml()).children;
+                    element.children = new KE.HtmlParser.Fragment.FromHtml(writer.getHtml()).children;
                     isChildrenFiltered = 1;
                 }
             };

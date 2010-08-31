@@ -49,6 +49,12 @@ build file for kissy editor
     minify all js and css to build dir
     -->
     <target name="minify">
+        <!--
+        remove debug info
+        -->
+        <replaceregexp match="^\s*console\.log\(.+$" replace="" flags="g" byline="true" encoding="${charset}">
+            <fileset dir="build" includes="**/*.js"/>
+        </replaceregexp>
 
         <apply executable="java" verbose="true" dest="build">
             <fileset dir="build" includes="**/*.js" excludes="**/*-min.js"/>

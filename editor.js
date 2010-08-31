@@ -5,7 +5,6 @@
  * @buildtime: @TIMESTAMP@
  */
 KISSY.add("editor", function(S, undefined) {
-
     function Editor(textarea, cfg) {
         var self = this;
 
