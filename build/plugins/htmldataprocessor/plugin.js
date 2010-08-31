@@ -28,7 +28,7 @@ KISSY.Editor.add("htmldataprocessor", function(
                 table:function(el) {
                     var border = el.attributes.border;
                     if (!border || border == "0") {
-                        el.attributes['class']="ke_show_border";
+                        el.attributes['class'] = "ke_show_border";
                     }
                 }
             },
@@ -48,7 +48,8 @@ KISSY.Editor.add("htmldataprocessor", function(
                             .replace(/line-height.+?(;|$)/ig, "")
                             //qc 3711，word pt 完全去掉
                             .replace(/font-size:.+?pt(;|$)/ig, "")
-                            .replace(/font-family:.+?(;|$)/ig, "");
+                            .replace(/font-family:.+?(;|$)/ig, "")
+                            .replace(/display\s*:\s*none(;|$)/ig, "");
                     return false;
                 }
             },
