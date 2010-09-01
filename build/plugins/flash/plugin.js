@@ -9,7 +9,7 @@ KISSY.Editor.add("flash", function(editor) {
         TripleButton = KE.TripleButton,
         Overlay = KE.SimpleOverlay,
         flashFilenameRegex = /\.swf(?:$|\?)/i,
-        dataProcessor = KE.HtmlDataProcessor,
+        dataProcessor = editor.htmlDataProcessor,
         MUSIC_PLAYER = "niftyplayer.swf",
         CLS_FLASH = 'ke_flash',
         CLS_MUSIC = 'ke_music',
@@ -20,70 +20,70 @@ KISSY.Editor.add("flash", function(editor) {
         dataFilter = dataProcessor && dataProcessor.dataFilter,
         flashRules = ["img." + CLS_FLASH];
 
+    function isFlashEmbed(element) {
+        var attributes = element.attributes;
+        return (
+            attributes.type == 'application/x-shockwave-flash'
+                ||
+                flashFilenameRegex.test(attributes.src || '')
+            );
+    }
+
+    function music(src) {
+        return src.indexOf(MUSIC_PLAYER) != -1;
+    }
+
+    dataFilter && dataFilter.addRules({
+        elements : {
+            'object' : function(element) {
+                var attributes = element.attributes,i,
+                    classId = attributes.classid && String(attributes.classid).toLowerCase(),
+                    cls = CLS_FLASH,type = TYPE_FLASH;
+                if (!classId) {
+                    // Look for the inner <embed>
+                    for (i = 0; i < element.children.length; i++) {
+                        if (element.children[ i ].name == 'embed') {
+                            if (!isFlashEmbed(element.children[ i ]))
+                                return null;
+                            if (music(element.children[ i ].attributes.src)) {
+                                cls = CLS_MUSIC;
+                                type = TYPE_MUSIC;
+                            }
+                            return dataProcessor.createFakeParserElement(element, cls, type, true);
+                        }
+                    }
+                    return null;
+                }
+
+                for (i = 0; i < element.children.length; i++) {
+                    var c = element.children[ i ];
+                    if (c.name == 'param' && c.attributes.name == "movie") {
+                        if (music(c.attributes.value)) {
+                            cls = CLS_MUSIC;
+                            type = TYPE_MUSIC;
+                            break;
+                        }
+                    }
+                }
+                return dataProcessor.createFakeParserElement(element, cls, type, true);
+            },
+
+            'embed' : function(element) {
+                if (!isFlashEmbed(element))
+                    return null;
+                var cls = CLS_FLASH,type = TYPE_FLASH;
+                if (music(element.attributes.src)) {
+                    cls = CLS_MUSIC;
+                    type = TYPE_MUSIC;
+                }
+                return dataProcessor.createFakeParserElement(element, cls, type, true);
+            }
+        }}, 5);
+
     if (!KE.Flash) {
 
         (function() {
 
-            function isFlashEmbed(element) {
-                var attributes = element.attributes;
-                return (
-                    attributes.type == 'application/x-shockwave-flash'
-                        ||
-                        flashFilenameRegex.test(attributes.src || '')
-                    );
-            }
-
-            function music(src) {
-                return src.indexOf(MUSIC_PLAYER) != -1;
-            }
-
-
-            dataFilter && dataFilter.addRules({
-                elements : {
-                    'object' : function(element) {
-                        var attributes = element.attributes,i,
-                            classId = attributes.classid && String(attributes.classid).toLowerCase(),
-                            cls = CLS_FLASH,type = TYPE_FLASH;
-                        if (!classId) {
-                            // Look for the inner <embed>
-                            for (i = 0; i < element.children.length; i++) {
-                                if (element.children[ i ].name == 'embed') {
-                                    if (!isFlashEmbed(element.children[ i ]))
-                                        return null;
-                                    if (music(element.children[ i ].attributes.src)) {
-                                        cls = CLS_MUSIC;
-                                        type = TYPE_MUSIC;
-                                    }
-                                    return dataProcessor.createFakeParserElement(element, cls, type, true);
-                                }
-                            }
-                            return null;
-                        }
-
-                        for (i = 0; i < element.children.length; i++) {
-                            var c = element.children[ i ];
-                            if (c.name == 'param' && c.attributes.name == "movie") {
-                                if (music(c.attributes.value)) {
-                                    cls = CLS_MUSIC;
-                                    type = TYPE_MUSIC;
-                                    break;
-                                }
-                            }
-                        }
-                        return dataProcessor.createFakeParserElement(element, cls, type, true);
-                    },
-
-                    'embed' : function(element) {
-                        if (!isFlashEmbed(element))
-                            return null;
-                        var cls = CLS_FLASH,type = TYPE_FLASH;
-                        if (music(element.attributes.src)) {
-                            cls = CLS_MUSIC;
-                            type = TYPE_MUSIC;
-                        }
-                        return dataProcessor.createFakeParserElement(element, cls, type, true);
-                    }
-                }}, 5);
 
             var bodyHtml = "<div><p><label>地址�?" +
                 "<input class='ke-flash-url' style='width:280px' /></label></p>" +

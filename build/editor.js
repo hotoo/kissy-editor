@@ -2,7 +2,7 @@
  * Constructor for kissy editor and module dependency definition
  * @author: yiminghe@gmail.com, lifesinger@gmail.com
  * @version: 2.0
- * @buildtime: 2010-08-31 20:30:59
+ * @buildtime: 2010-09-01 17:07:05
  */
 KISSY.add("editor", function(S, undefined) {
     function Editor(textarea, cfg) {
@@ -17,7 +17,7 @@ KISSY.add("editor", function(S, undefined) {
         }
         if (!textarea[0]) textarea = new Node(textarea);
 
-        self.cfg = cfg;
+        self.cfg = cfg || {pluginConfig:{}};
 
         S.app(self, S.EventTarget);
         self.use = function(mods) {
@@ -128,6 +128,11 @@ KISSY.add("editor", function(S, undefined) {
             },
             {
                 name: "htmlparser-text",
+                requires: ["htmlparser-comment"]
+            }
+            ,
+            {
+                name: "htmlparser-comment",
                 requires: ["htmlparser-filter"]
             }
         ],

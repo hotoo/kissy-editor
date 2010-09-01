@@ -15,6 +15,7 @@ KISSY.Editor.add("dom", function(KE) {
     KE.NODE = {
         NODE_ELEMENT:1,
         NODE_TEXT:3,
+        NODE_COMMENT : 8,
         NODE_DOCUMENT_FRAGMENT:11
     };
     KE.POSITION = {};

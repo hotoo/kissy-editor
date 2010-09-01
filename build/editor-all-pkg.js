@@ -2,7 +2,7 @@
  * Constructor for kissy editor and module dependency definition
  * @author: yiminghe@gmail.com, lifesinger@gmail.com
  * @version: 2.0
- * @buildtime: 2010-08-31 20:30:59
+ * @buildtime: 2010-09-01 17:07:05
  */
 KISSY.add("editor", function(S, undefined) {
     function Editor(textarea, cfg) {
@@ -17,7 +17,7 @@ KISSY.add("editor", function(S, undefined) {
         }
         if (!textarea[0]) textarea = new Node(textarea);
 
-        self.cfg = cfg;
+        self.cfg = cfg || {pluginConfig:{}};
 
         S.app(self, S.EventTarget);
         self.use = function(mods) {
@@ -128,6 +128,11 @@ KISSY.add("editor", function(S, undefined) {
             },
             {
                 name: "htmlparser-text",
+                requires: ["htmlparser-comment"]
+            }
+            ,
+            {
+                name: "htmlparser-comment",
                 requires: ["htmlparser-filter"]
             }
         ],
@@ -605,14 +610,16 @@ KISSY.Editor.add("definition", function(KE) {
             this.fire("save");
         },
         getData:function() {
-            if (KE.HtmlDataProcessor)
-                return KE.HtmlDataProcessor.toHtml(this.document.body.innerHTML, "p");
-            return this.document.body.innerHTML;
+            var self = this;
+            if (self.htmlDataProcessor)
+                return self.htmlDataProcessor.toHtml(self.document.body.innerHTML, "p");
+            return self.document.body.innerHTML;
         } ,
         setData:function(data) {
-            if (KE.HtmlDataProcessor)
-                data = KE.HtmlDataProcessor.toDataFormat(data, "p");
-            this.document.body.innerHTML = data;
+            var self = this;
+            if (self.htmlDataProcessor)
+                data = self.htmlDataProcessor.toDataFormat(data, "p");
+            self.document.body.innerHTML = data;
         },
         sync:function() {
             this.textarea.val(this.getData());
@@ -824,8 +831,9 @@ KISSY.Editor.add("definition", function(KE) {
         },
 
         insertHtml:function(data) {
-            if (KE.HtmlDataProcessor)
-                data = KE.HtmlDataProcessor.toDataFormat(data);//, "p");
+             var self = this;
+            if (self.htmlDataProcessor)
+                data = self.htmlDataProcessor.toDataFormat(data);//, "p");
             /**
              * webkit insert html 有问题！会把标签去掉，算了直接用insertElement
              */
@@ -834,10 +842,10 @@ KISSY.Editor.add("definition", function(KE) {
                 if (nodes.nodeType == 11) nodes = S.makeArray(nodes.childNodes);
                 else nodes = [nodes];
                 for (var i = 0; i < nodes.length; i++)
-                    this.insertElement(new Node(nodes[i]));
+                    self.insertElement(new Node(nodes[i]));
                 return;
             }
-            var self = this;
+
             self.focus();
             self.fire("save");
             var selection = self.getSelection();
@@ -1370,6 +1378,7 @@ KISSY.Editor.add("dom", function(KE) {
     KE.NODE = {
         NODE_ELEMENT:1,
         NODE_TEXT:3,
+        NODE_COMMENT : 8,
         NODE_DOCUMENT_FRAGMENT:11
     };
     KE.POSITION = {};
@@ -5069,7 +5078,7 @@ KISSY.Editor.add("selection", function(KE) {
                                 var startContainer = range.startContainer,
                                     startOffset = range.startOffset;
                                 // Limit the fix only to non-block elements.(#3950)
-                                if (startOffset == ( startContainer[0].childNodes ?
+                                if (startOffset == ( startContainer[0].nodeType===KEN.NODE_ELEMENT ?
                                     startContainer[0].childNodes.length : startContainer[0].nodeValue.length )
                                     && !startContainer._4e_isBlockBoundary())
                                     range.setStartAfter(startContainer);
@@ -7737,103 +7746,97 @@ KISSY.Editor.add("fakeobjects", function(editor) {
         KEN = KE.NODE,
         HtmlParser = KE.HtmlParser,
         Editor = S.Editor,
-        dataProcessor = KE.HtmlDataProcessor,
+        dataProcessor = editor.htmlDataProcessor,
         htmlFilter = dataProcessor && dataProcessor.htmlFilter,
         dataFilter = dataProcessor && dataProcessor.dataFilter;
 
-    if (!KE.FakeObjects) {
+    var htmlFilterRules = {
+        elements : {
+            /**
+             * 生成最终html时，从编辑器html转化把fake替换为真实，并将style的width,height搞到属性上去
+             * @param element
+             */
+            $ : function(element) {
+                var attributes = element.attributes,
+                    realHtml = attributes && attributes._ke_realelement,
+                    realFragment = realHtml && new HtmlParser.Fragment.FromHtml(decodeURIComponent(realHtml)),
+                    realElement = realFragment && realFragment.children[ 0 ];
 
-        (function() {
-            var htmlFilterRules = {
-                elements : {
-                    /**
-                     * 生成最终html时，从编辑器html转化把fake替换为真实，并将style的width,height搞到属性上去
-                     * @param element
-                     */
-                    $ : function(element) {
-                        var attributes = element.attributes,
-                            realHtml = attributes && attributes._ke_realelement,
-                            realFragment = realHtml && new HtmlParser.Fragment.FromHtml(decodeURIComponent(realHtml)),
-                            realElement = realFragment && realFragment.children[ 0 ];
+                // If we have width/height in the element, we must move it into
+                // the real element.
+                if (realElement && element.attributes._ke_resizable) {
+                    var style = element.attributes.style;
+                    if (style) {
+                        // Get the width from the style.
+                        var match = /(?:^|\s)width\s*:\s*(\d+)/i.exec(style),
+                            width = match && match[1];
+                        // Get the height from the style.
+                        match = /(?:^|\s)height\s*:\s*(\d+)/i.exec(style);
+                        var height = match && match[1];
 
-                        // If we have width/height in the element, we must move it into
-                        // the real element.
-                        if (realElement && element.attributes._ke_resizable) {
-                            var style = element.attributes.style;
-                            if (style) {
-                                // Get the width from the style.
-                                var match = /(?:^|\s)width\s*:\s*(\d+)/i.exec(style),
-                                    width = match && match[1];
-                                // Get the height from the style.
-                                match = /(?:^|\s)height\s*:\s*(\d+)/i.exec(style);
-                                var height = match && match[1];
+                        if (width)
+                            realElement.attributes.width = width;
 
-                                if (width)
-                                    realElement.attributes.width = width;
-
-                                if (height)
-                                    realElement.attributes.height = height;
-                            }
-                        }
-                        return realElement;
+                        if (height)
+                            realElement.attributes.height = height;
                     }
                 }
-            };
-
-
-            if (htmlFilter)
-                htmlFilter.addRules(htmlFilterRules);
-
-
-            if (dataProcessor) {
-                S.mix(dataProcessor, {
-
-                    /**
-                     * 从外边真实的html，转为为编辑器代码支持的替换元素
-                     * @param realElement
-                     * @param className
-                     * @param realElementType
-                     * @param isResizable
-                     */
-                    createFakeParserElement:function(realElement, className, realElementType, isResizable) {
-                        var html;
-
-                        var writer = new HtmlParser.BasicWriter();
-                        realElement.writeHtml(writer);
-                        html = writer.getHtml();
-                        var style = realElement.attributes.style;
-                        if (realElement.attributes.width) {
-                            style = "width:" + realElement.attributes.width + "px;" + style;
-                        }
-                        if (realElement.attributes.height) {
-                            style = "height:" + realElement.attributes.height + "px;" + style;
-                        }
-                        var attributes = {
-                            'class' : className,
-                            src : KE.Config.base + 'assets/spacer.gif',
-                            _ke_realelement : encodeURIComponent(html),
-                            _ke_real_node_type : realElement.type,
-                            style:style,
-                            align : realElement.attributes.align || ''
-                        };
-
-                        if (realElementType)
-                            attributes._ke_real_element_type = realElementType;
-
-                        if (isResizable)
-                            attributes._ke_resizable = isResizable;
-
-                        return new HtmlParser.Element('img', attributes);
-                    }
-                });
+                return realElement;
             }
-            KE.FakeObjects = 1;
-        })();
+        }
+    };
+
+
+    if (htmlFilter)
+        htmlFilter.addRules(htmlFilterRules);
+
+
+    if (dataProcessor) {
+        S.mix(dataProcessor, {
+
+            /**
+             * 从外边真实的html，转为为编辑器代码支持的替换元素
+             * @param realElement
+             * @param className
+             * @param realElementType
+             * @param isResizable
+             */
+            createFakeParserElement:function(realElement, className, realElementType, isResizable) {
+                var html;
+
+                var writer = new HtmlParser.BasicWriter();
+                realElement.writeHtml(writer);
+                html = writer.getHtml();
+                var style = realElement.attributes.style;
+                if (realElement.attributes.width) {
+                    style = "width:" + realElement.attributes.width + "px;" + style;
+                }
+                if (realElement.attributes.height) {
+                    style = "height:" + realElement.attributes.height + "px;" + style;
+                }
+                var attributes = {
+                    'class' : className,
+                    src : KE.Config.base + 'assets/spacer.gif',
+                    _ke_realelement : encodeURIComponent(html),
+                    _ke_real_node_type : realElement.type,
+                    style:style,
+                    align : realElement.attributes.align || ''
+                };
+
+                if (realElementType)
+                    attributes._ke_real_element_type = realElementType;
+
+                if (isResizable)
+                    attributes._ke_resizable = isResizable;
+
+                return new HtmlParser.Element('img', attributes);
+            }
+        });
     }
 
     S.augment(Editor, {
         //ie6 ,object outHTML error
-        createFakeElement:function(realElement, className, realElementType, isResizable,outerHTML) {
+        createFakeElement:function(realElement, className, realElementType, isResizable, outerHTML) {
             var style = realElement.attr("style") || '';
             if (realElement.attr("width")) {
                 style = "width:" + realElement.attr("width") + "px;" + style;
@@ -7844,7 +7847,7 @@ KISSY.Editor.add("fakeobjects", function(editor) {
             var self = this,attributes = {
                 'class' : className,
                 src : KE.Config.base + 'assets/spacer.gif',
-                _ke_realelement : encodeURIComponent(outerHTML||realElement._4e_outerHtml()),
+                _ke_realelement : encodeURIComponent(outerHTML || realElement._4e_outerHtml()),
                 _ke_real_node_type : realElement[0].nodeType,
                 align : realElement.attr("align") || '',
                 style:style
@@ -7886,7 +7889,7 @@ KISSY.Editor.add("flash", function(editor) {
         TripleButton = KE.TripleButton,
         Overlay = KE.SimpleOverlay,
         flashFilenameRegex = /\.swf(?:$|\?)/i,
-        dataProcessor = KE.HtmlDataProcessor,
+        dataProcessor = editor.htmlDataProcessor,
         MUSIC_PLAYER = "niftyplayer.swf",
         CLS_FLASH = 'ke_flash',
         CLS_MUSIC = 'ke_music',
@@ -7897,70 +7900,70 @@ KISSY.Editor.add("flash", function(editor) {
         dataFilter = dataProcessor && dataProcessor.dataFilter,
         flashRules = ["img." + CLS_FLASH];
 
+    function isFlashEmbed(element) {
+        var attributes = element.attributes;
+        return (
+            attributes.type == 'application/x-shockwave-flash'
+                ||
+                flashFilenameRegex.test(attributes.src || '')
+            );
+    }
+
+    function music(src) {
+        return src.indexOf(MUSIC_PLAYER) != -1;
+    }
+
+    dataFilter && dataFilter.addRules({
+        elements : {
+            'object' : function(element) {
+                var attributes = element.attributes,i,
+                    classId = attributes.classid && String(attributes.classid).toLowerCase(),
+                    cls = CLS_FLASH,type = TYPE_FLASH;
+                if (!classId) {
+                    // Look for the inner <embed>
+                    for (i = 0; i < element.children.length; i++) {
+                        if (element.children[ i ].name == 'embed') {
+                            if (!isFlashEmbed(element.children[ i ]))
+                                return null;
+                            if (music(element.children[ i ].attributes.src)) {
+                                cls = CLS_MUSIC;
+                                type = TYPE_MUSIC;
+                            }
+                            return dataProcessor.createFakeParserElement(element, cls, type, true);
+                        }
+                    }
+                    return null;
+                }
+
+                for (i = 0; i < element.children.length; i++) {
+                    var c = element.children[ i ];
+                    if (c.name == 'param' && c.attributes.name == "movie") {
+                        if (music(c.attributes.value)) {
+                            cls = CLS_MUSIC;
+                            type = TYPE_MUSIC;
+                            break;
+                        }
+                    }
+                }
+                return dataProcessor.createFakeParserElement(element, cls, type, true);
+            },
+
+            'embed' : function(element) {
+                if (!isFlashEmbed(element))
+                    return null;
+                var cls = CLS_FLASH,type = TYPE_FLASH;
+                if (music(element.attributes.src)) {
+                    cls = CLS_MUSIC;
+                    type = TYPE_MUSIC;
+                }
+                return dataProcessor.createFakeParserElement(element, cls, type, true);
+            }
+        }}, 5);
+
     if (!KE.Flash) {
 
         (function() {
 
-            function isFlashEmbed(element) {
-                var attributes = element.attributes;
-                return (
-                    attributes.type == 'application/x-shockwave-flash'
-                        ||
-                        flashFilenameRegex.test(attributes.src || '')
-                    );
-            }
-
-            function music(src) {
-                return src.indexOf(MUSIC_PLAYER) != -1;
-            }
-
-
-            dataFilter && dataFilter.addRules({
-                elements : {
-                    'object' : function(element) {
-                        var attributes = element.attributes,i,
-                            classId = attributes.classid && String(attributes.classid).toLowerCase(),
-                            cls = CLS_FLASH,type = TYPE_FLASH;
-                        if (!classId) {
-                            // Look for the inner <embed>
-                            for (i = 0; i < element.children.length; i++) {
-                                if (element.children[ i ].name == 'embed') {
-                                    if (!isFlashEmbed(element.children[ i ]))
-                                        return null;
-                                    if (music(element.children[ i ].attributes.src)) {
-                                        cls = CLS_MUSIC;
-                                        type = TYPE_MUSIC;
-                                    }
-                                    return dataProcessor.createFakeParserElement(element, cls, type, true);
-                                }
-                            }
-                            return null;
-                        }
-
-                        for (i = 0; i < element.children.length; i++) {
-                            var c = element.children[ i ];
-                            if (c.name == 'param' && c.attributes.name == "movie") {
-                                if (music(c.attributes.value)) {
-                                    cls = CLS_MUSIC;
-                                    type = TYPE_MUSIC;
-                                    break;
-                                }
-                            }
-                        }
-                        return dataProcessor.createFakeParserElement(element, cls, type, true);
-                    },
-
-                    'embed' : function(element) {
-                        if (!isFlashEmbed(element))
-                            return null;
-                        var cls = CLS_FLASH,type = TYPE_FLASH;
-                        if (music(element.attributes.src)) {
-                            cls = CLS_MUSIC;
-                            type = TYPE_MUSIC;
-                        }
-                        return dataProcessor.createFakeParserElement(element, cls, type, true);
-                    }
-                }}, 5);
 
             var bodyHtml = "<div><p><label>地址： " +
                 "<input class='ke-flash-url' style='width:280px' /></label></p>" +
@@ -8232,8 +8235,9 @@ KISSY.Editor.add("font", function(editor) {
         TripleButton = KE.TripleButton,
         Node = S.Node;
     var
-        FONT_SIZES = ["8px","10px","12px",
-            "14px","18px","24px","36px","48px","60px","72px","84px","96px","108px"],
+        FONT_SIZES = editor.cfg.pluginConfig["font-size"] ||
+            ["8px","10px","12px",
+                "14px","18px","24px","36px","48px","60px","72px","84px","96px","108px"],
         FONT_SIZE_STYLES = {},
         FONT_SIZE_SELECTION_HTML = "<select title='大小' style='width:110px;height:21px;'><option value=''>大小 / 清除</option>",
         fontSize_style = {
@@ -8243,7 +8247,7 @@ KISSY.Editor.add("font", function(editor) {
                 { element : 'font', attributes : { 'size' : null } }
             ]
         },
-        FONT_FAMILIES = ["宋体","黑体","隶书",
+        FONT_FAMILIES = editor.cfg.pluginConfig["font-family"]||["宋体","黑体","隶书",
             "楷体_GB2312","微软雅黑","Georgia","Times New Roman",
             "Impact","Courier New","Arial","Verdana","Tahoma"],
         FONT_FAMILY_STYLES = {},
@@ -8256,6 +8260,9 @@ KISSY.Editor.add("font", function(editor) {
                 { element : 'font', attributes : { 'face' : null } }
             ]
         },i;
+
+    editor.cfg.pluginConfig["font-size"] = FONT_SIZES;
+    editor.cfg.pluginConfig["font-family"] = FONT_FAMILIES;
 
     for (i = 0; i < FONT_SIZES.length; i++) {
         var size = FONT_SIZES[i];
@@ -8759,6 +8766,59 @@ KISSY.Editor.add("htmlparser-basicwriter", function(editor) {
     });
 
     KE.HtmlParser.BasicWriter = BasicWriter;
+});
+KISSY.Editor.add("htmlparser-comment", function(editor) {
+    var KE = KISSY.Editor,KEN = KE.NODE;
+    if (KE.HtmlParser.Comment) return;
+
+    function Comment(value) {
+        /**
+         * The comment text.
+         * @type String
+         * @example
+         */
+        this.value = value;
+
+        /** @private */
+        this._ =
+        {
+            isBlockLike : false
+        };
+    }
+
+    KE.HtmlParser.Comment = Comment;
+
+    Comment.prototype = {
+        constructor:Comment,
+        /**
+         * The node type. This is a constant value set to  NODE_COMMENT.
+         * @type Number
+         * @example
+         */
+        type : KEN.NODE_COMMENT,
+
+        /**
+         * Writes the HTML representation of this comment to a CKEDITOR.htmlWriter.
+         * @param  writer The writer to which write the HTML.
+         * @example
+         */
+        writeHtml : function(writer, filter) {
+            var comment = this.value;
+
+            if (filter) {
+                if (!( comment = filter.onComment(comment, this) ))
+                    return;
+
+                if (typeof comment != 'string') {
+                    comment.parent = this.parent;
+                    comment.writeHtml(writer, filter);
+                    return;
+                }
+            }
+
+            writer.comment(comment);
+        }
+    };
 });
 KISSY.Editor.add("htmlparser-element", function(editor) {
     var KE = KISSY.Editor;
@@ -9588,10 +9648,8 @@ KISSY.Editor.add("htmlparser-fragment", function(
             //currentNode.add(new KE.HtmlParser.cdata(cdata));
         };
 
-        parser.onComment = function(
-            //comment
-            ) {
-            //currentNode.add(new KE.HtmlParser.comment(comment));
+        parser.onComment = function(comment) {
+            currentNode.add(new KE.HtmlParser.Comment(comment));
         };
 
         // Parse it.
@@ -10229,34 +10287,378 @@ KISSY.Editor.add("htmlparser-text", function(
     KE.HtmlParser.Text = Text;
 });
 /**
- * modified from ckeditor,process malform html for kissyeditor
+ * modified from ckeditor,process malform html and ms-word copy for kissyeditor
  * @modifier: yiminghe@gmail.com
  */
-KISSY.Editor.add("htmldataprocessor", function(
-    //editor
-    ) {
-    var KE = KISSY.Editor;
-    if (KE.HtmlDataProcessor) return;
-
-    function filterStyle(value) {
-        //自有类名去除
-        var re = value.replace(/mso-[^;]+(;|$)/ig, "")
-            //qc 3701，去除行高，防止乱掉
-            .replace(/line-height[^;]+(;|$)/ig, "")
-            //qc 3711，word pt 完全去掉
-            .replace(/font-size[^;]+pt(;|$)/ig, "")
-            .replace(/font-family[^;]+(;|$)/ig, "")
-            .replace(/display\s*:\s*none\s*(;|$)/ig, "");
-        return S.trim(re);
-    }
-
-    var
+KISSY.Editor.add("htmldataprocessor", function(editor) {
+    var undefined = undefined,
+        KE = KISSY.Editor,
         S = KISSY,
         UA = S.UA,
-        KEN = KE.NODE,
+        //KEN = KE.NODE,
         HtmlParser = KE.HtmlParser,
         htmlFilter = new HtmlParser.Filter(),
         dataFilter = new HtmlParser.Filter(),
+        dtd = KE.XHTML_DTD;
+    //每个编辑器的规则独立
+    if (editor.htmlDataProcessor) return;
+
+    (function() {
+
+        var fragmentPrototype = KE.HtmlParser.Fragment.prototype,
+            elementPrototype = KE.HtmlParser.Element.prototype;
+
+        fragmentPrototype.onlyChild = elementPrototype.onlyChild = function() {
+            var children = this.children,
+                count = children.length,
+                firstChild = ( count == 1 ) && children[ 0 ];
+            return firstChild || null;
+        };
+
+        elementPrototype.removeAnyChildWithName = function(tagName) {
+            var children = this.children,
+                childs = [],
+                child;
+
+            for (var i = 0; i < children.length; i++) {
+                child = children[ i ];
+                if (!child.name)
+                    continue;
+
+                if (child.name == tagName) {
+                    childs.push(child);
+                    children.splice(i--, 1);
+                }
+                childs = childs.concat(child.removeAnyChildWithName(tagName));
+            }
+            return childs;
+        };
+
+        elementPrototype.getAncestor = function(tagNameRegex) {
+            var parent = this.parent;
+            while (parent && !( parent.name && parent.name.match(tagNameRegex) ))
+                parent = parent.parent;
+            return parent;
+        };
+
+        fragmentPrototype.firstChild = elementPrototype.firstChild = function(evaluator) {
+            var child;
+
+            for (var i = 0; i < this.children.length; i++) {
+                child = this.children[ i ];
+                if (evaluator(child))
+                    return child;
+                else if (child.name) {
+                    child = child.firstChild(evaluator);
+                    if (child)
+                        return child;
+                }
+            }
+
+            return null;
+        };
+
+        // Adding a (set) of styles to the element's 'style' attributes.
+        elementPrototype.addStyle = function(name, value, isPrepend) {
+            var styleText, addingStyleText = '';
+            // name/value pair.
+            if (typeof value == 'string')
+                addingStyleText += name + ':' + value + ';';
+            else {
+                // style literal.
+                if (typeof name == 'object') {
+                    for (var style in name) {
+                        if (name.hasOwnProperty(style))
+                            addingStyleText += style + ':' + name[ style ] + ';';
+                    }
+                }
+                // raw style text form.
+                else
+                    addingStyleText += name;
+
+                isPrepend = value;
+            }
+
+            if (!this.attributes)
+                this.attributes = {};
+
+            styleText = this.attributes.style || '';
+
+            styleText = ( isPrepend ?
+                [ addingStyleText, styleText ]
+                : [ styleText, addingStyleText ] ).join(';');
+
+            this.attributes.style = styleText.replace(/^;|;(?=;)/, '');
+        };
+
+        /**
+         * Return the DTD-valid parent tag names of the specified one.
+         * @param tagName
+         */
+        dtd.parentOf = function(tagName) {
+            var result = {};
+            for (var tag in this) {
+                if (tag.indexOf('$') == -1 && this[ tag ][ tagName ])
+                    result[ tag ] = 1;
+            }
+            return result;
+        };
+    })();
+
+
+    var filterStyle = stylesFilter([
+        //qc 3711，只能出现我们规定的字体
+        [ /font-size/i,'',function(v) {
+            var fontSizes = editor.cfg.pluginConfig["font-size"];
+            for (var i = 0; i < fontSizes.length; i++) {
+                if (v.toLowerCase() == fontSizes[i]) return v;
+            }
+            return false;
+        }],
+        //限制字体
+        [ /font-family/i,'',function(v) {
+            var fontFamilies = editor.cfg.pluginConfig["font-family"];
+
+            for (var i = 0; i < fontFamilies.length; i++) {
+                if (v.toLowerCase() == fontFamilies[i].toLowerCase()) return v;
+            }
+            return false;
+        }],
+        //qc 3701，去除行高，防止乱掉
+        [/line-height/i],
+        //word 自有类名去除
+        [/mso/i],
+        [/display/i,/none/i]
+    ], undefined);
+
+    function isListBulletIndicator(element) {
+        var styleText = element.attributes && element.attributes.style;
+        if (/mso-list\s*:\s*Ignore/i.test(styleText))
+            return true;
+        return undefined;
+    }
+
+    // Create a <ke:listbullet> which indicate an list item type.
+    function createListBulletMarker(bulletStyle, bulletText) {
+        var marker = new KE.HtmlParser.Element('ke:listbullet'),
+            listType;
+
+        // TODO: Support more list style type from MS-Word.
+        if (!bulletStyle) {
+            bulletStyle = 'decimal';
+            listType = 'ol';
+        }
+        else if (bulletStyle[ 2 ]) {
+            if (!isNaN(bulletStyle[ 1 ]))
+                bulletStyle = 'decimal';
+            // No way to distinguish between Roman numerals and Alphas,
+            // detect them as a whole.
+            else if (/^[a-z]+$/.test(bulletStyle[ 1 ]))
+                bulletStyle = 'lower-alpha';
+            else if (/^[A-Z]+$/.test(bulletStyle[ 1 ]))
+                bulletStyle = 'upper-alpha';
+            // Simply use decimal for the rest forms of unrepresentable
+            // numerals, e.g. Chinese...
+            else
+                bulletStyle = 'decimal';
+
+            listType = 'ol';
+        }
+        else {
+            if (/[l\u00B7\u2002]/.test(bulletStyle[ 1 ]))
+                bulletStyle = 'disc';
+            else if (/[\u006F\u00D8]/.test(bulletStyle[ 1 ]))
+                bulletStyle = 'circle';
+            else if (/[\u006E\u25C6]/.test(bulletStyle[ 1 ]))
+                bulletStyle = 'square';
+            else
+                bulletStyle = 'disc';
+
+            listType = 'ul';
+        }
+
+        // Represent list type as CSS style.
+        marker.attributes = {
+            'ke:listtype' : listType,
+            'style' : 'list-style-type:' + bulletStyle + ';'
+        };
+        marker.add(new KE.HtmlParser.Text(bulletText));
+        return marker;
+    }
+
+    function resolveList(element) {
+        // <ke:listbullet> indicate a list item.
+        var attrs = element.attributes,
+            listMarker;
+
+        if (( listMarker = element.removeAnyChildWithName('ke:listbullet') )
+            && listMarker.length
+            && ( listMarker = listMarker[ 0 ] )) {
+            element.name = 'ke:li';
+
+            if (attrs.style) {
+                attrs.style = stylesFilter(
+                    [
+                        // Text-indent is not representing list item level any more.
+                        [ 'text-indent' ],
+                        [ 'line-height' ],
+                        // Resolve indent level from 'margin-left' value.
+                        [ ( /^margin(:?-left)?$/ ), null, function(margin) {
+                            // Be able to deal with component/short-hand form style.
+                            var values = margin.split(' ');
+                            margin = values[ 3 ] || values[ 1 ] || values [ 0 ];
+                            margin = parseInt(margin, 10);
+
+                            // Figure out the indent unit by looking at the first increament.
+                            if (!listBaseIndent && previousListItemMargin && margin > previousListItemMargin)
+                                listBaseIndent = margin - previousListItemMargin;
+
+                            attrs[ 'ke:margin' ] = previousListItemMargin = margin;
+                        } ]
+                    ], undefined)(attrs.style, element) || '';
+            }
+
+            // Inherit list-type-style from bullet.
+            var listBulletAttrs = listMarker.attributes,
+                listBulletStyle = listBulletAttrs.style;
+            element.addStyle(listBulletStyle);
+            S.mix(attrs, listBulletAttrs);
+            return true;
+        }
+
+        return false;
+    }
+
+    function stylesFilter(styles, whitelist) {
+        return function(styleText, element) {
+            var rules = [];
+            // html-encoded quote might be introduced by 'font-family'
+            // from MS-Word which confused the following regexp. e.g.
+            //'font-family: &quot;Lucida, Console&quot;'
+            styleText
+                .replace(/&quot;/g, '"')
+                .replace(/\s*([^ :;]+)\s*:\s*([^;]+)\s*(?=;|$)/g,
+                function(match, name, value) {
+                    name = name.toLowerCase();
+                    name == 'font-family' && ( value = value.replace(/["']/g, '') );
+
+                    var namePattern,
+                        valuePattern,
+                        newValue,
+                        newName;
+                    for (var i = 0; i < styles.length; i++) {
+                        if (styles[ i ]) {
+                            namePattern = styles[ i ][ 0 ];
+                            valuePattern = styles[ i ][ 1 ];
+                            newValue = styles[ i ][ 2 ];
+                            newName = styles[ i ][ 3 ];
+
+                            if (name.match(namePattern)
+                                && ( !valuePattern || value.match(valuePattern) )) {
+                                name = newName || name;
+                                whitelist && ( newValue = newValue || value );
+
+                                if (typeof newValue == 'function')
+                                    newValue = newValue(value, element, name);
+
+                                // Return an couple indicate both name and value
+                                // changed.
+                                if (newValue && newValue.push)
+                                    name = newValue[ 0 ],newValue = newValue[ 1 ];
+
+                                if (typeof newValue == 'string')
+                                    rules.push([ name, newValue ]);
+                                return;
+                            }
+                        }
+                    }
+
+                    !whitelist && rules.push([ name, value ]);
+
+                });
+
+            for (var i = 0; i < rules.length; i++)
+                rules[ i ] = rules[ i ].join(':');
+            return rules.length ?
+                ( rules.join(';') + ';' ) : false;
+        };
+    }
+
+    function assembleList(element) {
+        var children = element.children, child,
+            listItem,   // The current processing ke:li element.
+            listItemAttrs,
+            listType,   // Determine the root type of the list.
+            listItemIndent, // Indent level of current list item.
+            lastListItem, // The previous one just been added to the list.
+            list,
+            //parentList, // Current staging list and it's parent list if any.
+            indent;
+
+        for (var i = 0; i < children.length; i++) {
+            child = children[ i ];
+
+            if ('ke:li' == child.name) {
+                child.name = 'li';
+                listItem = child;
+                listItemAttrs = listItem.attributes;
+                listType = listItem.attributes[ 'ke:listtype' ];
+
+                // List item indent level might come from a real list indentation or
+                // been resolved from a pseudo list item's margin value, even get
+                // no indentation at all.
+                listItemIndent = parseInt(listItemAttrs[ 'ke:indent' ], 10)
+                    || listBaseIndent && ( Math.ceil(listItemAttrs[ 'ke:margin' ] / listBaseIndent) )
+                    || 1;
+
+                // Ignore the 'list-style-type' attribute if it's matched with
+                // the list root element's default style type.
+                listItemAttrs.style && ( listItemAttrs.style =
+                    stylesFilter([
+                        [ 'list-style-type', listType == 'ol' ? 'decimal' : 'disc' ]
+                    ], undefined)(listItemAttrs.style)
+                        || '' );
+
+                if (!list) {
+                    list = new KE.HtmlParser.Element(listType);
+                    list.add(listItem);
+                    children[ i ] = list;
+                }
+                else {
+                    if (listItemIndent > indent) {
+                        list = new KE.HtmlParser.Element(listType);
+                        list.add(listItem);
+                        lastListItem.add(list);
+                    }
+                    else if (listItemIndent < indent) {
+                        // There might be a negative gap between two list levels. (#4944)
+                        var diff = indent - listItemIndent,
+                            parent;
+                        while (diff-- && ( parent = list.parent ))
+                            list = parent.parent;
+
+                        list.add(listItem);
+                    }
+                    else
+                        list.add(listItem);
+
+                    children.splice(i--, 1);
+                }
+
+                lastListItem = listItem;
+                indent = listItemIndent;
+            }
+            else
+                list = null;
+        }
+
+        listBaseIndent = 0;
+    }
+
+    var listBaseIndent,
+        previousListItemMargin = 0,
+        listDtdParents = dtd.parentOf('ol'),
+        //过滤外边来的 html
         defaultDataFilterRules = {
             elementNames : [
                 // Remove script,iframe style,link,meta
@@ -10268,36 +10670,105 @@ KISSY.Editor.add("htmldataprocessor", function(
                 [/^\?xml.*$/i,''],
                 [/^.*namespace.*$/i,'']
             ],
+            //根节点伪列表进行处理
+            root : function(element) {
+                element.filterChildren();
+                assembleList(element);
+            },
             elements : {
+
                 font:function(el) {
                     delete el.name;
+                },
+                p:function(element) {
+                    element.filterChildren();
+                    // Is the paragraph actually a list item?
+                    if (resolveList(element))
+                        return undefined;
                 },
                 $:function(el) {
                     var tagName = el.name || "";
                     //ms world <o:p> 保留内容
-                    if (tagName.indexOf(':') != -1) {
+                    if (tagName.indexOf(':') != -1 && tagName.indexOf("ke") == -1) {
                         //先处理子孙节点，防止delete el.name后，子孙得不到处理?
                         //el.filterChildren();
                         delete el.name;
                     }
-                },
+
+                    /*
+                     太激进，只做span*/
+                    var style = el.attributes.style;
+                    //没有属性的inline去掉了
+                    if (//tagName in dtd.$inline 
+                        tagName == "span"
+                            && (!style || !filterStyle(style))
+                    //&&tagName!=="a"
+                        ) {
+                        //el.filterChildren();
+                        delete el.name;
+                    }
+
+                    // Assembling list items into a whole list.
+                    if (tagName in listDtdParents) {
+                        el.filterChildren();
+                        assembleList(el);
+                    }
+                }
+                ,
                 table:function(el) {
                     var border = el.attributes.border;
                     if (!border || border == "0") {
                         el.attributes['class'] = "ke_show_border";
                     }
                 },
-                //没有属性的span去掉了了
-                span:function(el) {
-                    var style = el.attributes.style;
-                    //console.log(style);
-                    if (!style || !filterStyle(style)) {
-                        //console.log("target");
-                        el.filterChildren();
-                        delete el.name;
+                /**
+                 * ul,li 从 ms word 重建
+                 * @param element
+                 */
+                span:function(element) {
+                    // IE/Safari: remove the span if it comes from list bullet text.
+                    if (!UA.gecko && isListBulletIndicator(element.parent))
+                        return false;
+
+                    // For IE/Safari: List item bullet type is supposed to be indicated by
+                    // the text of a span with style 'mso-list : Ignore' or an image.
+                    if (!UA.gecko && isListBulletIndicator(element)) {
+                        var listSymbolNode = element.firstChild(function(node) {
+                            return node.value || node.name == 'img';
+                        });
+                        var listSymbol = listSymbolNode && ( listSymbolNode.value || 'l.' ),
+                            listType = listSymbol.match(/^([^\s]+?)([.)]?)$/);
+                        return createListBulletMarker(listType, listSymbol);
                     }
-                    //console.log("untarget");
                 }
+            },
+            comment : !UA.ie ?
+                function(value, node) {
+                    var imageInfo = value.match(/<img.*?>/),
+                        listInfo = value.match(/^\[if !supportLists\]([\s\S]*?)\[endif\]$/);
+                    // Seek for list bullet indicator.
+                    if (listInfo) {
+                        // Bullet symbol could be either text or an image.
+                        var listSymbol = listInfo[ 1 ] || ( imageInfo && 'l.' ),
+                            listType = listSymbol && listSymbol.match(/>([^\s]+?)([.)]?)</);
+                        return createListBulletMarker(listType, listSymbol);
+                    }
+
+                    // Reveal the <img> element in conditional comments for Firefox.
+                    if (UA.gecko && imageInfo) {
+                        var img = KE.HtmlParser.Fragment.FromHtml(imageInfo[0]).children[ 0 ],
+                            previousComment = node.previous,
+                            // Try to dig the real image link from vml markup from previous comment text.
+                            imgSrcInfo = previousComment && previousComment.value.match(/<v:imagedata[^>]*o:href=['"](.*?)['"]/),
+                            imgSrc = imgSrcInfo && imgSrcInfo[ 1 ];
+                        // Is there a real 'src' url to be used?
+                        imgSrc && ( img.attributes.src = imgSrc );
+                        return img;
+                    }
+                    return false;
+                }
+                : function() {
+                return false;
             },
             attributes :  {
                 //防止word的垃圾class，全部杀掉算了，除了以ke_开头的编辑器内置class
@@ -10321,6 +10792,7 @@ KISSY.Editor.add("htmldataprocessor", function(
                 [/^lang$/,'']
             ]
         },
+        //将编辑区生成html最终化
         defaultHtmlFilterRules = {
             elementNames : [
                 // Remove the "ke:" namespace prefix.
@@ -10358,11 +10830,18 @@ KISSY.Editor.add("htmldataprocessor", function(
                 }
             },
             attributes :  {
+                //清除空style
+                style:function(v) {
+                    if (!S.trim(v)) return false;
+                }
             },
             attributeNames :  [
-                [ ( /^ck_on/ ), 'on' ]
+                [ ( /^ck_on/ ), 'on' ],
+                [ ( /^ke:.*$/ ), '' ]
             ]
-        }, protectElementNamesRegex = /(<\/?)((?:object|embed|param|html|body|head|title)[^>]*>)/gi;
+        }//,
+        //protectElementNamesRegex = /(<\/?)((?:object|embed|param|html|body|head|title)[^>]*>)/gi
+        ;
     if (UA.ie) {
         // IE outputs style attribute in capital letters. We should convert
         // them back to lower case.
@@ -10443,7 +10922,7 @@ KISSY.Editor.add("htmldataprocessor", function(
      })();
      */
 
-    KE.HtmlDataProcessor = {
+    editor.htmlDataProcessor = {
         htmlFilter:htmlFilter,
         dataFilter:dataFilter,
         //编辑器html到外部html
@@ -10451,6 +10930,7 @@ KISSY.Editor.add("htmldataprocessor", function(
             //fixForBody = fixForBody || "p";
             // Now use our parser to make further fixes to the structure, as
             // well as apply the filter.
+            //使用htmlwriter界面美观，加入额外文字节点\n,\t空白等
             var writer = new HtmlParser.HtmlWriter(),
                 fragment = HtmlParser.Fragment.FromHtml(html, fixForBody);
             fragment.writeHtml(writer, htmlFilter);
@@ -10458,14 +10938,37 @@ KISSY.Editor.add("htmldataprocessor", function(
         },
         //外部html进入编辑器
         toDataFormat : function(html, fixForBody) {
+
+            // Firefox will be confused by those downlevel-revealed IE conditional
+            // comments, fixing them first( convert it to upperlevel-revealed one ).
+            // e.g. <![if !vml]>...<![endif]>
+            //<!--[if !supportLists]-->
+            // <span style=\"font-family: Wingdings;\" lang=\"EN-US\">
+            // <span style=\"\">l<span style=\"font: 7pt &quot;Times New Roman&quot;;\">&nbsp;
+            // </span></span></span>
+            // <!--[endif]-->
+
+            //变成：
+
+            //<!--[if !supportLists]
+            // <span style=\"font-family: Wingdings;\" lang=\"EN-US\">
+            // <span style=\"\">l<span style=\"font: 7pt &quot;Times New Roman&quot;;\">&nbsp;
+            // </span></span></span>
+            // [endif]-->
+            if (UA.gecko)
+                html = html.replace(/(<!--\[if[^<]*?\])-->([\S\s]*?)<!--(\[endif\]-->)/gi, '$1$2$3');
+
+
             // Certain elements has problem to go through DOM operation, protect
             // them by prefixing 'ke' namespace. (#3591)
             //html = html.replace(protectElementNamesRegex, '$1ke:$2');
             //fixForBody = fixForBody || "p";
-            var writer = new HtmlParser.HtmlWriter(),
-                fragment = HtmlParser.Fragment.FromHtml(html, fixForBody);
+            //bug:qc #3710:使用basicwriter，去除无用的文字节点，标签间连续\n空白等
+            var writer = new HtmlParser.BasicWriter(),fragment = HtmlParser.Fragment.FromHtml(html, fixForBody);
+
             writer.reset();
             fragment.writeHtml(writer, dataFilter);
+
             return writer.getHtml(true);
         }
     };
@@ -10987,22 +11490,13 @@ KISSY.Editor.add("link", function(editor) {
         Node = S.Node,
         KERange = KE.Range,
         Overlay = KE.SimpleOverlay ,
-        dataProcessor = KE.HtmlDataProcessor,
+        dataProcessor = editor.htmlDataProcessor,
         //htmlFilter = dataProcessor && dataProcessor.htmlFilter,
         dataFilter = dataProcessor && dataProcessor.dataFilter;
+
+
     if (!KE.Link) {
         (function() {
-            dataFilter && dataFilter.addRules({
-                elements : {
-                    a:function(element) {
-                        for (var a in element.attributes) {
-                            if (a == "href" || a == "target") continue;
-                            delete element.attributes[a];
-                        }
-                    }
-                }
-            });
-
 
             var link_Style = {
                 element : 'a',
@@ -11737,20 +12231,20 @@ KISSY.Editor.add("list", function(editor) {
              * @param cfg
              */
             function List(cfg) {
-                List.superclass.constructor.call(this, cfg);
-                var editor = this.get("editor"),toolBarDiv = editor.toolBarDiv,
-                    el = this.el;
                 var self = this;
+                List.superclass.constructor.call(self, cfg);
+                var editor = self.get("editor"),toolBarDiv = editor.toolBarDiv,
+                    el = self.el;
                 self.el = new TripleButton({
                     //text:this.get("type"),
-                    contentCls:this.get("contentCls"),
-                    title:this.get("title"),
+                    contentCls:self.get("contentCls"),
+                    title:self.get("title"),
                     container:toolBarDiv
                 });
-                this.listCommand = new listCommand(this.get("type"));
-                this.listCommand.state = this.get("status");
+                self.listCommand = new listCommand(this.get("type"));
+                self.listCommand.state = self.get("status");
                 //this._selectionChange({path:1});
-                this._init();
+                self._init();
             }
 
             List.ATTRS = {
@@ -11762,37 +12256,32 @@ KISSY.Editor.add("list", function(editor) {
             S.extend(List, S.Base, {
 
                 _init:function() {
-                    var editor = this.get("editor"),
+                    var self = this,editor = self.get("editor"),
                         toolBarDiv = editor.toolBarDiv,
-                        el = this.el;
-                    var self = this;
-                    el.on("click", this._change, this);
-                    editor.on("selectionChange", this._selectionChange, this);
+                        el = self.el;
+                    var self = self;
+                    el.on("click", self._change, self);
+                    editor.on("selectionChange", self._selectionChange, self);
                 },
 
 
                 _change:function() {
-                    var editor = this.get("editor"),
-                        type = this.get("type"),
-                        el = this.el,
-                        self = this;
-                    //ie要等会才能获得焦点窗口的选择区域
-                    editor.focus();
+                    var self = this,editor = self.get("editor"),
+                        type = self.get("type"),
+                        el = self.el;
                     editor.fire("save");
-                    setTimeout(function() {
-                        self.listCommand.state = el.get("state");
-                        self.listCommand.exec(editor);
-                        editor.fire("save");
-                        editor.fire(type + "Change");
-                    }, 10);
+                    self.listCommand.state = el.get("state");
+                    self.listCommand.exec(editor);
+                    editor.fire("save");
+                    editor.notifySelectionChange();
                 },
 
                 _selectionChange:function(ev) {
-                    var editor = this.get("editor"),
-                        type = this.get("type"),
+                    var self = this,editor = self.get("editor"),
+                        type = self.get("type"),
                         elementPath = ev.path,
                         element,
-                        el = this.el,
+                        el = self.el,
                         blockLimit = elementPath.blockLimit,
                         elements = elementPath.elements;
 
@@ -12477,8 +12966,8 @@ KISSY.Editor.add("removeformat", function(editor) {
                             break;
 
                         // If this element can be removed (even partially).
-                        if (tagsRegex.test(pathElement.getName()))
-                            node.breakParent(pathElement);
+                        if (tagsRegex.test(pathElement._4e_name()))
+                            node._4e_breakParent(pathElement);
                     }
                 };
 
@@ -12529,8 +13018,7 @@ KISSY.Editor.add("removeformat", function(editor) {
         new RemoveFormat(editor);
     });
 
-});
-/**
+});/**
  * smiley icon from wangwang for kissy editor
  * @author: yiminghe@gmail.com
  */
@@ -12806,46 +13294,44 @@ KISSY.Editor.add("table", function(editor, undefined) {
                 ] ).join('');
 
     cssStyleText = cssTemplate.replace(/%2/g, showBorderClassName);
+    var dataProcessor = editor.htmlDataProcessor,
+        dataFilter = dataProcessor && dataProcessor.dataFilter,
+        htmlFilter = dataProcessor && dataProcessor.htmlFilter;
+    if (dataFilter) {
+        dataFilter.addRules({
+            elements :  {
+                'table' : function(element) {
+                    var attributes = element.attributes,
+                        cssClass = attributes[ 'class' ],
+                        border = parseInt(attributes.border, 10);
 
+                    if (!border || border <= 0)
+                        attributes[ 'class' ] = ( cssClass || '' ) + ' ' + showBorderClassName;
+                }
+            }
+        });
+    }
+
+    if (htmlFilter) {
+        htmlFilter.addRules({
+            elements :            {
+                'table' : function(table) {
+                    var attributes = table.attributes,
+                        cssClass = attributes[ 'class' ];
+
+                    if (cssClass) {
+                        attributes[ 'class' ] =
+                            S.trim(cssClass.replace(showBorderClassName, "").replace(/\s{2}/, " "));
+                    }
+                }
+
+            }
+        });
+    }
     if (!KE.TableUI) {
         (function() {
 
 
-            var dataProcessor = KE.HtmlDataProcessor,
-                dataFilter = dataProcessor && dataProcessor.dataFilter,
-                htmlFilter = dataProcessor && dataProcessor.htmlFilter;
-
-            if (dataFilter) {
-                dataFilter.addRules({
-                    elements :  {
-                        'table' : function(element) {
-                            var attributes = element.attributes,
-                                cssClass = attributes[ 'class' ],
-                                border = parseInt(attributes.border, 10);
-
-                            if (!border || border <= 0)
-                                attributes[ 'class' ] = ( cssClass || '' ) + ' ' + showBorderClassName;
-                        }
-                    }
-                });
-            }
-
-            if (htmlFilter) {
-                htmlFilter.addRules({
-                    elements :            {
-                        'table' : function(table) {
-                            var attributes = table.attributes,
-                                cssClass = attributes[ 'class' ];
-
-                            if (cssClass) {
-                                attributes[ 'class' ] =
-                                    S.trim(cssClass.replace(showBorderClassName, "").replace(/\s{2}/, " "));
-                            }
-                        }
-
-                    }
-                });
-            }
             function TableUI(editor) {
                 var self = this;
                 self.editor = editor;
@@ -13435,9 +13921,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
     }
     editor.addPlugin(function() {
         var doc = editor.document;
-
         new KE.TableUI(editor);
-
 
         /**
          * 动态加入显表格border css，便于编辑

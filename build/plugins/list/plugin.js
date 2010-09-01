@@ -25,7 +25,7 @@ KISSY.Editor.add("list", function(editor) {
                  * manipulate. This operation should be non-intrusive in the sense that it
                  * does not change the DOM tree, with the exception that it may add some
                  * markers to the list item nodes when database is specified.
-                 * 扁平化处理，深度遍历，利用 indent 和顺序来表示一棵树
+                 * 扁平化处理，深度遍历，利�?indent 和顺序来表示�?���?
                  */
                 listToArray : function(listNode, database, baseArray, baseIndentLevel, grandparentNode) {
                     if (!listNodeNames[ listNode._4e_name() ])
@@ -71,7 +71,7 @@ KISSY.Editor.add("list", function(editor) {
                 },
 
                 // Convert our internal representation of a list back to a DOM forest.
-                //根据包含indent属性的元素数组来生成树
+                //根据包含indent属�?的元素数组来生成�?
                 arrayToList : function(listArray, database, baseIndex, paragraphMode) {
                     if (!baseIndex)
                         baseIndex = 0;
@@ -100,7 +100,7 @@ KISSY.Editor.add("list", function(editor) {
                                 currentListItem.appendChild(item.contents[i]._4e_clone(true, true)[0]);
                             currentIndex++;
                         } else if (item.indent == Math.max(indentLevel, 0) + 1) {
-                            //进入一个li里面，里面的嵌套li递归构造父亲ul/ol
+                            //进入�?��li里面，里面的嵌套li递归构�?父亲ul/ol
                             var listData = list.arrayToList(listArray, null, currentIndex, paragraphMode);
                             currentListItem.appendChild(listData.listNode);
                             currentIndex = listData.nextIndex;
@@ -475,24 +475,24 @@ KISSY.Editor.add("list", function(editor) {
             var TripleButton = KE.TripleButton;
 
             /**
-             * 用到了按钮三状态的两个状态：off:点击后格式化，on:点击后清除格式化
+             * 用到了按钮三状�?的两个状态：off:点击后格式化，on:点击后清除格式化
              * @param cfg
              */
             function List(cfg) {
-                List.superclass.constructor.call(this, cfg);
-                var editor = this.get("editor"),toolBarDiv = editor.toolBarDiv,
-                    el = this.el;
                 var self = this;
+                List.superclass.constructor.call(self, cfg);
+                var editor = self.get("editor"),toolBarDiv = editor.toolBarDiv,
+                    el = self.el;
                 self.el = new TripleButton({
                     //text:this.get("type"),
-                    contentCls:this.get("contentCls"),
-                    title:this.get("title"),
+                    contentCls:self.get("contentCls"),
+                    title:self.get("title"),
                     container:toolBarDiv
                 });
-                this.listCommand = new listCommand(this.get("type"));
-                this.listCommand.state = this.get("status");
+                self.listCommand = new listCommand(this.get("type"));
+                self.listCommand.state = self.get("status");
                 //this._selectionChange({path:1});
-                this._init();
+                self._init();
             }
 
             List.ATTRS = {
@@ -504,37 +504,32 @@ KISSY.Editor.add("list", function(editor) {
             S.extend(List, S.Base, {
 
                 _init:function() {
-                    var editor = this.get("editor"),
+                    var self = this,editor = self.get("editor"),
                         toolBarDiv = editor.toolBarDiv,
-                        el = this.el;
-                    var self = this;
-                    el.on("click", this._change, this);
-                    editor.on("selectionChange", this._selectionChange, this);
+                        el = self.el;
+                    var self = self;
+                    el.on("click", self._change, self);
+                    editor.on("selectionChange", self._selectionChange, self);
                 },
 
 
                 _change:function() {
-                    var editor = this.get("editor"),
-                        type = this.get("type"),
-                        el = this.el,
-                        self = this;
-                    //ie要等会才能获得焦点窗口的选择区域
-                    editor.focus();
+                    var self = this,editor = self.get("editor"),
+                        type = self.get("type"),
+                        el = self.el;
                     editor.fire("save");
-                    setTimeout(function() {
-                        self.listCommand.state = el.get("state");
-                        self.listCommand.exec(editor);
-                        editor.fire("save");
-                        editor.fire(type + "Change");
-                    }, 10);
+                    self.listCommand.state = el.get("state");
+                    self.listCommand.exec(editor);
+                    editor.fire("save");
+                    editor.notifySelectionChange();
                 },
 
                 _selectionChange:function(ev) {
-                    var editor = this.get("editor"),
-                        type = this.get("type"),
+                    var self = this,editor = self.get("editor"),
+                        type = self.get("type"),
                         elementPath = ev.path,
                         element,
-                        el = this.el,
+                        el = self.el,
                         blockLimit = elementPath.blockLimit,
                         elements = elementPath.elements;
 
@@ -543,7 +538,7 @@ KISSY.Editor.add("list", function(editor) {
                         for (var i = 0; i < elements.length && ( element = elements[ i ] )
                             && element[0] !== blockLimit[0]; i++) {
                             var ind = S.indexOf(elements[i]._4e_name(), listNodeNames_arr);
-                            //ul,ol一个生效后，另一个就失效
+                            //ul,ol�?��生效后，另一个就失效
                             if (ind !== -1) {
                                 if (listNodeNames_arr[ind] === type) {
                                     el.set("state", TripleButton.ON);

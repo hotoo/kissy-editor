@@ -375,10 +375,8 @@ KISSY.Editor.add("htmlparser-fragment", function(
             //currentNode.add(new KE.HtmlParser.cdata(cdata));
         };
 
-        parser.onComment = function(
-            //comment
-            ) {
-            //currentNode.add(new KE.HtmlParser.comment(comment));
+        parser.onComment = function(comment) {
+            currentNode.add(new KE.HtmlParser.Comment(comment));
         };
 
         // Parse it.

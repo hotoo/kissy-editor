@@ -357,7 +357,7 @@ KISSY.Editor.add("selection", function(KE) {
                                 var startContainer = range.startContainer,
                                     startOffset = range.startOffset;
                                 // Limit the fix only to non-block elements.(#3950)
-                                if (startOffset == ( startContainer[0].childNodes ?
+                                if (startOffset == ( startContainer[0].nodeType===KEN.NODE_ELEMENT ?
                                     startContainer[0].childNodes.length : startContainer[0].nodeValue.length )
                                     && !startContainer._4e_isBlockBoundary())
                                     range.setStartAfter(startContainer);

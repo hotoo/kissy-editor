@@ -144,14 +144,16 @@ KISSY.Editor.add("definition", function(KE) {
             this.fire("save");
         },
         getData:function() {
-            if (KE.HtmlDataProcessor)
-                return KE.HtmlDataProcessor.toHtml(this.document.body.innerHTML, "p");
-            return this.document.body.innerHTML;
+            var self = this;
+            if (self.htmlDataProcessor)
+                return self.htmlDataProcessor.toHtml(self.document.body.innerHTML, "p");
+            return self.document.body.innerHTML;
         } ,
         setData:function(data) {
-            if (KE.HtmlDataProcessor)
-                data = KE.HtmlDataProcessor.toDataFormat(data, "p");
-            this.document.body.innerHTML = data;
+            var self = this;
+            if (self.htmlDataProcessor)
+                data = self.htmlDataProcessor.toDataFormat(data, "p");
+            self.document.body.innerHTML = data;
         },
         sync:function() {
             this.textarea.val(this.getData());
@@ -363,8 +365,9 @@ KISSY.Editor.add("definition", function(KE) {
         },
 
         insertHtml:function(data) {
-            if (KE.HtmlDataProcessor)
-                data = KE.HtmlDataProcessor.toDataFormat(data);//, "p");
+             var self = this;
+            if (self.htmlDataProcessor)
+                data = self.htmlDataProcessor.toDataFormat(data);//, "p");
             /**
              * webkit insert html 有问题！会把标签去掉，算了直接用insertElement
              */
@@ -373,10 +376,10 @@ KISSY.Editor.add("definition", function(KE) {
                 if (nodes.nodeType == 11) nodes = S.makeArray(nodes.childNodes);
                 else nodes = [nodes];
                 for (var i = 0; i < nodes.length; i++)
-                    this.insertElement(new Node(nodes[i]));
+                    self.insertElement(new Node(nodes[i]));
                 return;
             }
-            var self = this;
+
             self.focus();
             self.fire("save");
             var selection = self.getSelection();

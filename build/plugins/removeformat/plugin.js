@@ -87,8 +87,8 @@ KISSY.Editor.add("removeformat", function(editor) {
                             break;
 
                         // If this element can be removed (even partially).
-                        if (tagsRegex.test(pathElement.getName()))
-                            node.breakParent(pathElement);
+                        if (tagsRegex.test(pathElement._4e_name()))
+                            node._4e_breakParent(pathElement);
                     }
                 };
 

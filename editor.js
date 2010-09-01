@@ -17,7 +17,7 @@ KISSY.add("editor", function(S, undefined) {
         }
         if (!textarea[0]) textarea = new Node(textarea);
 
-        self.cfg = cfg;
+        self.cfg = cfg || {pluginConfig:{}};
 
         S.app(self, S.EventTarget);
         self.use = function(mods) {
@@ -128,6 +128,11 @@ KISSY.add("editor", function(S, undefined) {
             },
             {
                 name: "htmlparser-text",
+                requires: ["htmlparser-comment"]
+            }
+            ,
+            {
+                name: "htmlparser-comment",
                 requires: ["htmlparser-filter"]
             }
         ],

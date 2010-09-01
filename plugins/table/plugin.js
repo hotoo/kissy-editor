@@ -113,46 +113,44 @@ KISSY.Editor.add("table", function(editor, undefined) {
                 ] ).join('');
 
     cssStyleText = cssTemplate.replace(/%2/g, showBorderClassName);
+    var dataProcessor = editor.htmlDataProcessor,
+        dataFilter = dataProcessor && dataProcessor.dataFilter,
+        htmlFilter = dataProcessor && dataProcessor.htmlFilter;
+    if (dataFilter) {
+        dataFilter.addRules({
+            elements :  {
+                'table' : function(element) {
+                    var attributes = element.attributes,
+                        cssClass = attributes[ 'class' ],
+                        border = parseInt(attributes.border, 10);
 
+                    if (!border || border <= 0)
+                        attributes[ 'class' ] = ( cssClass || '' ) + ' ' + showBorderClassName;
+                }
+            }
+        });
+    }
+
+    if (htmlFilter) {
+        htmlFilter.addRules({
+            elements :            {
+                'table' : function(table) {
+                    var attributes = table.attributes,
+                        cssClass = attributes[ 'class' ];
+
+                    if (cssClass) {
+                        attributes[ 'class' ] =
+                            S.trim(cssClass.replace(showBorderClassName, "").replace(/\s{2}/, " "));
+                    }
+                }
+
+            }
+        });
+    }
     if (!KE.TableUI) {
         (function() {
 
 
-            var dataProcessor = KE.HtmlDataProcessor,
-                dataFilter = dataProcessor && dataProcessor.dataFilter,
-                htmlFilter = dataProcessor && dataProcessor.htmlFilter;
-
-            if (dataFilter) {
-                dataFilter.addRules({
-                    elements :  {
-                        'table' : function(element) {
-                            var attributes = element.attributes,
-                                cssClass = attributes[ 'class' ],
-                                border = parseInt(attributes.border, 10);
-
-                            if (!border || border <= 0)
-                                attributes[ 'class' ] = ( cssClass || '' ) + ' ' + showBorderClassName;
-                        }
-                    }
-                });
-            }
-
-            if (htmlFilter) {
-                htmlFilter.addRules({
-                    elements :            {
-                        'table' : function(table) {
-                            var attributes = table.attributes,
-                                cssClass = attributes[ 'class' ];
-
-                            if (cssClass) {
-                                attributes[ 'class' ] =
-                                    S.trim(cssClass.replace(showBorderClassName, "").replace(/\s{2}/, " "));
-                            }
-                        }
-
-                    }
-                });
-            }
             function TableUI(editor) {
                 var self = this;
                 self.editor = editor;
@@ -742,9 +740,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
     }
     editor.addPlugin(function() {
         var doc = editor.document;
-
         new KE.TableUI(editor);
-
 
         /**
          * 动态加入显表格border css，便于编辑

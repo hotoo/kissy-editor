@@ -12,22 +12,13 @@ KISSY.Editor.add("link", function(editor) {
         Node = S.Node,
         KERange = KE.Range,
         Overlay = KE.SimpleOverlay ,
-        dataProcessor = KE.HtmlDataProcessor,
+        dataProcessor = editor.htmlDataProcessor,
         //htmlFilter = dataProcessor && dataProcessor.htmlFilter,
         dataFilter = dataProcessor && dataProcessor.dataFilter;
+
+
     if (!KE.Link) {
         (function() {
-            dataFilter && dataFilter.addRules({
-                elements : {
-                    a:function(element) {
-                        for (var a in element.attributes) {
-                            if (a == "href" || a == "target") continue;
-                            delete element.attributes[a];
-                        }
-                    }
-                }
-            });
-
 
             var link_Style = {
                 element : 'a',

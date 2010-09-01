@@ -479,20 +479,20 @@ KISSY.Editor.add("list", function(editor) {
              * @param cfg
              */
             function List(cfg) {
-                List.superclass.constructor.call(this, cfg);
-                var editor = this.get("editor"),toolBarDiv = editor.toolBarDiv,
-                    el = this.el;
                 var self = this;
+                List.superclass.constructor.call(self, cfg);
+                var editor = self.get("editor"),toolBarDiv = editor.toolBarDiv,
+                    el = self.el;
                 self.el = new TripleButton({
                     //text:this.get("type"),
-                    contentCls:this.get("contentCls"),
-                    title:this.get("title"),
+                    contentCls:self.get("contentCls"),
+                    title:self.get("title"),
                     container:toolBarDiv
                 });
-                this.listCommand = new listCommand(this.get("type"));
-                this.listCommand.state = this.get("status");
+                self.listCommand = new listCommand(this.get("type"));
+                self.listCommand.state = self.get("status");
                 //this._selectionChange({path:1});
-                this._init();
+                self._init();
             }
 
             List.ATTRS = {
@@ -504,37 +504,32 @@ KISSY.Editor.add("list", function(editor) {
             S.extend(List, S.Base, {
 
                 _init:function() {
-                    var editor = this.get("editor"),
+                    var self = this,editor = self.get("editor"),
                         toolBarDiv = editor.toolBarDiv,
-                        el = this.el;
-                    var self = this;
-                    el.on("click", this._change, this);
-                    editor.on("selectionChange", this._selectionChange, this);
+                        el = self.el;
+                    var self = self;
+                    el.on("click", self._change, self);
+                    editor.on("selectionChange", self._selectionChange, self);
                 },
 
 
                 _change:function() {
-                    var editor = this.get("editor"),
-                        type = this.get("type"),
-                        el = this.el,
-                        self = this;
-                    //ie要等会才能获得焦点窗口的选择区域
-                    editor.focus();
+                    var self = this,editor = self.get("editor"),
+                        type = self.get("type"),
+                        el = self.el;
                     editor.fire("save");
-                    setTimeout(function() {
-                        self.listCommand.state = el.get("state");
-                        self.listCommand.exec(editor);
-                        editor.fire("save");
-                        editor.fire(type + "Change");
-                    }, 10);
+                    self.listCommand.state = el.get("state");
+                    self.listCommand.exec(editor);
+                    editor.fire("save");
+                    editor.notifySelectionChange();
                 },
 
                 _selectionChange:function(ev) {
-                    var editor = this.get("editor"),
-                        type = this.get("type"),
+                    var self = this,editor = self.get("editor"),
+                        type = self.get("type"),
                         elementPath = ev.path,
                         element,
-                        el = this.el,
+                        el = self.el,
                         blockLimit = elementPath.blockLimit,
                         elements = elementPath.elements;
 

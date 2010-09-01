@@ -57,11 +57,11 @@ KISSY.Editor.add("htmlparser-fragment", function(
      * var fragment = Fragment.fromHtml( '<b>Sample</b> Text' );
      * alert( fragment.children[0].name );  "b"
      * alert( fragment.children[1].value );  " Text"
-     * 特例：
-     * 自动加p，自动处理标签嵌套规则
+     * 特例�?
+     * 自动加p，自动处理标签嵌套规�?
      * "<img src='xx'><span>5<div>6</div>7</span>"
      * ="<p><img><span>5</span></p><div><span>6</span></div><p><span>7</span></p>"
-     * 自动处理ul嵌套，以及li ie不闭合
+     * 自动处理ul嵌套，以及li ie不闭�?
      * "<ul><ul><li>xxx</ul><li>1<li>2<ul>");
      */
     Fragment.FromHtml = function(fragmentHtml, fixForBody) {
@@ -169,7 +169,7 @@ KISSY.Editor.add("htmlparser-fragment", function(
         }
 
         /**
-         * 遇到标签开始建立节点和父亲关联 ==  node.parent=parent
+         * 遇到标签�?��建立节点和父亲关�?==  node.parent=parent
          * @param tagName
          * @param attributes
          * @param selfClosing
@@ -220,7 +220,7 @@ KISSY.Editor.add("htmlparser-fragment", function(
 
                     // Establish the list item if it's not existed.
                     if (!( lastChild && lastChild.name in listItems ))
-                    //直接添加到父亲
+                    //直接添加到父�?
                         addElement(( lastChild = new KE.HtmlParser.Element('li') ), currentNode);
                     //以后直接跳到父亲不用再向父亲添加
                     returnPoint = currentNode,addPoint = lastChild;
@@ -230,7 +230,7 @@ KISSY.Editor.add("htmlparser-fragment", function(
                 // parent. This situation usually happens with <p>, <li>, <dt> and
                 // <dd>, specially in IE. Do not enter in this if block in this case.
                 else if (tagName == currentName) {
-                    //直接把上一个<p>,<li>结束掉，不要再等待</p>,</li>执行此项操作了
+                    //直接把上�?��<p>,<li>结束掉，不要再等�?/p>,</li>执行此项操作�?
                     addElement(currentNode, currentNode.parent);
                 }
                 else {
@@ -241,7 +241,7 @@ KISSY.Editor.add("htmlparser-fragment", function(
                     else {
                         //拆分，闭合掉
                         addElement(currentNode, currentNode.parent, true);
-                        //li,p等现在就闭合，以后都不用再管了
+                        //li,p等现在就闭合，以后都不用再管�?
                         if (!optionalClose[ currentName ]) {
                             // The current element is an inline element, which
                             // cannot hold the new one. Put it in the pending list,
@@ -257,7 +257,7 @@ KISSY.Editor.add("htmlparser-fragment", function(
                     currentNode = addPoint;
                 // Try adding it to the return point, or the parent element.
                 else
-                //前面都调用 addElement 将当前节点闭合了，只能往 parent 添加了
+                //前面都调�?addElement 将当前节点闭合了，只能往 parent 添加�?
                     currentNode = currentNode.returnPoint || currentNode.parent;
 
                 if (reApply) {
@@ -375,10 +375,8 @@ KISSY.Editor.add("htmlparser-fragment", function(
             //currentNode.add(new KE.HtmlParser.cdata(cdata));
         };
 
-        parser.onComment = function(
-            //comment
-            ) {
-            //currentNode.add(new KE.HtmlParser.comment(comment));
+        parser.onComment = function(comment) {
+            currentNode.add(new KE.HtmlParser.Comment(comment));
         };
 
         // Parse it.

@@ -9,8 +9,9 @@ KISSY.Editor.add("font", function(editor) {
         TripleButton = KE.TripleButton,
         Node = S.Node;
     var
-        FONT_SIZES = ["8px","10px","12px",
-            "14px","18px","24px","36px","48px","60px","72px","84px","96px","108px"],
+        FONT_SIZES = editor.cfg.pluginConfig["font-size"] ||
+            ["8px","10px","12px",
+                "14px","18px","24px","36px","48px","60px","72px","84px","96px","108px"],
         FONT_SIZE_STYLES = {},
         FONT_SIZE_SELECTION_HTML = "<select title='大小' style='width:110px;height:21px;'><option value=''>大小 / 清除</option>",
         fontSize_style = {
@@ -20,7 +21,7 @@ KISSY.Editor.add("font", function(editor) {
                 { element : 'font', attributes : { 'size' : null } }
             ]
         },
-        FONT_FAMILIES = ["宋体","黑体","隶书",
+        FONT_FAMILIES = editor.cfg.pluginConfig["font-family"]||["宋体","黑体","隶书",
             "楷体_GB2312","微软雅黑","Georgia","Times New Roman",
             "Impact","Courier New","Arial","Verdana","Tahoma"],
         FONT_FAMILY_STYLES = {},
@@ -33,6 +34,9 @@ KISSY.Editor.add("font", function(editor) {
                 { element : 'font', attributes : { 'face' : null } }
             ]
         },i;
+
+    editor.cfg.pluginConfig["font-size"] = FONT_SIZES;
+    editor.cfg.pluginConfig["font-family"] = FONT_FAMILIES;
 
     for (i = 0; i < FONT_SIZES.length; i++) {
         var size = FONT_SIZES[i];
