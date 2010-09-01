@@ -51,6 +51,7 @@ KISSY.Editor.add("contextmenu", function() {
                             //ie 右键作用中，不会发生焦点转移，光标移动
                             //只能右键作用完后才能，才会发生光标移动,range变化
                             //异步右键操作
+                            //qc #3764,#3767
                             setTimeout(function() {
                                 instance.show(KE.Utils.getXY(ev.pageX, ev.pageY, doc, document));
                             }, 30);
