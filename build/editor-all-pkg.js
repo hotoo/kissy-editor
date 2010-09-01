@@ -2,7 +2,7 @@
  * Constructor for kissy editor and module dependency definition
  * @author: yiminghe@gmail.com, lifesinger@gmail.com
  * @version: 2.0
- * @buildtime: 2010-09-01 17:07:05
+ * @buildtime: 2010-09-01 19:30:14
  */
 KISSY.add("editor", function(S, undefined) {
     function Editor(textarea, cfg) {
@@ -6812,9 +6812,17 @@ KISSY.Editor.add("contextmenu", function() {
                             rules = global_rules[i].rules,
                             doc2 = global_rules[i].doc;
                         if (doc === doc2 && applyRules(t[0], rules)) {
+
+
                             ev.preventDefault();
                             stop = true;
-                            instance.show(KE.Utils.getXY(ev.pageX, ev.pageY, doc, document));
+                            //ie 右键作用中，不会发生焦点转移，光标移动
+                            //只能右键作用完后才能，才会发生光标移动,range变化
+                            //异步右键操作
+                            setTimeout(function() {
+                                instance.show(KE.Utils.getXY(ev.pageX, ev.pageY, doc, document));
+                            }, 30);
+
                             break;
                         }
                     }
@@ -10407,6 +10415,8 @@ KISSY.Editor.add("htmldataprocessor", function(editor) {
 
 
     var filterStyle = stylesFilter([
+        //word 自有类名去除
+        [/mso/i],
         //qc 3711，只能出现我们规定的字体
         [ /font-size/i,'',function(v) {
             var fontSizes = editor.cfg.pluginConfig["font-size"];
@@ -10414,20 +10424,18 @@ KISSY.Editor.add("htmldataprocessor", function(editor) {
                 if (v.toLowerCase() == fontSizes[i]) return v;
             }
             return false;
-        }],
+        },'font-size'],
         //限制字体
         [ /font-family/i,'',function(v) {
             var fontFamilies = editor.cfg.pluginConfig["font-family"];
-
             for (var i = 0; i < fontFamilies.length; i++) {
                 if (v.toLowerCase() == fontFamilies[i].toLowerCase()) return v;
             }
             return false;
-        }],
+        } ,'font-family'        ],
         //qc 3701，去除行高，防止乱掉
         [/line-height/i],
-        //word 自有类名去除
-        [/mso/i],
+
         [/display/i,/none/i]
     ], undefined);
 

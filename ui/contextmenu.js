@@ -44,9 +44,17 @@ KISSY.Editor.add("contextmenu", function() {
                             rules = global_rules[i].rules,
                             doc2 = global_rules[i].doc;
                         if (doc === doc2 && applyRules(t[0], rules)) {
+
+
                             ev.preventDefault();
                             stop = true;
-                            instance.show(KE.Utils.getXY(ev.pageX, ev.pageY, doc, document));
+                            //ie 右键作用中，不会发生焦点转移，光标移动
+                            //只能右键作用完后才能，才会发生光标移动,range变化
+                            //异步右键操作
+                            setTimeout(function() {
+                                instance.show(KE.Utils.getXY(ev.pageX, ev.pageY, doc, document));
+                            }, 30);
+
                             break;
                         }
                     }

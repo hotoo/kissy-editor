@@ -119,6 +119,8 @@ KISSY.Editor.add("htmldataprocessor", function(editor) {
 
 
     var filterStyle = stylesFilter([
+        //word 自有类名去除
+        [/mso/i],
         //qc 3711，只能出现我们规定的字体
         [ /font-size/i,'',function(v) {
             var fontSizes = editor.cfg.pluginConfig["font-size"];
@@ -126,20 +128,18 @@ KISSY.Editor.add("htmldataprocessor", function(editor) {
                 if (v.toLowerCase() == fontSizes[i]) return v;
             }
             return false;
-        }],
+        },'font-size'],
         //限制字体
         [ /font-family/i,'',function(v) {
             var fontFamilies = editor.cfg.pluginConfig["font-family"];
-            console.log(fontFamilies);
             for (var i = 0; i < fontFamilies.length; i++) {
                 if (v.toLowerCase() == fontFamilies[i].toLowerCase()) return v;
             }
             return false;
-        }],
+        } ,'font-family'        ],
         //qc 3701，去除行高，防止乱掉
         [/line-height/i],
-        //word 自有类名去除
-        [/mso/i],
+
         [/display/i,/none/i]
     ], undefined);
 
