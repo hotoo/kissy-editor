@@ -8,6 +8,7 @@ KISSY.Editor.add("music", function(editor) {
         DOM = S.DOM,
         KE = S.Editor,
         Event = S.Event;
+    //!TODO 需要重构，和flash结合起来，抽象
     if (!KE.MusicInserter) {
         (function() {
             var ContextMenu = KE.ContextMenu,
@@ -83,7 +84,7 @@ KISSY.Editor.add("music", function(editor) {
                 });
                 self.tipwin.on("hide", function() {
                     var music = self.tipwin.music;
-                    music && (music.selectedFlash = null);
+                    music && (!music.d.get("visible")) && (music.selectedFlash = null);
                 });
                 Event.on(document, "click", function() {
                     self.tipwin.hide();

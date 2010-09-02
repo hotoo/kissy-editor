@@ -56,12 +56,12 @@ KISSY.add("editor", function(S, undefined) {
         plugin_mods = [
             "clipboard",
             {
-                name: "color",
-                useCss: true
+                name: "color"//,
+                //useCss: true
             },
             {
-                name: "elementpaths",
-                useCss: true
+                name: "elementpaths"//,
+                //useCss: true
             },
             "enterkey",
             "fakeobjects",
@@ -69,7 +69,10 @@ KISSY.add("editor", function(S, undefined) {
                 name: "flash",
                 requires: ["contextmenu","fakeobjects","overlay"]
             },
-            "font",
+            {
+                name:"font",
+                requires:["select"]
+            },
             "format",
             {
                 name: "htmldataprocessor",
@@ -88,20 +91,20 @@ KISSY.add("editor", function(S, undefined) {
             "preview",
             "removeformat",
             {
-                name: "smiley",
-                useCss: true
+                name: "smiley"//,
+                //useCss: true
             },
             "sourcearea",
             {
                 name: "table",
-                useCss: true,
+                //useCss: true,
                 requires: ["overlay",
                     "contextmenu"]
             },
             {
                 name: "templates",
-                requires: ["overlay"],
-                useCss: true
+                requires: ["overlay"]//,
+                //useCss: true
             },
             "undo"
         ],
@@ -139,13 +142,18 @@ KISSY.add("editor", function(S, undefined) {
         ui_mods = [
             {name:"button"},
             {
-                name:"overlay",
-                useCss:true
+                name:"overlay"//,
+                //useCss:true
             },
             {
                 name: "contextmenu",
-                requires: ["overlay"]   ,
-                useCss:true
+                requires: ["overlay"]   //,
+                //useCss:true
+            },
+            {
+                name: "select",
+                requires: ["overlay"]   //,
+                //useCss:true
             }
         ],
         i, len, mod, name, requires;

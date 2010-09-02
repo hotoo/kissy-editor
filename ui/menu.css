@@ -1,4 +1,4 @@
-.ke-contextmenu {
+.ke-menu {
     z-index: 10000;
     background: none repeat scroll 0 0 #FFFFFF;
     border-color: #CCCCCC #666666 #666666 #CCCCCC;
@@ -16,21 +16,22 @@
     box-shadow: 3px 3px 3px #808080;
 }
 
-.ke-contextmenu a {
+.ke-menu a, .ke-menu-title {
     display: block;
     color: #000000;
     margin: 0;
+    border-width: 0;
     padding: 4px 7em 4px 28px;
     white-space: nowrap;
     text-decoration: none;
 }
 
-.ke-contextmenu a:hover {
+.ke-menu-title {
+    background-color: #dcdcdc;
+    padding: 3px;
+}
+
+.ke-menu a:hover, .ke-menu-selected {
     background-color: #D6E9F8;
-    border-color: #D6E9F8;
-    border-style: dotted;
-    border-width: 1px 0;
-    padding-bottom: 3px;
     text-decoration: none;
-    padding-top: 3px;
 }

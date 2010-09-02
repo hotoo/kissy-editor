@@ -41,7 +41,7 @@ KISSY.Editor.add("smiley", function(editor) {
                 },
                 _hidePanel:function(ev) {
                     var self = this,t = ev.target;
-                    //多窗口管理
+                    //多窗口管�?
                     if (DOM._4e_ascendant(ev.target, function(node) {
                         return  node[0] === self.el.el[0];
                     }))return;
@@ -55,7 +55,6 @@ KISSY.Editor.add("smiley", function(editor) {
                     if (DOM._4e_name(t) == "a" && (icon = DOM.attr(t, "data-icon"))) {
                         var img = new Node("<img src='" + icon + "'/>", null, editor.document);
                         editor.insertElement(img);
-                        editor.focus();
                         this.smileyWin.hide();
                     }
                 },
@@ -64,6 +63,7 @@ KISSY.Editor.add("smiley", function(editor) {
                     this.smileyPanel = new Node(smiley_markup);
                     this.smileyWin = new Overlay({
                         el:this.smileyPanel,
+                        focusMgr:false,
                         mask:false
                     });
                     document.body.appendChild(this.smileyPanel[0]);

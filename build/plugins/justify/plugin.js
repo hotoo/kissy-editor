@@ -55,8 +55,6 @@ KISSY.Editor.add("justify", function(editor) {
                                 block.css('text-align', '');
                         }
                     }
-
-                    editor.focus();
                     editor.notifySelectionChange();
                     selection.selectBookmarks(bookmarks);
                     editor.fire("save");
@@ -78,9 +76,9 @@ KISSY.Editor.add("justify", function(editor) {
         })();
     }
     editor.addPlugin(function() {
-        new KE.Justify(editor, "left", "左对齐", "ke-toolbar-alignleft");
-        new KE.Justify(editor, "center", "居中对齐", "ke-toolbar-aligncenter");
-        new KE.Justify(editor, "right", "右对齐", "ke-toolbar-alignright");
-        //new Justify(editor, "justify", "两端对齐");
+        new KE.Justify(editor, "left", "左对�?", "ke-toolbar-alignleft");
+        new KE.Justify(editor, "center", "居中对齐 ", "ke-toolbar-aligncenter");
+        new KE.Justify(editor, "right", "右对�?", "ke-toolbar-alignright");
+        //new Justify(editor, "justify", "两端对齐 ");
     });
 });

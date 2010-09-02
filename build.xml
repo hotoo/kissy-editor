@@ -10,11 +10,11 @@ build file for kissy editor
     <property name="ks-tools.dir" location="${root.dir}/kissy-tools/"/>
     <property name="build.dir" location="${current.dir}/build/"/>
     <property name="version" value="2.0"/>
-    <property name="charset" value="utf-8"/>
+    <property name="charset" value="UTF-8"/>
     <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
     <filelist dir="."
-              files="build/editor.js" id="editor_js"/>
-    <filelist dir="build/core" id="core_js"
+              files="${build.dir}/editor.js" id="editor_js"/>
+    <filelist dir="${build.dir}/core" id="core_js"
               files="utils.js,focusmanager.js,definition.js,
                       dtd.js,dom.js,elementpath.js
                       ,walker.js,range.js,domiterator.js,selection.js
@@ -27,12 +27,12 @@ build file for kissy editor
     create dir necessarily
     -->
     <target name="prepare">
-        <mkdir dir="build"/>
-        <copy todir="build">
+        <mkdir dir="${build.dir}"/>
+        <copy todir="${build.dir}">
             <fileset dir="." includes="assets/*" excludes="assets/*.js,assets/*.css">
             </fileset>
         </copy>
-        <copy todir="build">
+        <copy todir="${build.dir}">
             <fileset dir="." includes="assets/*.js,assets/*.css,core/**,plugins/**,ui/**,editor.js">
             </fileset>
             <filterset>
@@ -53,11 +53,11 @@ build file for kissy editor
         remove debug info
         -->
         <replaceregexp match="^\s*console\.log\(.+$" replace="" flags="g" byline="true" encoding="${charset}">
-            <fileset dir="build" includes="**/*.js"/>
+            <fileset dir="${build.dir}" includes="**/*.js"/>
         </replaceregexp>
 
-        <apply executable="java" verbose="true" dest="build">
-            <fileset dir="build" includes="**/*.js" excludes="**/*-min.js"/>
+        <apply executable="java" verbose="true" dest="${build.dir}">
+            <fileset dir="${build.dir}" includes="**/*.js" excludes="**/*-min.js"/>
             <arg line="-jar"/>
             <arg path="${ks-tools.dir}/closure-compiler/compiler.jar"/>
             <arg line="--charset ${charset}"/>
@@ -70,8 +70,8 @@ build file for kissy editor
             <mapper type="regexp" from="^(.*)\.(css|js)$" to="\1-min.\2"/>
         </apply>
 
-        <apply executable="java" verbose="true" dest="build">
-            <fileset dir="build" includes="**/*.css" excludes="**/*-min.css"/>
+        <apply executable="java" verbose="true" dest="${build.dir}">
+            <fileset dir="${build.dir}" includes="**/*.css" excludes="**/*-min.css"/>
             <arg line="-jar"/>
             <arg path="${ks-tools.dir}/yuicompressor/yuicompressor.jar"/>
             <arg line="--charset ${charset}"/>
@@ -91,7 +91,7 @@ build file for kissy editor
         <!--
         kissy editor core ,load plugins dynamically
         -->
-        <concat destfile="build/editor-core-pkg.js" encoding="${charset}" outputencoding="${charset}">
+        <concat destfile="${build.dir}/editor-core-pkg.js" encoding="${charset}" outputencoding="${charset}">
             <filelist refid="editor_js"/>
             <filelist refid="core_js"/>
         </concat>
@@ -99,18 +99,25 @@ build file for kissy editor
         <!--
         full kissy editor ,all plugins static included
         -->
-        <concat destfile="build/editor-all-pkg.js" encoding="${charset}" outputencoding="${charset}">
-            <path location="build/editor-core-pkg.js"/>
+        <concat destfile="${build.dir}/editor-all-pkg.js" encoding="${charset}" outputencoding="${charset}">
+            <path location="${build.dir}/editor-core-pkg.js"/>
             <fileset dir="ui"
                      includes="**/*.js"/>
             <fileset dir="plugins"
                      includes="**/*.js"/>
         </concat>
 
+
+        <concat destfile="${build.dir}/assets/editor-pkg.css" encoding="${charset}" outputencoding="${charset}">
+            <filelist dir="${build.dir}" files="assets/editor.css"/>
+            <fileset dir="${build.dir}"
+                     includes="plugins/**/*.css,ui/**/*.css"/>
+        </concat>
+
     </target>
 
     <target name="clean">
-        <delete dir="build"></delete>
+        <delete dir="${build.dir}"></delete>
     </target>
 
 </project>

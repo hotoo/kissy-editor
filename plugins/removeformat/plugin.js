@@ -51,7 +51,6 @@ KISSY.Editor.add("removeformat", function(editor) {
                 removeAttributes = removeFormatAttributes;
 
             tagsRegex.lastIndex = 0;
-            editor.focus();
             var ranges = editor.getSelection().getRanges();
             editor.fire("save");
             for (var i = 0, range; range = ranges[ i ]; i++) {

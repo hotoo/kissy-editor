@@ -133,7 +133,7 @@ KISSY.Editor.add("color", function(editor) {
                 },
                 _hidePanel:function(ev) {
                     var self = this;
-                    //多窗口管理
+                    //多窗口管�?
                     if (DOM._4e_ascendant(ev.target, function(node) {
                         return node[0] === self.el.el[0];
                     }, true))return;
@@ -156,7 +156,6 @@ KISSY.Editor.add("color", function(editor) {
                             styles["inherit"].remove(editor.document);
                         }
                         editor.fire("save");
-                        editor.focus();
                         this.colorWin.hide();
                     }
                 },

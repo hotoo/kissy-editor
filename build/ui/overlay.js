@@ -116,8 +116,7 @@ KISSY.Editor.add("overlay", function() {
                     self.fire("hide");
                 }
             });
-            if (self.get("focusMgr"))
-                self.on("beforeVisibleChange", self._editorFocusMg, self);
+
 
             if (el) {
                 //焦点管理，显示时用a获得焦点
@@ -162,6 +161,10 @@ KISSY.Editor.add("overlay", function() {
                     self.hide();
                 });
             }
+            if (self.get("focusMgr")) {
+                self.on("beforeVisibleChange", self._editorFocusMg, self);
+                self._initFocusNotice();
+            }
             //初始状�?隐藏
             el.css({"left":"-9999px",top:"-9999px"});
         },
@@ -187,7 +190,17 @@ KISSY.Editor.add("overlay", function() {
             if (self._focusEl) {
                 return self._focusEl;
             }
-            return (self._focusEl = self.el.one(".ke-focus")[0]);
+            self._focusEl = self.el.one(".ke-focus");
+            return self._focusEl;
+        },
+        _initFocusNotice:function() {
+            var self = this,f = self._getFocusEl();
+            f.on("focus", function() {
+                self.fire("focus");
+            });
+            f.on("blur", function() {
+                self.fire("blur");
+            });
         },
         /**
          * 焦点管理，弹出前记住当前的焦点所在editor
@@ -201,9 +214,20 @@ KISSY.Editor.add("overlay", function() {
                 //保存当前焦点editor
                 self._focusEditor = focusManager.currentInstance();
                 editor = self._focusEditor;
+                /*
+                //ie 6,7 在窗口a focus后会丢掉已�?择，再�?�?
+                if (UA.ie && UA.ie < 8 && editor) {
+                    var sel = editor.getSelection(),range = sel.getRanges()[0];
+                    if (!range.collapsed && sel.getType() != KE.Selection.SELECTION_ELEMENT) {
+                        setTimeout(function() {
+                            range.select();
+                        }, 50);
+                    }
+                }*/
+
                 //console.log("give up focus : " + editor);
                 //聚焦到当前窗�?
-                self._getFocusEl().focus();
+                self._getFocusEl()[0].focus();
                 var input = self.el.one("input");
                 if (input) {
                     setTimeout(function() {
@@ -238,6 +262,7 @@ KISSY.Editor.add("overlay", function() {
                         }
                     }
                 }
+
             }
             //将要隐藏
             else {

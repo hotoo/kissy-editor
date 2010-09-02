@@ -55,7 +55,6 @@ KISSY.Editor.add("smiley", function(editor) {
                     if (DOM._4e_name(t) == "a" && (icon = DOM.attr(t, "data-icon"))) {
                         var img = new Node("<img src='" + icon + "'/>", null, editor.document);
                         editor.insertElement(img);
-                        editor.focus();
                         this.smileyWin.hide();
                     }
                 },
@@ -64,6 +63,7 @@ KISSY.Editor.add("smiley", function(editor) {
                     this.smileyPanel = new Node(smiley_markup);
                     this.smileyWin = new Overlay({
                         el:this.smileyPanel,
+                        focusMgr:false,
                         mask:false
                     });
                     document.body.appendChild(this.smileyPanel[0]);

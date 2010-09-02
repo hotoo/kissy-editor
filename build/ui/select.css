@@ -1,0 +1,48 @@
+.ke-select {
+    border: 1px solid #BFCBDF;
+    padding: 3px 4px;
+    margin: 0 2px;
+    display: inline-block;
+    zoom: 1; /* zoom and *display = ie7 hack for display:inline-block */
+    *display: inline; /*vertical-align: baseline;*/
+    -moz-border-radius: 3px 3px 3px 3px;
+    -webkit-border-radius: 3px 3px 3px 3px;
+    border-radius: 3px 3px 3px 3px; /* height: 18px;*/
+    text-decoration: none; /*border: 1px solid #A3D7FF;*/
+    vertical-align: middle;
+    white-space: nowrap; /*outline: none;*/
+    cursor: pointer;
+}
+
+.ke-select:hover {
+    text-decoration: none;
+}
+
+.ke-select-text {
+    display: inline-block;
+    zoom: 1; /* zoom and *display = ie7 hack for display:inline-block */
+    *display: inline; /*vertical-align: baseline;*/
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.ke-select-drop {
+    display: inline-block;
+    zoom: 1; /* zoom and *display = ie7 hack for display:inline-block */
+    *display: inline; /*vertical-align: baseline;*/
+    background: url("toolbar-sprite.png") no-repeat scroll -388px 50% transparent;
+    vertical-align: middle;
+    width: 7px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.ke-select-active {
+    background-color: #DDE1EB !important;
+}
+
+.ke-menu .ke-select-menu-item {
+    padding-left: 12px;
+    padding-right: 20px;
+    zoom: 1;
+}

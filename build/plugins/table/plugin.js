@@ -184,7 +184,6 @@ KISSY.Editor.add("table", function(editor, undefined) {
                         (function(f) {
                             myContexts[f] = function() {
                                 editor.fire("save");
-                                editor.focus();
                                 contextMenu[f](editor);
                                 editor.fire("save");
                             }

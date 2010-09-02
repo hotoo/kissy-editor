@@ -169,7 +169,6 @@ KISSY.Editor.add("indent", function(editor) {
 
             S.augment(IndentCommand, {
                 exec:function(editor) {
-                    editor.focus();
                     var selection = editor.getSelection(),
                         range = selection && selection.getRanges()[0];
                     var startContainer = range.startContainer,
@@ -213,8 +212,6 @@ KISSY.Editor.add("indent", function(editor) {
                     }
                     else
                         indentBlock.call(this, editor, range);
-
-                    editor.focus();
                     selection.selectBookmarks(bookmarks);
                 }
             });
@@ -268,7 +265,6 @@ KISSY.Editor.add("indent", function(editor) {
                     var editor = this.get("editor"),
                         el = this.el,
                         self = this;
-                    editor.focus();
                     //ie要等会才能获得焦点窗口的选择区域
                     editor.fire("save");
                     setTimeout(function() {
@@ -302,13 +298,13 @@ KISSY.Editor.add("indent", function(editor) {
     editor.addPlugin(function() {
         editor.addCommand("outdent", new KE.Indent({
             editor:editor,
-            title:"减少缩进量",
+            title:"减少缩进量 ",
             contentCls:"ke-toolbar-outdent",
             type:"outdent"
         }));
         editor.addCommand("indent", new KE.Indent({
             editor:editor,
-            title:"增加缩进量",
+            title:"增加缩进量 ",
             contentCls:"ke-toolbar-indent",
             type:"indent"
         }));

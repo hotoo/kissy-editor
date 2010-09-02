@@ -156,7 +156,6 @@ KISSY.Editor.add("color", function(editor) {
                             styles["inherit"].remove(editor.document);
                         }
                         editor.fire("save");
-                        editor.focus();
                         this.colorWin.hide();
                     }
                 },

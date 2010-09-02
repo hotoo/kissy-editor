@@ -8,7 +8,7 @@ KISSY.Editor.add("contextmenu", function() {
         Node = S.Node,
         DOM = S.DOM,
         Event = S.Event;
-    var HTML = "<div class='ke-contextmenu' onmousedown='return false;'></div>";
+    var HTML = "<div class='ke-menu' onmousedown='return false;'></div>";
 
 
     function ContextMenu(config) {

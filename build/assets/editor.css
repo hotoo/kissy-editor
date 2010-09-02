@@ -1,19 +1,21 @@
 /**
-kissy editor default theme 
+kissy editor default theme
 @author :yiminghe@gmail.com
 **/
+/*
+编辑器容�?
+*/
 .ke-editor-wrap {
     background: white;
-    border: 1px solid #DFDFDF;
-    line-height: 1 !important;
+    border: 1px solid #DFDFDF; /*line-height: 1 !important;*/
+    font-size: 13px;
+    line-height: 1.2;
+    _font-size: 12px;
 }
 
-.ke-wrap-table {
-    border-collapse: collapse;
-    border: none;
-    width: 100%;
-}
-
+/*
+textarea,iframe包装
+*/
 .ke-textarea-wrap {
     overflow: hidden;
 }
@@ -22,10 +24,12 @@ kissy editor default theme
     border-width: 0;
 }
 
+/*
+工具�?
+*/
 .ke-editor-tools {
     background: url("editor-bg.png") repeat-x scroll 0 -192px #E5E5E5;
     border-bottom: 1px solid #DFDFDF;
-    line-height: 1;
     overflow: hidden;
     padding: 3px 3px 2px;
 }
@@ -34,6 +38,9 @@ kissy editor default theme
     margin: 0 5px;
 }
 
+/*
+状�?�?
+*/
 .ke-editor-status {
     background-color: #E5E5E5;
     border-top: 1px solid #DFDFDF;
@@ -42,130 +49,9 @@ kissy editor default theme
     padding: 4px 0 5px;
 }
 
-.ke-popup-wrap {
-    -moz-border-radius: 3px 3px 3px 3px;
-    -webkit-border-radius: 3px 3px 3px 3px;
-    border-radius: 3px 3px 3px 3px;
-    background-color: #FFFFFF;
-    border: 1px solid #8F8F73;
-    position: absolute;
-    z-index: 10001;
-    -moz-box-shadow: 3px 3px 13px #DDDDDD;
-    -webkit-box-shadow: 3px 3px 13px #DDDDDD;
-    box-shadow: 3px 3px 13px #DDDDDD;
-}
-
-.ke-bubbleview-bubble {
-    background-color: #E0ECFF;
-    border: 1px solid #99C0FF;
-    cursor: default;
-    font: 12px sans-serif;
-    margin: 2px;
-    padding: 4px;
-    position: absolute;
-    z-index: 998;
-}
-
-.ke-bubbleview-link, .ke-bubbleview-url {
-    color: #000099;
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-/**
-button LoVe F HAte
-**/
-
-/**
-link
-**/
-.ke-triplebutton {
-    display: inline-block;
-    zoom: 1; /* zoom and *display = ie7 hack for display:inline-block */
-    *display: inline; /*vertical-align: baseline;*/
-    padding: 3px 4px;
-    margin: 0 2px;
-    -moz-border-radius: 3px 3px 3px 3px;
-    -webkit-border-radius: 3px 3px 3px 3px;
-    border-radius: 3px 3px 3px 3px; /* height: 18px;*/
-    text-decoration: none; /*border: 1px solid #A3D7FF;*/
-    border: 1px solid transparent; /* margin: 2px;*/
-    _border: none;
-    vertical-align: middle;
-    white-space: nowrap; /*outline: none;*/
-}
-
-.ke-triplebutton-on {
-    background-color: #A3D7FF;
-}
-
-.ke-triplebutton-disabled {
-    opacity: 0.3;
-    filter: alpha(opacity = 30);
-    cursor: default;
-}
-
-/**
-focus
-**/
-.ke-triplebutton:focus {
-}
-
-/**
-hover
-**/
-.ke-triplebutton:hover {
-    text-decoration: none;
-}
-
-.ke-triplebutton-off:hover {
-    background-color: #A3D7FF;
-    opacity: 0.7;
-    filter: alpha(opacity = 70);
-}
-
-.ke-triplebutton-on:hover {
-    background-color: #86caff;
-}
-
-.ke-triplebutton-disabled:hover {
-    background-color: white;
-    filter: alpha(opacity = 30);
-}
-
-/**
-active
-**/
-.ke-triplebutton:active {
-    color: black;
-}
-
-/***
-button from google wave
-
-.ke-tools-bold {
-    background: url("bold.png");
-    height: 21px;
-    width: 15px;
-}
-.ke-tools-i {
-    background: url("i.png");
-    height: 21px;
-    width: 16px;
-}
-.ke-tools-u {
-    background: url("u.png");
-    height: 21px;
-    width: 16px;
-}
-
-.ke-tools-del {
-    background: url("del.png");
-    height: 21px;
-    width: 17px;
-}
-**/
-
+/*
+工具按钮 
+*/
 .ke-toolbar-item {
     background: url("toolbar-sprite.png") no-repeat scroll 0 0 transparent;
     display: block;
@@ -295,7 +181,7 @@ button from google wave
 }
 
 /**
-ke-post
+ke-post ，内容外部包装容�?
 from : resource://gre/res/html.css
 **/
 
@@ -328,7 +214,6 @@ from : resource://gre/res/html.css
     padding: 0;
 }
 
-/** ����Ĭ������ **/
 .ke-post,
 .ke-post button,
 .ke-post input,

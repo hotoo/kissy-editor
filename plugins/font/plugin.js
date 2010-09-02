@@ -13,7 +13,9 @@ KISSY.Editor.add("font", function(editor) {
             ["8px","10px","12px",
                 "14px","18px","24px","36px","48px","60px","72px","84px","96px","108px"],
         FONT_SIZE_STYLES = {},
-        FONT_SIZE_SELECTION_HTML = "<select title='大小' style='width:110px;height:21px;'><option value=''>大小 / 清除</option>",
+        FONT_SIZE_ITEMS = [
+
+        ],
         fontSize_style = {
             element        : 'span',
             styles        : { 'font-size' : '#(size)' },
@@ -21,12 +23,11 @@ KISSY.Editor.add("font", function(editor) {
                 { element : 'font', attributes : { 'size' : null } }
             ]
         },
-        FONT_FAMILIES = editor.cfg.pluginConfig["font-family"]||["宋体","黑体","隶书",
+        FONT_FAMILIES = editor.cfg.pluginConfig["font-family"] || ["宋体","黑体","隶书",
             "楷体_GB2312","微软雅黑","Georgia","Times New Roman",
             "Impact","Courier New","Arial","Verdana","Tahoma"],
         FONT_FAMILY_STYLES = {},
-        FONT_FAMILY_SELECTION_HTML = "<select title='字体' >" +
-            "<option value=''>字体 / 清除</option>",
+        FONT_FAMILY_ITEMS = [],
         fontFamily_style = {
             element        : 'span',
             styles        : { 'font-family' : '#(family)' },
@@ -43,34 +44,38 @@ KISSY.Editor.add("font", function(editor) {
         FONT_SIZE_STYLES[size] = new KEStyle(fontSize_style, {
             size:size
         });
-        FONT_SIZE_SELECTION_HTML += "<option value='" + size + "'>" + size + "</option>"
+        FONT_SIZE_ITEMS.push({
+            name:size,
+            value:size
+        })
     }
-    FONT_SIZE_SELECTION_HTML += "</select>";
 
     for (i = 0; i < FONT_FAMILIES.length; i++) {
         var family = FONT_FAMILIES[i];
         FONT_FAMILY_STYLES[family] = new KEStyle(fontFamily_style, {
             family:family
         });
-        FONT_FAMILY_SELECTION_HTML += "<option style='font-family:"
-            + family + "'  value='" + family + "'>" + family + "</option>"
+        FONT_FAMILY_ITEMS.push({
+            name:family,
+            value:family,
+            attrs:{
+                style:"font-family:" + family
+            }
+        })
     }
-    FONT_FAMILY_SELECTION_HTML += "</select>";
 
     if (!KE.Font) {
         (function() {
 
 
             function Font(cfg) {
-                Font.superclass.constructor.call(this, cfg);
                 var self = this;
+                Font.superclass.constructor.call(self, cfg);
                 self._init();
             }
 
             Font.ATTRS = {
-                v:{
-                    value:""
-                },
+                title:{},
                 html:{},
                 styles:{},
                 editor:{}
@@ -79,45 +84,46 @@ KISSY.Editor.add("font", function(editor) {
             S.extend(Font, S.Base, {
 
                 _init:function() {
-                    var editor = this.get("editor"),
+                    var self = this,
+                        editor = self.get("editor"),
                         toolBarDiv = editor.toolBarDiv,
-                        html = this.get("html");
-                    var self = this;
-                    self.el = new Node(html);
-                    toolBarDiv[0].appendChild(this.el[0]);
-                    self.el.on("change", this._change, this);
-                    editor.on("selectionChange", this._selectionChange, this);
-                    this.on("afterVChange", this._vChange, this);
+                        html = self.get("html");
+                    self.el = new KE.Select({
+                        container: toolBarDiv,
+                        doc:editor.document,
+                        width:self.get("width"),
+                        popUpWidth:self.get("popUpWidth"),
+                        title:self.get("title"),
+                        items:self.get("html")
+                    });
+
+                    self.el.on("click", self._vChange, self);
+                    editor.on("selectionChange", self._selectionChange, self);
                 },
 
                 _vChange:function(ev) {
-                    var editor = this.get("editor"),
+                    var self = this,
+                        editor = self.get("editor"),
                         v = ev.newVal,
                         pre = ev.preVal,
-                        styles = this.get("styles");
+                        styles = self.get("styles");
                     editor.focus();
                     editor.fire("save");
-                    if (!v) {
-                        v = pre;
+                    if (v == pre) {
                         styles[v].remove(editor.document);
+                        self.el.set("value", "");
                     } else {
                         styles[v].apply(editor.document);
                     }
                     editor.fire("save");
-                    editor.notifySelectionChange();
-                },
-
-                _change:function() {
-                    var el = this.el;
-                    this.set("v", el.val());
                 },
 
                 _selectionChange:function(ev) {
-                    var editor = this.get("editor");
-                    var currentValue = this.get("v");
-                    var elementPath = ev.path,
+                    var self = this,
+                        editor = self.get("editor"),
+                        elementPath = ev.path,
                         elements = elementPath.elements,
-                        styles = this.get("styles");
+                        styles = self.get("styles");
                     // For each element into the elements path.
                     for (var i = 0, element; i < elements.length; i++) {
                         element = elements[i];
@@ -125,27 +131,18 @@ KISSY.Editor.add("font", function(editor) {
                         // the styles.
                         for (var value in styles) {
                             if (styles[ value ].checkElementRemovable(element, true)) {
-                                if (value != currentValue) {
-                                    this._set("v", value);
-                                    this.el.val(value);
-                                }
+                                self.el.set("value", value);
                                 return;
                             }
                         }
                     }
-
-                    // If no styles match, just empty it.
-                    if (currentValue != '') {
-                        this._set("v", '');
-                        this.el.val("");
-                    }
-
+                    this.el.reset("value");
                 }
             });
 
             function SingleFont(cfg) {
-                SingleFont.superclass.constructor.call(this, cfg);
                 var self = this;
+                SingleFont.superclass.constructor.call(self, cfg);
                 self._init();
             }
 
@@ -167,7 +164,7 @@ KISSY.Editor.add("font", function(editor) {
                     self.el = new TripleButton({
                         text:text,
                         title:title,
-                        contentCls:this.get("contentCls"),
+                        contentCls:self.get("contentCls"),
                         container:editor.toolBarDiv
                     });
                     self.el.on("offClick", self._on, self);
@@ -220,14 +217,20 @@ KISSY.Editor.add("font", function(editor) {
     editor.addPlugin(function() {
         new KE.Font({
             editor:editor,
+            title:"大小",
+            width:"30px",
+            popUpWidth:"55px",
             styles:FONT_SIZE_STYLES,
-            html:FONT_SIZE_SELECTION_HTML
+            html:FONT_SIZE_ITEMS
         });
 
         new KE.Font({
             editor:editor,
+            title:"字体",
+            width:"110px",
+            popUpWidth:"130px",
             styles:FONT_FAMILY_STYLES,
-            html:FONT_FAMILY_SELECTION_HTML
+            html:FONT_FAMILY_ITEMS
         });
 
         new KE.Font.SingleFont({
@@ -287,4 +290,5 @@ KISSY.Editor.add("font", function(editor) {
 
     });
 
-});
+})
+    ;

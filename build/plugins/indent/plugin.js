@@ -169,7 +169,6 @@ KISSY.Editor.add("indent", function(editor) {
 
             S.augment(IndentCommand, {
                 exec:function(editor) {
-                    editor.focus();
                     var selection = editor.getSelection(),
                         range = selection && selection.getRanges()[0];
                     var startContainer = range.startContainer,
@@ -213,8 +212,6 @@ KISSY.Editor.add("indent", function(editor) {
                     }
                     else
                         indentBlock.call(this, editor, range);
-
-                    editor.focus();
                     selection.selectBookmarks(bookmarks);
                 }
             });
@@ -223,7 +220,7 @@ KISSY.Editor.add("indent", function(editor) {
             var TripleButton = KE.TripleButton;
 
             /**
-             * 用到了按钮三状态的两个状态：off可点击，disabled:不可点击
+             * 用到了按钮三状�?的两个状态：off可点击，disabled:不可点击
              * @param cfg
              */
             function Indent(cfg) {
@@ -255,7 +252,7 @@ KISSY.Editor.add("indent", function(editor) {
                     var editor = this.get("editor"),toolBarDiv = editor.toolBarDiv,
                         el = this.el;
                     var self = this;
-                    //off状态下触发捕获，注意没有on状态
+                    //off状�?下触发捕获，注意没有on状�?
                     el.on("offClick", this.exec, this);
                     if (this.get("type") == "outdent")
                         editor.on("selectionChange", this._selectionChange, this);
@@ -268,7 +265,6 @@ KISSY.Editor.add("indent", function(editor) {
                     var editor = this.get("editor"),
                         el = this.el,
                         self = this;
-                    editor.focus();
                     //ie要等会才能获得焦点窗口的选择区域
                     editor.fire("save");
                     setTimeout(function() {
@@ -302,13 +298,13 @@ KISSY.Editor.add("indent", function(editor) {
     editor.addPlugin(function() {
         editor.addCommand("outdent", new KE.Indent({
             editor:editor,
-            title:"减少缩进量",
+            title:"减少缩进�?",
             contentCls:"ke-toolbar-outdent",
             type:"outdent"
         }));
         editor.addCommand("indent", new KE.Indent({
             editor:editor,
-            title:"增加缩进量",
+            title:"增加缩进�?",
             contentCls:"ke-toolbar-indent",
             type:"indent"
         }));

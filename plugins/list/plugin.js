@@ -342,7 +342,6 @@ KISSY.Editor.add("list", function(editor) {
                 },
 
                 exec : function(editor) {
-                    editor.focus();
                     var doc = editor.document,
                         selection = editor.getSelection(),
                         ranges = selection && selection.getRanges();
@@ -465,9 +464,7 @@ KISSY.Editor.add("list", function(editor) {
 
                     // Clean up, restore selection and update toolbar button states.
                     KE.Utils.clearAllMarkers(database);
-
                     selection.selectBookmarks(bookmarks);
-                    editor.focus();
                 }
             };
 

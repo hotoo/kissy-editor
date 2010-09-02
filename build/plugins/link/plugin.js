@@ -142,8 +142,6 @@ KISSY.Editor.add("link", function(editor) {
 
                 _removeLink:function() {
                     var a = this._a,editor = this.editor;
-                    //ie6先要focus
-                    editor.focus();
                     var attr = {
                         href:a.attr("href")
                     };
@@ -154,7 +152,6 @@ KISSY.Editor.add("link", function(editor) {
                     editor.fire("save");
                     linkStyle.remove(editor.document);
                     editor.fire("save");
-                    editor.focus();
                     editor.notifySelectionChange();
                 },
                 //借鉴google doc tip提示显示
@@ -185,26 +182,23 @@ KISSY.Editor.add("link", function(editor) {
                 _getSelectedLink:function() {
                     var self = this;
                     var editor = this.editor;
-                    if (Link.tipwin && Link.tipwin.get("visible")) {
-                        var range = editor.getSelection().getRanges()[0];
-                        var common = range.getCommonAncestor();
-                        common && (common = common._4e_ascendant(function(node) {
-                            return node._4e_name() == 'a' && (!!node.attr("href"));
-                        }, true));
-                        if (common && common[0] == Link.tipwin.link._a[0]) {
-                            return common;
-                        }
-                    }
+                    //ie焦点很容易丢�?tipwin没了
+                    var range = editor.getSelection().getRanges()[0];
+                    var common = range.getCommonAncestor();
+                    common && (common = common._4e_ascendant(function(node) {
+                        return node._4e_name() == 'a' && (!!node.attr("href"));
+                    }, true));
+                    return common;
                 },
 
                 _link:function() {
                     var self = this,range;
                     var editor = this.editor,url = Link.urlEl.val();
-                    //ie6 先要focus
-                    editor.focus();
+
                     if (!S.trim(url)) {
                         return;
                     }
+                    self.hide();
                     var link = self._getSelectedLink();
                     //是修改行�?
                     if (link) {
@@ -234,8 +228,7 @@ KISSY.Editor.add("link", function(editor) {
                         linkStyle.apply(editor.document);
                         editor.fire("save");
                     }
-                    self.hide();
-                    editor.focus();
+
                     editor.notifySelectionChange();
                 },
                 _prepare:function() {
