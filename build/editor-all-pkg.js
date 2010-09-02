@@ -2,7 +2,7 @@
  * Constructor for kissy editor and module dependency definition
  * @author: yiminghe@gmail.com, lifesinger@gmail.com
  * @version: 2.0
- * @buildtime: 2010-09-02 11:42:18
+ * @buildtime: 2010-09-02 19:25:21
  */
 KISSY.add("editor", function(S, undefined) {
     function Editor(textarea, cfg) {
@@ -7349,7 +7349,16 @@ KISSY.Editor.add("select", function() {
         },
         _click:function(ev) {
             ev.preventDefault();
-            var self = this,v = self.get("value");
+
+            var self = this,
+                v = self.get("value"),
+                el = self.el;
+
+            if (el.hasClass("ke-select-active")) {
+                self.menu.hide();
+                return;
+            }
+
             self._prepare();
 
             //可能的话当显示层时，高亮当前值对应option
@@ -8391,7 +8400,7 @@ KISSY.Editor.add("flash", function(editor) {
                 self.tipurl = el.one(".ke-bubbleview-url");
                 self.tipwin.on("hide", function() {
                     var flash = self.tipwin.flash;
-                    flash && (!flash.d.get("visible")) && (flash.selectedFlash = null);
+                    flash && (!flash.d || !flash.d.get("visible")) && (flash.selectedFlash = null);
                 });
                 //点击source要关闭
                 Event.on(document, "click", function() {
@@ -12831,7 +12840,7 @@ KISSY.Editor.add("music", function(editor) {
                 });
                 self.tipwin.on("hide", function() {
                     var music = self.tipwin.music;
-                    music && (!music.d.get("visible")) && (music.selectedFlash = null);
+                    music && (!music.d || (!music.d.get("visible"))) && (music.selectedFlash = null);
                 });
                 Event.on(document, "click", function() {
                     self.tipwin.hide();

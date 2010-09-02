@@ -84,7 +84,7 @@ KISSY.Editor.add("music", function(editor) {
                 });
                 self.tipwin.on("hide", function() {
                     var music = self.tipwin.music;
-                    music && (!music.d.get("visible")) && (music.selectedFlash = null);
+                    music && (!music.d || (!music.d.get("visible"))) && (music.selectedFlash = null);
                 });
                 Event.on(document, "click", function() {
                     self.tipwin.hide();

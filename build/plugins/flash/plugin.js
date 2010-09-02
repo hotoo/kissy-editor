@@ -298,7 +298,7 @@ KISSY.Editor.add("flash", function(editor) {
                 self.tipurl = el.one(".ke-bubbleview-url");
                 self.tipwin.on("hide", function() {
                     var flash = self.tipwin.flash;
-                    flash && (!flash.d.get("visible")) && (flash.selectedFlash = null);
+                    flash && (!flash.d || !flash.d.get("visible")) && (flash.selectedFlash = null);
                 });
                 //点击source要关�?
                 Event.on(document, "click", function() {

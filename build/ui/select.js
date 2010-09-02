@@ -152,7 +152,16 @@ KISSY.Editor.add("select", function() {
         },
         _click:function(ev) {
             ev.preventDefault();
-            var self = this,v = self.get("value");
+
+            var self = this,
+                v = self.get("value"),
+                el = self.el;
+
+            if (el.hasClass("ke-select-active")) {
+                self.menu.hide();
+                return;
+            }
+
             self._prepare();
 
             //可能的话当显示层时，高亮当前值对应option
