@@ -2,7 +2,7 @@
  * Constructor for kissy editor and module dependency definition
  * @author: yiminghe@gmail.com, lifesinger@gmail.com
  * @version: 2.0
- * @buildtime: 2010-09-03 14:08:49
+ * @buildtime: 2010-09-03 21:44:11
  */
 KISSY.add("editor", function(S, undefined) {
     function Editor(textarea, cfg) {
@@ -8213,31 +8213,298 @@ KISSY.Editor.add("flash", function(editor) {
         ContextMenu = KE.ContextMenu,
         Node = S.Node,
         KEN = KE.NODE,
+        BubbleView = KE.BubbleView,
         TripleButton = KE.TripleButton,
         Overlay = KE.SimpleOverlay,
-        flashFilenameRegex = /\.swf(?:$|\?)/i,
         dataProcessor = editor.htmlDataProcessor,
-        MUSIC_PLAYER = "niftyplayer.swf",
         CLS_FLASH = 'ke_flash',
         CLS_MUSIC = 'ke_music',
         TYPE_FLASH = 'flash',
         TYPE_MUSIC = 'music',
         getFlashUrl = KE.Utils.getFlashUrl,
-        //htmlFilter = dataProcessor && dataProcessor.htmlFilter,
         dataFilter = dataProcessor && dataProcessor.dataFilter,
         flashRules = ["img." + CLS_FLASH];
 
-    function isFlashEmbed(element) {
-        var attributes = element.attributes;
-        return (
-            attributes.type == 'application/x-shockwave-flash'
-                ||
-                flashFilenameRegex.test(attributes.src || '')
-            );
-    }
 
-    function music(src) {
-        return src.indexOf(MUSIC_PLAYER) != -1;
+    if (!KE.Flash) {
+
+        (function() {
+
+
+            var flashFilenameRegex = /\.swf(?:$|\?)/i,
+              
+                bodyHtml = "<div><p><label>地址： " +
+                    "<input class='ke-flash-url' style='width:280px' /></label></p>" +
+                    "<p style='margin:5px 0'><label>宽度： " +
+                    "<input class='ke-flash-width' style='width:110px' /></label>" +
+                    "&nbsp;&nbsp;<label>高度：<input class='ke-flash-height' " +
+                    "style='width:110px' /></label></p>" ,
+
+                footHtml = "<button class='ke-flash-ok'>确定</button> " +
+                    "<button class='ke-flash-cancel'>取消</button></div>";
+
+            function Flash(editor) {
+                var self = this;
+                self.editor = editor;
+                self._init();
+            }
+
+            Flash.isFlashEmbed = function (element) {
+                var attributes = element.attributes;
+                return (
+                    attributes.type == 'application/x-shockwave-flash'
+                        ||
+                        flashFilenameRegex.test(attributes.src || '')
+                    );
+            };
+
+            S.augment(Flash, {
+                _config:function() {
+                    var self = this,
+                        editor = self.editor;
+                    editor._toolbars = editor._toolbars || {};
+                    editor._toolbars["flash"] = self;
+                    self._cls = CLS_FLASH;
+                    self._type = TYPE_FLASH;
+                    self._title = "编辑flash";
+                    self._bodyHtml = bodyHtml;
+                    self._footHtml = footHtml;
+                    self._contentCls = "ke-toolbar-flash";
+                    self._tip = "Flash";
+                    self._contextMenu = contextMenu;
+                    self._flashRules = flashRules;
+                },
+                _init:function() {
+                    var self = this,
+                        editor = self.editor,
+                        myContexts = {};
+                    self._config();
+                    self.el = new TripleButton({
+                        container:editor.toolBarDiv,
+                        contentCls:self._contentCls,
+                        title:self._tip
+                    });
+                    self.el.on("click", self.show, this);
+
+                    for (var f in contextMenu) {
+                        (function(f) {
+                            myContexts[f] = function() {
+                                editor.fire("save");
+                                self._contextMenu[f](editor);
+                                editor.fire("save");
+                            }
+                        })(f);
+                    }
+                    ContextMenu.register(editor.document, {
+                        rules:self._flashRules,
+                        width:"120px",
+                        funcs:myContexts
+                    });
+
+
+                    BubbleView.attach({
+                        pluginName:self._type,
+                        pluginInstance:self
+                    });
+                    Event.on(editor.document, "dblclick", self._dbclick, self);
+                    KE.Utils.lazyRun(this, "_prepareShow", "_realShow");
+                },
+                _getFlashUrl:function(r) {
+                    return   getFlashUrl(r);
+                },
+                _updateTip:function(tipurl, selectedFlash) {
+                    var self = this,
+                        editor = self.editor;
+                    var r = editor.restoreRealElement(selectedFlash);
+                    tipurl.html(self._getFlashUrl(r));
+                    tipurl.attr("href", self._getFlashUrl(r));
+                }
+                ,
+                _dbclick:function(ev) {
+                    var self = this,t = new Node(ev.target);
+                    if (t._4e_name() === "img" && t.hasClass(self._cls)) {
+                        self.selectedFlash = t;
+                        self.show();
+                        ev.halt();
+                    }
+                },
+
+                _prepareShow:function() {
+                    var self = this;
+                    self.d = new Overlay({
+                        title:self._title,
+                        width:"350px",
+                        mask:true
+                    });
+                    self.d.on("hide", function() {
+                        //清空
+                        self.selectedFlash = null;
+                    });
+                    self.d.body.html(self._bodyHtml);
+                    self.d.foot.html(self._footHtml);
+                    self._initD();
+                }
+                ,
+                _realShow:function() {
+                    this.d.show();
+                },
+                _updateD:function() {
+                    var self = this,
+                        editor = self.editor,
+                        f = self.selectedFlash;
+                    if (f) {
+                        var r = editor.restoreRealElement(f);
+                        if (r.attr("width")) {
+                            self.dWidth.val(parseInt(r.attr("width")));
+                        }
+                        if (r.attr("height")) {
+                            self.dHeight.val(parseInt(r.attr("height")));
+                        }
+                        self.dUrl.val(getFlashUrl(r));
+
+                    } else {
+                        self.dUrl.val("");
+                        self.dWidth.val("");
+                        self.dHeight.val("");
+                    }
+                },
+                show:function() {
+                    var self = this,
+                        editor = self.editor,
+                        d = self.d,
+                        f = self.selectedFlash;
+                    self._prepareShow();
+                    self._updateD();
+                }
+                ,
+                _initD:function() {
+                    var self = this,editor = self.editor,d = self.d;
+                    self.dHeight = d.el.one(".ke-flash-height");
+                    self.dWidth = d.el.one(".ke-flash-width");
+                    self.dUrl = d.el.one(".ke-flash-url");
+                    var action = d.el.one(".ke-flash-ok"),
+                        cancel = d.el.one(".ke-flash-cancel");
+                    action.on("click", self._gen, self);
+                    cancel.on("click", function() {
+                        self.d.hide();
+                    });
+                }
+                ,
+                _getDURl:function() {
+                    return this.dUrl.val();
+                }
+                ,
+                _getDWidth:function() {
+                    return this.dWidth.val();
+                }
+                ,
+                _getDHeight:function() {
+                    return this.dHeight.val();
+                }
+                ,
+                _gen: function() {
+                    var self = this,
+                        editor = self.editor,
+                        url = self._getDURl(),
+                        width = self._getDWidth(),
+                        height = self._getDHeight();
+                    var outerHTML = '<object ' +
+                        (width ? (" width='" + width + "' ") : ' ') +
+                        (height ? " height='" + height + "' " : ' ') +
+                        ' classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" ' +
+                        ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0">' +
+                        '<param name="quality" value="high" />' +
+                        '<param name="movie" value="' + url + '" />' +
+                        '<embed ' +
+                        (width ? " width='" + width + "' " : ' ') +
+                        (height ? " height='" + height + "' " : ' ') +
+                        'pluginspage="http://www.macromedia.com/go/getflashplayer" ' +
+                        'quality="high" ' +
+                        ' src="' + url + '" ' +
+                        ' type="application/x-shockwave-flash"/>' +
+                        '</object>',
+                        real = new Node(outerHTML, null, editor.document);
+                    var substitute = editor.createFakeElement ?
+                        editor.createFakeElement(real, self._cls, self._type, true, outerHTML) :
+                        real;
+                    editor.insertElement(substitute);
+                    //如果是修改，就再选中
+                    if (self.selectedFlash) {
+                        editor.getSelection().selectElement(substitute);
+                    }
+                    self.d.hide();
+                }
+            });
+
+            KE.Flash = Flash;
+
+            /**
+             * tip初始化，所有共享一个tip
+             */
+            var tipHtml = ' '
+                + ' <a class="ke-bubbleview-url" target="_blank" href="#"></a> - '
+                + '    <span class="ke-bubbleview-link ke-bubbleview-change">编辑</span> - '
+                + '    <span class="ke-bubbleview-link ke-bubbleview-remove">删除</span>'
+                + '';
+
+            function checkFlash(lastElement) {
+                return lastElement._4e_ascendant(function(node) {
+                    return node._4e_name() === 'img' && (!!node.hasClass(CLS_FLASH));
+                }, true);
+            }
+
+            Flash.registerBubble = function(pluginName, label, checkFlash) {
+
+                BubbleView.register({
+                    pluginName:pluginName,
+                    func:checkFlash,
+                    init:function() {
+                        var bubble = this,
+                            el = bubble.el;
+                        el.html(label + tipHtml);
+                        var tipurl = el.one(".ke-bubbleview-url"),
+                            tipchange = el.one(".ke-bubbleview-change"),
+                            tipremove = el.one(".ke-bubbleview-remove");
+                        //ie focus not lose
+                        tipchange._4e_unselectable();
+                        tipurl._4e_unselectable();
+                        tipremove._4e_unselectable();
+                        tipchange.on("click", function(ev) {
+                            bubble._plugin.selectedFlash = bubble._selectedEl;
+                            bubble._plugin.show();
+                            ev.halt();
+                        });
+                        tipremove.on("click", function(ev) {
+                            var flash = bubble._plugin;
+                            bubble._selectedEl._4e_remove();
+                            flash.editor.notifySelectionChange();
+                            ev.halt();
+                        });
+
+                        /*
+                         位置变化
+                         */
+                        bubble.on("afterVisibleChange", function(ev) {
+                            var v = ev.newVal,a = bubble._selectedEl,
+                                flash = bubble._plugin;
+                            if (!v || !a)return;
+                            flash._updateTip(tipurl, a);
+                        });
+                    }
+                });
+            };
+            Flash.registerBubble("flash", "Flash 网址： ", checkFlash);
+            var contextMenu = {
+                "编辑Flash":function(editor) {
+                    var selection = editor.getSelection(),
+                        startElement = selection && selection.getStartElement(),
+                        flash = checkFlash(startElement),
+                        flashUI = editor._toolbars["flash"];
+                    flashUI.selectedFlash = flash;
+                    flashUI.show();
+                }
+            };
+        })();
     }
 
     dataFilter && dataFilter.addRules({
@@ -8250,303 +8517,25 @@ KISSY.Editor.add("flash", function(editor) {
                     // Look for the inner <embed>
                     for (i = 0; i < element.children.length; i++) {
                         if (element.children[ i ].name == 'embed') {
-                            if (!isFlashEmbed(element.children[ i ]))
+                            if (!KE.Flash.isFlashEmbed(element.children[ i ]))
                                 return null;
-                            if (music(element.children[ i ].attributes.src)) {
-                                cls = CLS_MUSIC;
-                                type = TYPE_MUSIC;
-                            }
                             return dataProcessor.createFakeParserElement(element, cls, type, true);
                         }
                     }
                     return null;
                 }
-
-                for (i = 0; i < element.children.length; i++) {
-                    var c = element.children[ i ];
-                    if (c.name == 'param' && c.attributes.name == "movie") {
-                        if (music(c.attributes.value)) {
-                            cls = CLS_MUSIC;
-                            type = TYPE_MUSIC;
-                            break;
-                        }
-                    }
-                }
                 return dataProcessor.createFakeParserElement(element, cls, type, true);
             },
 
             'embed' : function(element) {
-                if (!isFlashEmbed(element))
+                if (!KE.Flash.isFlashEmbed(element))
                     return null;
                 var cls = CLS_FLASH,type = TYPE_FLASH;
-                if (music(element.attributes.src)) {
-                    cls = CLS_MUSIC;
-                    type = TYPE_MUSIC;
-                }
                 return dataProcessor.createFakeParserElement(element, cls, type, true);
             }
         }}, 5);
-
-    if (!KE.Flash) {
-
-        (function() {
-
-
-            var bodyHtml = "<div><p><label>地址： " +
-                "<input class='ke-flash-url' style='width:280px' /></label></p>" +
-                "<p style='margin:5px 0'><label>宽度： " +
-                "<input class='ke-flash-width' style='width:110px' /></label>" +
-                "&nbsp;&nbsp;<label>高度：<input class='ke-flash-height' " +
-                "style='width:110px' /></label></p>" ,
-
-                footHtml = "<button class='ke-flash-ok'>确定</button> " +
-                    "<button class='ke-flash-cancel'>取消</button></div>";
-
-            function Flash(editor) {
-                var self = this;
-                self.editor = editor;
-                editor._toolbars = editor._toolbars || {};
-                editor._toolbars["flash"] = self;
-                self._init();
-            }
-
-            S.augment(Flash, {
-                _init:function() {
-                    var self = this,
-                        editor = self.editor,
-                        myContexts = {};
-                    self.el = new TripleButton({
-                        container:editor.toolBarDiv,
-                        contentCls:"ke-toolbar-flash",
-                        //text:"flash",
-                        title:"Flash"
-                    });
-                    self.el.on("click", self._showConfig, this);
-                    Event.on(editor.document, "dblclick", self._dbclick, self);
-                    for (var f in contextMenu) {
-                        (function(f) {
-                            myContexts[f] = function() {
-                                editor.fire("save");
-                                contextMenu[f](editor);
-                                editor.fire("save");
-                            }
-                        })(f);
-                    }
-                    ContextMenu.register(editor.document, {
-                        rules:flashRules,
-                        width:"120px",
-                        funcs:myContexts
-                    });
-                    KE.Utils.lazyRun(this, "_prepareShow", "_realShow");
-                    editor.on("selectionChange", self._selectionChange, self);
-                },
-                _selectionChange:function(ev) {
-                    var elementPath = ev.path,
-                        //editor = this.editor,
-                        elements = elementPath.elements;
-
-                    if (elementPath && elements) {
-                        var lastElement = elementPath.lastElement;
-                        if (!lastElement) return;
-
-                        var a = lastElement._4e_ascendant(function(node) {
-                            return node._4e_name() === 'img' && (!!node.hasClass(CLS_FLASH));
-                        }, true);
-
-                        if (a) {
-                            this._showTip(a);
-                        } else {
-                            this._hideTip();
-                        }
-                    }
-                },
-                _showTip:function(a) {
-                    this._prepareTip(a);
-                },
-                _hideTip:function() {
-                    Flash.tipwin && Flash.tipwin.hide();
-                },
-                _prepareTip:function() {
-                    Flash.tip && Flash.tip();
-                },
-                _realTip:function(a) {
-                    var self = this,
-                        editor = self.editor,
-                        xy = a._4e_getOffset(document);
-                    xy.top += a.height() + 5;
-                    Flash.tipwin.show(xy);
-                    this.selectedFlash = a;
-                    var r = editor.restoreRealElement(self.selectedFlash);
-                    Flash.tipwin.flash = this;
-                    Flash.tipurl.html(getFlashUrl(r));
-                    Flash.tipurl.attr("href", getFlashUrl(r));
-                },
-                _dbclick:function(ev) {
-                    var self = this,t = new Node(ev.target);
-                    if (t._4e_name() === "img" && t.hasClass(CLS_FLASH)) {
-                        self.selectedFlash = t;
-                        self._showConfig();
-                        ev.halt();
-                    }
-
-                },
-                _prepareShow:function() {
-                    var self = this;
-                    self.d = new Overlay({
-                        title:"编辑flash",
-                        width:"350px",
-                        mask:true
-                    });
-                    self.d.on("hide", function() {
-                        //清空
-                        self.selectedFlash = null;
-                    });
-                    self.d.body.html(bodyHtml);
-                    self.d.foot.html(footHtml);
-                    self._initD();
-                },
-                _realShow:function() {
-                    this.d.show();
-                },
-                _showConfig:function() {
-                    var self = this,editor = self.editor,d = self.d,f = self.selectedFlash;
-                    self._prepareShow();
-
-                    if (f) {
-                        var r = editor.restoreRealElement(f);
-                        if (r.attr("width")) {
-                            self.dWidth.val(parseInt(r.attr("width")));
-                        }
-                        if (r.attr("height")) {
-                            self.dHeight.val(parseInt(r.attr("height")));
-                        }
-                        if (r._4e_name() == "object") {
-                            var params = r[0].childNodes;
-                            for (var i = 0; i < params.length; i++) {
-                                if (params[i].nodeType != KEN.NODE_ELEMENT)continue;
-                                if ((DOM.attr(params[i], "name") || "").toLowerCase() == "movie") {
-                                    self.dUrl.val(DOM.attr(params[i], "value"));
-                                } else if (DOM._4e_name(params[i]) == "embed") {
-                                    self.dUrl.val(DOM.attr(params[i], "src"));
-                                } else if (DOM._4e_name(params[i]) == "object") {
-                                    self.dUrl.val(DOM.attr(params[i], "data"));
-                                }
-                            }
-                        } else if (r._4e_name() == "embed") {
-                            self.dUrl.val(r.attr("src"));
-                        }
-                    } else {
-                        self.dUrl.val("");
-                        self.dWidth.val("");
-                        self.dHeight.val("");
-                    }
-                },
-                _initD:function() {
-                    var self = this,editor = self.editor,d = self.d;
-                    self.dHeight = d.el.one(".ke-flash-height");
-                    self.dWidth = d.el.one(".ke-flash-width");
-                    self.dUrl = d.el.one(".ke-flash-url");
-                    var action = d.el.one(".ke-flash-ok"),
-                        cancel = d.el.one(".ke-flash-cancel");
-                    action.on("click", self._gen, self);
-                    cancel.on("click", function() {
-                        self.d.hide();
-                    });
-                },
-
-                _gen: function() {
-                    var self = this,editor = self.editor,
-                        url = self.dUrl.val();
-                    if (!url)return;
-                    var outerHTML = '<object ' +
-                        (parseInt(self.dWidth.val()) ? " width='" + parseInt(self.dWidth.val()) + "' " : ' ') +
-                        (parseInt(self.dHeight.val()) ? " height='" + parseInt(self.dHeight.val()) + "' " : ' ') +
-                        ' classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" ' +
-                        ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0">' +
-                        '<param name="quality" value="high" />' +
-                        '<param name="movie" value="' + url + '" />' +
-                        '<embed ' +
-                        (parseInt(self.dWidth.val()) ? " width='" + parseInt(self.dWidth.val()) + "' " : ' ') +
-                        (parseInt(self.dHeight.val()) ? " height='" + parseInt(self.dHeight.val()) + "' " : ' ') +
-                        'pluginspage="http://www.macromedia.com/go/getflashplayer" ' +
-                        'quality="high" ' +
-                        ' src="' + url + '" ' +
-                        ' type="application/x-shockwave-flash"/>' +
-                        '</object>',real = new Node(outerHTML, null, editor.document);
-                    var substitute = editor.createFakeElement ? editor.createFakeElement(real, CLS_FLASH, TYPE_FLASH, true, outerHTML) : real;
-                    editor.insertElement(substitute);
-                    //如果是修改，就再选中
-                    if (self.selectedFlash) {
-                        editor.getSelection().selectElement(substitute);
-                    }
-                    self.d.hide();
-                }
-            });
-            KE.Utils.lazyRun(Flash.prototype, "_prepareTip", "_realTip");
-            KE.Flash = Flash;
-
-            /**
-             * tip初始化，所有共享一个tip
-             */
-            var tipHtml = '<div class="ke-bubbleview-bubble" onmousedown="return false;">Flash 网址： '
-                + ' <a class="ke-bubbleview-url" target="_blank" href="#"></a> - '
-                + '    <span class="ke-bubbleview-link ke-bubbleview-change">编辑</span> - '
-                + '    <span class="ke-bubbleview-link ke-bubbleview-remove">删除</span>'
-                + '</div>';
-            Flash.tip = function() {
-                var self = this,el = new Node(tipHtml),
-                    tipchange = el.one(".ke-bubbleview-change"),
-                    tipremove = el.one(".ke-bubbleview-remove");
-
-                el._4e_unselectable();
-                self.tipwin = new Overlay({el:el,focusMgr:false});
-                document.body.appendChild(el[0]);
-                //KE.Tips["flash"]=self.tipwin;
-                self.tipurl = el.one(".ke-bubbleview-url");
-                self.tipwin.on("hide", function() {
-                    var flash = self.tipwin.flash;
-                    flash && (!flash.d || !flash.d.get("visible")) && (flash.selectedFlash = null);
-                });
-                //点击source要关闭
-                Event.on(document, "click", function() {
-                    self.tipwin.hide();
-                });
-                tipchange.on("click", function(ev) {
-                    self.tipwin.flash._showConfig();
-                    ev.halt();
-                });
-                tipremove.on("click", function(ev) {
-                    var flash = self.tipwin.flash;
-                    flash.selectedFlash._4e_remove();
-                    flash.editor.notifySelectionChange();
-                    flash.selectedFlash = null;
-                    ev.halt();
-                });
-                self.tip = null;
-            };
-            var contextMenu = {
-                "编辑Flash":function(editor) {
-                    var selection = editor.getSelection(),
-                        startElement = selection && selection.getStartElement(),
-                        flash = startElement && startElement._4e_ascendant('img', true);
-                    if (!flash)
-                        return;
-                    if (!flash.hasClass(CLS_FLASH)) return;
-                    var flashUI = editor._toolbars["flash"];
-                    flashUI.selectedFlash = flash;
-                    flashUI._showConfig();
-                }
-            };
-        })();
-    }
-
-
     editor.addPlugin(function() {
         new KE.Flash(editor);
-        var win = DOM._4e_getWin(editor.document);
-        Event.on(win, "scroll", function() {
-            KE.Flash.tipwin && KE.Flash.tipwin.hide();
-        });
     });
 
 });
@@ -11986,8 +11975,8 @@ KISSY.Editor.add("link", function(editor) {
                     var self = this,
                         editor = this.editor,
                         //ie焦点很容易丢失,tipwin没了
-                        range = editor.getSelection().getRanges()[0],
-                        common = range.getCommonAncestor();
+                        selection = editor.getSelection(),
+                        common = selection && selection.getStartElement();
                     if (common) {
                         common = checkLink(common);
                     }
@@ -12856,245 +12845,146 @@ KISSY.Editor.add("maximize", function(editor) {
  * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("music", function(editor) {
-    var S = KISSY,
-        Node = S.Node,
-        DOM = S.DOM,
-        KE = S.Editor,
-        Event = S.Event;
-    //!TODO 需要重构，和flash结合起来，抽象
+    var KE = KISSY.Editor,
+        S = KISSY,
+        Flash = KE.Flash,
+        dataProcessor = editor.htmlDataProcessor,
+        CLS_FLASH = 'ke_flash',
+        CLS_MUSIC = 'ke_music',
+        TYPE_FLASH = 'flash',
+        TYPE_MUSIC = 'music',
+        MUSIC_PLAYER = "niftyplayer.swf",
+        getFlashUrl = KE.Utils.getFlashUrl,
+        dataFilter = dataProcessor && dataProcessor.dataFilter;
+
+
+    function music(src) {
+        return src.indexOf(MUSIC_PLAYER) != -1;
+    }
+
+    dataFilter && dataFilter.addRules({
+        elements : {
+            'object' : function(element) {
+                var attributes = element.attributes,i,
+                    classId = attributes.classid && String(attributes.classid).toLowerCase(),
+                    cls = CLS_FLASH,type = TYPE_FLASH;
+                if (!classId) {
+                    // Look for the inner <embed>
+                    for (i = 0; i < element.children.length; i++) {
+                        if (element.children[ i ].name == 'embed') {
+                            if (!Flash.isFlashEmbed(element.children[ i ]))
+                                return null;
+                            if (music(element.children[ i ].attributes.src)) {
+                                cls = CLS_MUSIC;
+                                type = TYPE_MUSIC;
+                            }
+                            return dataProcessor.createFakeParserElement(element, cls, type, true);
+                        }
+                    }
+                    return null;
+                }
+
+                for (i = 0; i < element.children.length; i++) {
+                    var c = element.children[ i ];
+                    if (c.name == 'param' && c.attributes.name == "movie") {
+                        if (music(c.attributes.value)) {
+                            cls = CLS_MUSIC;
+                            type = TYPE_MUSIC;
+                            break;
+                        }
+                    }
+                }
+                return dataProcessor.createFakeParserElement(element, cls, type, true);
+            },
+
+            'embed' : function(element) {
+                if (!Flash.isFlashEmbed(element))
+                    return null;
+                var cls = CLS_FLASH,type = TYPE_FLASH;
+                if (music(element.attributes.src)) {
+                    cls = CLS_MUSIC;
+                    type = TYPE_MUSIC;
+                }
+                return dataProcessor.createFakeParserElement(element, cls, type, true);
+            }
+            //4 比 flash 的优先级 5 高！
+        }}, 4);
+
+    //重构，和flash结合起来，抽象
     if (!KE.MusicInserter) {
         (function() {
-            var ContextMenu = KE.ContextMenu,
-                //MUSIC_PLAYER = KE.Config.base+"niftyplayer.swf",
-                //CLS_FLASH = 'ke_flash',
-                CLS_MUSIC = 'ke_music',
-                // TYPE_FLASH = 'flash',
-                TYPE_MUSIC = 'music',
-                Overlay = KE.SimpleOverlay,
-                TripleButton = KE.TripleButton,
-                getFlashUrl = KE.Utils.getFlashUrl,
-
+            var MUSIC_PLAYER_CODE = KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)"',
                 bodyHtml = "<div>" +
                     "<p>" +
                     "<label><span style='color:#0066CC;font-weight:bold;'>音乐网址： " +
                     "</span><input class='ke-music-url' style='width:230px' value='http://'/></label>" +
                     "</p>" +
                     "</div>",
-                footHtml = "<button class='ke-music-insert'>确定</button> " +
+                footHtml = "<button class='ke-music-ok'>确定</button> " +
                     "<button class='ke-music-cancel'>取消</button>",
-
-                MUSIC_MARKUP = '<object ' +
-                    ' width="165" height="37"' +
-                    ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"' +
-                    ' classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000">' +
-                    '<param value="'
-                    + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)"') +
-                    ' name="movie"/>' +
-                    '<param value="high" name="quality"/>' +
-                    '<param value="#FFFFFF" name="bgcolor"/>' +
-                    '<embed width="165" height="37" ' +
-                    'type="application/x-shockwave-flash" ' +
-                    'swliveconnect="true" ' +
-                    'src="' + (KE.Config.base + 'plugins/music/niftyplayer.swf?file=#(music)"') +
-                    'quality="high" ' +
-                    'pluginspage="http://www.macromedia.com/go/getflashplayer"' +
-                    ' bgcolor="#FFFFFF" />' +
-                    '</object>',
                 music_reg = /#\(music\)/g,
                 flashRules = ["img." + CLS_MUSIC];
 
-            function MusicInserter(cfg) {
-                MusicInserter.superclass.constructor.call(this, cfg);
-                var self = this,editor = self.get("editor");
-                editor._toolbars = editor._toolbars || {};
-                editor._toolbars["music"] = self;
-                self._init();
+            function MusicInserter(editor) {
+                MusicInserter.superclass.constructor.apply(this, arguments);
             }
 
-            MusicInserter.ATTRS = {
-                editor:{}
-            };
-            /**
-             * tip初始化，所有共享一个tip
-             */
-            var tipHtml = '<div class="ke-bubbleview-bubble" onmousedown="return false;">音乐网址： '
-                + ' <a class="ke-bubbleview-url" target="_blank" href="#"></a> - '
-                + '    <span class="ke-bubbleview-link ke-bubbleview-change">编辑</span> - '
-                + '    <span class="ke-bubbleview-link ke-bubbleview-remove">删除</span>'
-                + '</div>';
-            MusicInserter.tip = function() {
-                var self = this,el = new Node(tipHtml);
-                el._4e_unselectable();
-                self.tipwin = new Overlay({el:el,focusMgr:false});
-                //KE.Tips["music"] = self.tipwin;
-                document.body.appendChild(el[0]);
-                self.tipurl = el.one(".ke-bubbleview-url");
-                var tipchange = el.one(".ke-bubbleview-change");
-                var tipremove = el.one(".ke-bubbleview-remove");
-                tipchange.on("click", function(ev) {
-                    self.tipwin.music.show();
-                    ev.halt();
-                });
-                self.tipwin.on("hide", function() {
-                    var music = self.tipwin.music;
-                    music && (!music.d || (!music.d.get("visible"))) && (music.selectedFlash = null);
-                });
-                Event.on(document, "click", function() {
-                    self.tipwin.hide();
-                });
-                tipremove.on("click", function(ev) {
-                    var music = self.tipwin.music;
-                    music.selectedFlash._4e_remove();
-                    music.get("editor").notifySelectionChange();
-                    ev.halt();
-                });
-                self.tip = null;
-            };
+            function checkMusic(lastElement) {
+                return lastElement._4e_ascendant(function(node) {
+                    return node._4e_name() === 'img' && (!!node.hasClass(CLS_MUSIC));
+                }, true);
+            }
 
-            S.extend(MusicInserter, S.Base, {
-                _init:function() {
-                    var self = this,editor = self.get("editor"),toolBarDiv = editor.toolBarDiv,
-                        myContexts = {};
 
-                    self.el = new TripleButton({
-                        //text:"music",
-                        contentCls:"ke-toolbar-music",
-                        title:"分享音乐",
-                        container:toolBarDiv
-                    });
-                    Event.on(editor.document, "dblclick", self._dblclick, self);
-                    for (var f in contextMenu) {
-                        (function(f) {
-                            myContexts[f] = function() {
-                                //editor.fire("save");
-                                //editor.focus();
-                                contextMenu[f](editor);
-                                //editor.fire("save");
-                            }
-                        })(f);
-                    }
-                    ContextMenu.register(editor.document, {
-                        rules:flashRules,
-                        width:"120px",
-                        funcs:myContexts
-                    });
-                    self.el.on("offClick", self.show, self);
-                    KE.Utils.lazyRun(self, "_prepare", "_real");
-                    editor.on("selectionChange", self._selectionChange, self);
-                },
-                _selectionChange:function(ev) {
-                    var elementPath = ev.path,
-                        //editor = this.editor,
-                        elements = elementPath.elements;
-
-                    if (elementPath && elements) {
-                        var lastElement = elementPath.lastElement;
-                        if (!lastElement) return;
-
-                        var a = lastElement._4e_ascendant(function(node) {
-                            return node._4e_name() === 'img' && (!!node.hasClass(CLS_MUSIC));
-                        }, true);
-
-                        if (a) {
-                            this._showTip(a);
-                        } else {
-                            this._hideTip();
-                        }
-                    }
-                },
-                _showTip:function(a) {
-                    this._prepareTip(a);
-                },
-                _hideTip:function() {
-                    MusicInserter.tipwin && MusicInserter.tipwin.hide();
-                },
-                _prepareTip:function() {
-                    MusicInserter.tip && MusicInserter.tip();
-                },
-                _realTip:function(a) {
+            S.extend(MusicInserter, Flash, {
+                _config:function() {
                     var self = this,
-                        editor = self.get("editor"),
-                        xy = a._4e_getOffset(document);
-                    xy.top += a.height() + 5;
-                    MusicInserter.tipwin.show(xy);
-                    this.selectedFlash = a;
-                    var r = editor.restoreRealElement(self.selectedFlash);
-                    MusicInserter.tipwin.music = this;
-                    MusicInserter.tipurl.html(getMusicUrl(getFlashUrl(r)));
-                    MusicInserter.tipurl.attr("href", getMusicUrl(getFlashUrl(r)));
+                        editor = self.editor;
+                    editor._toolbars = editor._toolbars || {};
+                    editor._toolbars["music"] = self;
+                    self._cls = CLS_MUSIC;
+                    self._type = TYPE_MUSIC;
+                    self._title = "编辑music";
+                    self._bodyHtml = bodyHtml;
+                    self._footHtml = footHtml;
+                    self._contentCls = "ke-toolbar-music";
+                    self._tip = "Music";
+                    self._contextMenu = contextMenu;
+                    self._flashRules = flashRules;
                 },
-                _prepare:function() {
-                    var self = this,editor = self.get("editor");
-                    self.d = new Overlay({
-                        title:"编辑音乐",
-                        mask:true,
-                        width:"350px"
-                    });
-                    var d = self.d;
-                    d.body.html(bodyHtml);
-                    d.foot.html(footHtml);
-                    self.content = d.el;
-                    var content = self.content;
-
-                    d.on("hide", function() {
-                        //清空
-                        self.selectedFlash = null;
-                    });
-
-                    var cancel = content.one(".ke-music-cancel"),
-                        ok = content.one(".ke-music-insert");
-                    self.musicUrl = content.one(".ke-music-url");
-                    cancel.on("click", function(ev) {
+                _initD:function() {
+                    var self = this,
+                        editor = self.editor,
+                        d = self.d;
+                    self.dUrl = d.el.one(".ke-music-url");
+                    var action = d.el.one(".ke-music-ok"),
+                        cancel = d.el.one(".ke-music-cancel");
+                    action.on("click", self._gen, self);
+                    cancel.on("click", function() {
                         self.d.hide();
-                        ev.halt();
-                    });
-                    Event.on(document, "click", self.hide, self);
-                    Event.on(editor.document, "click", self.hide, self);
-                    ok.on("click", function() {
-                        self._insert();
                     });
                 },
-                hide:function(ev) {
-                    var self = this;
-                    if (DOM._4e_ascendant(ev.target, function(node) {
-                        return node[0] === self.content[0] || node[0] === self.el.el[0];
-                    }))return;
-                    this.d.hide();
+                _getDWidth:function() {
+                    return "165";
                 },
-                _real:function() {
-                    this.d.show();
+                _getDURl:function() {
+                    return MUSIC_PLAYER_CODE.replace(music_reg, this.dUrl.val());
                 },
-                _insert:function() {
-                    var self = this,editor = self.get("editor");
-                    var url = self.musicUrl.val();
-                    if (!url) return;
-                    var html = MUSIC_MARKUP.replace(music_reg, url),
-                        music = new Node(html, null, editor.document);
-                    var substitute = editor.createFakeElement ?
-                        editor.createFakeElement(music, CLS_MUSIC, TYPE_MUSIC, true, html) :
-                        music;
-                    editor.insertElement(substitute);
-                    if (self.selectedFlash) {
-                        editor.getSelection().selectElement(substitute);
-                    }
-                    self.d.hide();
+                _getDHeight:function() {
+                    return "37";
                 },
-                _dblclick:function(ev) {
-                    var self = this,t = new Node(ev.target);
-                    if (t._4e_name() === "img" && t.hasClass(CLS_MUSIC)) {
-                        self.selectedFlash = t;
-                        self.show();
-                        ev.halt();
-                    }
+                _getFlashUrl:function(r) {
+                    return   getMusicUrl(getFlashUrl(r));
                 },
-                show:function() {
-                    var self = this;
-                    self._prepare();
-                    if (self.selectedFlash) {
-                        var editor = self.get("editor"),r = editor.restoreRealElement(self.selectedFlash);
-                        self.musicUrl.val(getMusicUrl(getFlashUrl(r)));
+                _updateD:function() {
+                    var self = this,
+                        editor = self.editor,
+                        f = self.selectedFlash;
+                    if (f) {
+                        var r = editor.restoreRealElement(f);
+                        self.dUrl.val(self._getFlashUrl(r));
                     } else {
-                        self.musicUrl.val("");
+                        self.dUrl.val("");
                     }
                 }
             });
@@ -13102,19 +12992,18 @@ KISSY.Editor.add("music", function(editor) {
                 return url.replace(/^.+niftyplayer\.swf\?file=/, "");
             }
 
-            KE.Utils.lazyRun(MusicInserter.prototype, "_prepareTip", "_realTip");
+            Flash.registerBubble("music", "音乐网址： ", checkMusic);
             KE.MusicInserter = MusicInserter;
             var contextMenu = {
                 "编辑音乐":function(editor) {
                     var selection = editor.getSelection(),
                         startElement = selection && selection.getStartElement(),
-                        flash = startElement && startElement._4e_ascendant('img', true);
-                    if (!flash)
-                        return;
-                    if (!flash.hasClass(CLS_MUSIC)) return;
-                    var flashUI = editor._toolbars["music"];
-                    flashUI.selectedFlash = flash;
-                    flashUI.show();
+                        flash = startElement && checkMusic(startElement),
+                        flashUI = editor._toolbars["music"];
+                    if (flash) {
+                        flashUI.selectedFlash = flash;
+                        flashUI.show();
+                    }
                 }
             };
         })();
@@ -13122,13 +13011,7 @@ KISSY.Editor.add("music", function(editor) {
 
 
     editor.addPlugin(function() {
-        new KE.MusicInserter({
-            editor:editor
-        });
-        var win = DOM._4e_getWin(editor.document);
-        Event.on(win, "scroll", function() {
-            KE.MusicInserter.tipwin && KE.MusicInserter.tipwin.hide();
-        });
+        new KE.MusicInserter(editor);
     });
 
 });/**

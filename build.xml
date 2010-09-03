@@ -56,7 +56,7 @@ build file for kissy editor
             <fileset dir="${build.dir}" includes="**/*.js"/>
         </replaceregexp>
 
-        <apply executable="java" verbose="true" dest="${build.dir}">
+        <apply executable="java" verbose="true" dest="${build.dir}" failonerror="true">
             <fileset dir="${build.dir}" includes="**/*.js" excludes="**/*-min.js"/>
             <arg line="-jar"/>
             <arg path="${ks-tools.dir}/closure-compiler/compiler.jar"/>
@@ -70,7 +70,7 @@ build file for kissy editor
             <mapper type="regexp" from="^(.*)\.(css|js)$" to="\1-min.\2"/>
         </apply>
 
-        <apply executable="java" verbose="true" dest="${build.dir}">
+        <apply executable="java" verbose="true" dest="${build.dir}" failonerror="true">
             <fileset dir="${build.dir}" includes="**/*.css" excludes="**/*-min.css"/>
             <arg line="-jar"/>
             <arg path="${ks-tools.dir}/yuicompressor/yuicompressor.jar"/>

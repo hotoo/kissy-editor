@@ -177,8 +177,8 @@ KISSY.Editor.add("link", function(editor) {
                     var self = this,
                         editor = this.editor,
                         //ie焦点很容易丢�?tipwin没了
-                        range = editor.getSelection().getRanges()[0],
-                        common = range.getCommonAncestor();
+                        selection = editor.getSelection(),
+                        common = selection && selection.getStartElement();
                     if (common) {
                         common = checkLink(common);
                     }

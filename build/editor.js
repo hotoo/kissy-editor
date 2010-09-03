@@ -2,7 +2,7 @@
  * Constructor for kissy editor and module dependency definition
  * @author: yiminghe@gmail.com, lifesinger@gmail.com
  * @version: 2.0
- * @buildtime: 2010-09-03 14:08:49
+ * @buildtime: 2010-09-03 21:44:11
  */
 KISSY.add("editor", function(S, undefined) {
     function Editor(textarea, cfg) {
