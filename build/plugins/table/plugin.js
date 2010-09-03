@@ -3,7 +3,6 @@
  * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("table", function(editor, undefined) {
-    //console.log("table loaded!");
     var KE = KISSY.Editor,
         S = KISSY,
         Node = S.Node,
@@ -289,7 +288,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                         i,
                         cols = parseInt(d.tcols.val()),
                         rows = parseInt(d.trows.val()),
-                        cellpad = UA.ie ? "" : "<br/>",
+                        cellpad = UA.ie ? "&nbsp;" : "<br/>",
                         editor = self.editor;
 
                     if (S.trim(d.talign.val()).length != 0)

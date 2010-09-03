@@ -11,7 +11,10 @@ KISSY.Editor.add("overlay", function() {
         focusManager = KE.focusManager,
         Node = S.Node,
         //Event = S.Event,
-        DOM = S.DOM;
+        DOM = S.DOM,
+        mask ,
+        mask_iframe,
+        d_iframe;
 
     function Overlay() {
         var self = this;
@@ -51,9 +54,6 @@ KISSY.Editor.add("overlay", function() {
         self.hide();
     }
 
-    var mask ,
-        //loading,
-        mask_iframe,d_iframe;
 
     Overlay.init = function() {
 
@@ -67,9 +67,9 @@ KISSY.Editor.add("overlay", function() {
         });
         mask.appendTo(body);
 
-        if (S.UA.ie == 6) {
+        if (UA.ie && UA.ie == 6) {
             d_iframe = new Node("<" + "iframe class='ke-dialog-iframe'></iframe>");
-            body.appendChild(d_iframe[0]);
+            d_iframe.appendTo(body);
             mask_iframe = new Node("<" + "iframe class='ke-mask'></iframe>");
             mask_iframe.css({"left":"-9999px",top:"-9999px"});
             mask_iframe.css({
@@ -79,14 +79,7 @@ KISSY.Editor.add("overlay", function() {
             });
             mask_iframe.appendTo(body);
         }
-        /*
-         build全部文件，不动�?加载
-         loading = new Node("<div class='ke-loading'>" +
-         "loading ...." +
-         "</div>");
-         loading.appendTo(document.body);*/
         Overlay.init = null;
-        // Overlay.loading = new Overlay({el:loading,mask:true});
     };
 
 
@@ -101,9 +94,9 @@ KISSY.Editor.add("overlay", function() {
 
     S.extend(Overlay, S.Base, {
         _init:function() {
-            //just manage container
-            var self = this,el = self.get("el");
-
+            var self = this;
+            self._initEl();
+            var el = self.get("el");
             self.on("afterVisibleChange", function(ev) {
                 var v = ev.newVal;
                 if (v) {
@@ -116,24 +109,20 @@ KISSY.Editor.add("overlay", function() {
                     self.fire("hide");
                 }
             });
+            if (self.get("focusMgr")) {
+                self._initFocusNotice();
+                self.on("beforeVisibleChange", self._editorFocusMg, self);
+            }
+            //初始状�?隐藏
+            el.css({"left":"-9999px",top:"-9999px"});
+        },
 
-
+        _initEl:function() {
+            //just manage container
+            var self = this,el = self.get("el");
             if (el) {
-                //焦点管理，显示时用a获得焦点
-                el[0].appendChild(new Node("<a href='#' class='ke-focus' " +
-                    "style='" +
-                    "width:0;" +
-                    "height:0;" +
-                    "margin:0;" +
-                    "padding:0;" +
-                    "overflow:hidden;" +
-                    "outline:none;" +
-                    "font-size:0;'" +
-                    "></a>")[0]);
                 self.el = el;
-
             } else {
-
                 //also gen html
                 el = new Node("<div class='ke-dialog' style='width:" +
                     self.get("width") +
@@ -146,7 +135,7 @@ KISSY.Editor.add("overlay", function() {
                     "<div class='ke-bd'></div>" +
                     "<div class='ke-ft'>" +
                     "</div>" +
-                    "<a href='#' tabindex='-1' class='ke-focus'></a>" +
+
                     "</div>");
                 document.body.appendChild(el[0]);
                 self.set("el", el);
@@ -155,19 +144,13 @@ KISSY.Editor.add("overlay", function() {
                 self.foot = el.one(".ke-ft");
                 self._close = el.one(".ke-close");
                 self._title = el.one(".ke-hd-title").one("h1");
-
                 self._close.on("click", function(ev) {
                     ev.preventDefault();
                     self.hide();
                 });
             }
-            if (self.get("focusMgr")) {
-                self.on("beforeVisibleChange", self._editorFocusMg, self);
-                self._initFocusNotice();
-            }
-            //初始状�?隐藏
-            el.css({"left":"-9999px",top:"-9999px"});
         },
+
         center:function() {
             var el = this.get("el"),
                 bw = parseInt(el.css("width")),
@@ -190,7 +173,18 @@ KISSY.Editor.add("overlay", function() {
             if (self._focusEl) {
                 return self._focusEl;
             }
-            self._focusEl = self.el.one(".ke-focus");
+            //焦点管理，显示时用a获得焦点
+            self._focusEl = new Node("<a href='#' class='ke-focus' " +
+                "style='" +
+                "width:0;" +
+                "height:0;" +
+                "margin:0;" +
+                "padding:0;" +
+                "overflow:hidden;" +
+                "outline:none;" +
+                "font-size:0;'" +
+                "></a>");
+            self._focusEl.appendTo(self.el);
             return self._focusEl;
         },
         _initFocusNotice:function() {
@@ -215,15 +209,15 @@ KISSY.Editor.add("overlay", function() {
                 self._focusEditor = focusManager.currentInstance();
                 editor = self._focusEditor;
                 /*
-                //ie 6,7 在窗口a focus后会丢掉已�?择，再�?�?
-                if (UA.ie && UA.ie < 8 && editor) {
-                    var sel = editor.getSelection(),range = sel.getRanges()[0];
-                    if (!range.collapsed && sel.getType() != KE.Selection.SELECTION_ELEMENT) {
-                        setTimeout(function() {
-                            range.select();
-                        }, 50);
-                    }
-                }*/
+                 //ie 6,7 在窗口a focus后会丢掉已�?择，再�?�?
+                 if (UA.ie && UA.ie < 8 && editor) {
+                 var sel = editor.getSelection(),range = sel.getRanges()[0];
+                 if (!range.collapsed && sel.getType() != KE.Selection.SELECTION_ELEMENT) {
+                 setTimeout(function() {
+                 range.select();
+                 }, 50);
+                 }
+                 }*/
 
                 //console.log("give up focus : " + editor);
                 //聚焦到当前窗�?
@@ -283,5 +277,4 @@ KISSY.Editor.add("overlay", function() {
     KE.Utils.lazyRun(Overlay.prototype, "_prepareShow", "_realShow");
 
     KE.SimpleOverlay = Overlay;
-
 });

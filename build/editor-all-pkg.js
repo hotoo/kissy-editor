@@ -2,7 +2,7 @@
  * Constructor for kissy editor and module dependency definition
  * @author: yiminghe@gmail.com, lifesinger@gmail.com
  * @version: 2.0
- * @buildtime: 2010-09-02 19:25:21
+ * @buildtime: 2010-09-03 14:08:49
  */
 KISSY.add("editor", function(S, undefined) {
     function Editor(textarea, cfg) {
@@ -84,7 +84,7 @@ KISSY.add("editor", function(S, undefined) {
             },
             "indent",
             "justify",
-            "link",
+            {name:"link", requires: ["bubbleview"]},
             "list",
             "maximize",
             "music",
@@ -147,6 +147,11 @@ KISSY.add("editor", function(S, undefined) {
             },
             {
                 name: "contextmenu",
+                requires: ["overlay"]   //,
+                //useCss:true
+            },
+            {
+                name: "bubbleview",
                 requires: ["overlay"]   //,
                 //useCss:true
             },
@@ -6682,6 +6687,113 @@ KISSY.Editor.add("styles", function(KE) {
     KE.Style = KEStyle;
 });
 /**
+ * bubble or tip view for kissy editor
+ * @author:yiminghe@gmail.com
+ */
+KISSY.Editor.add("bubbleview", function() {
+    var KE = KISSY.Editor,
+        S = KISSY,
+        Event = S.Event,
+        DOM = S.DOM,
+        Node = S.Node,
+        markup = '<div class="ke-bubbleview-bubble" onmousedown="return false;"></div>';
+
+
+    function BubbleView(cfg) {
+        BubbleView.superclass.constructor.apply(this, arguments);
+        if (cfg.init)
+            cfg.init.call(this);
+    }
+
+    var holder = {};
+
+
+    /**
+     * 延迟化创建实例
+     * @param cfg
+     */
+    BubbleView.attach = function(cfg) {
+        var pluginInstance = cfg.pluginInstance,
+            pluginName = cfg.pluginName,
+            editor = pluginInstance.editor,
+            h = holder[pluginName],
+            func = h.cfg.func,
+            bubble = holder[pluginName].bubble;
+        //借鉴google doc tip提示显示
+        editor.on("selectionChange", function(ev) {
+            var elementPath = ev.path,
+                elements = elementPath.elements,
+                a,
+                lastElement;
+            if (elementPath && elements) {
+                lastElement = elementPath.lastElement;
+                if (!lastElement) return;
+                a = func(lastElement);
+
+                if (a) {
+                    bubble = getInstance(pluginName);
+                    bubble._selectedEl = a;
+                    bubble._plugin = pluginInstance;
+                    bubble.show();
+                } else if (bubble) {
+                    bubble._selectedEl = bubble._plugin = null;
+                    bubble.hide();
+                }
+            }
+        });
+
+        Event.on(editor.document, "scroll", function() {
+            bubble && bubble.hide();
+        });
+        Event.on(DOM._4e_getWin(editor.document), "blur", function() {
+            bubble && bubble.hide();
+        });
+    };
+    function getInstance(pluginName) {
+        var h = holder[pluginName];
+        if (!h.bubble)
+            h.bubble = new BubbleView(h.cfg);
+        return h.bubble;
+    }
+
+    BubbleView.register = function(cfg) {
+        var pluginName = cfg.pluginName;
+        holder[pluginName] = {
+            cfg:cfg
+        };
+    };
+    BubbleView.ATTRS = {
+        //bubble 默认false
+        focusMgr:{
+            value:false
+        }
+    };
+    S.extend(BubbleView, KE.SimpleOverlay, {
+        /**
+         * 当前选中元素
+         */
+        //_selectedEl,
+        /**
+         * 当前关联插件实例
+         */
+        //_plugin
+        _initEl:function() {
+            var self = this,el = new Node(markup);
+            el.appendTo(document.body);
+            self.el = el;
+            self.set("el", el);
+        },
+        show:function() {
+            var self = this,
+                a = self._selectedEl,
+                xy = a._4e_getOffset(document);
+            xy.top += a.height() + 5;
+            BubbleView.superclass.show.call(self, xy);
+        }
+    });
+
+    KE.BubbleView = BubbleView;
+});/**
  * triple state button for kissy editor
  * @author: yiminghe@gmail.com
  */
@@ -6921,7 +7033,10 @@ KISSY.Editor.add("overlay", function() {
         focusManager = KE.focusManager,
         Node = S.Node,
         //Event = S.Event,
-        DOM = S.DOM;
+        DOM = S.DOM,
+        mask ,
+        mask_iframe,
+        d_iframe;
 
     function Overlay() {
         var self = this;
@@ -6961,9 +7076,6 @@ KISSY.Editor.add("overlay", function() {
         self.hide();
     }
 
-    var mask ,
-        //loading,
-        mask_iframe,d_iframe;
 
     Overlay.init = function() {
 
@@ -6977,9 +7089,9 @@ KISSY.Editor.add("overlay", function() {
         });
         mask.appendTo(body);
 
-        if (S.UA.ie == 6) {
+        if (UA.ie && UA.ie == 6) {
             d_iframe = new Node("<" + "iframe class='ke-dialog-iframe'></iframe>");
-            body.appendChild(d_iframe[0]);
+            d_iframe.appendTo(body);
             mask_iframe = new Node("<" + "iframe class='ke-mask'></iframe>");
             mask_iframe.css({"left":"-9999px",top:"-9999px"});
             mask_iframe.css({
@@ -6989,14 +7101,7 @@ KISSY.Editor.add("overlay", function() {
             });
             mask_iframe.appendTo(body);
         }
-        /*
-         build全部文件，不动态加载
-         loading = new Node("<div class='ke-loading'>" +
-         "loading ...." +
-         "</div>");
-         loading.appendTo(document.body);*/
         Overlay.init = null;
-        // Overlay.loading = new Overlay({el:loading,mask:true});
     };
 
 
@@ -7011,9 +7116,9 @@ KISSY.Editor.add("overlay", function() {
 
     S.extend(Overlay, S.Base, {
         _init:function() {
-            //just manage container
-            var self = this,el = self.get("el");
-
+            var self = this;
+            self._initEl();
+            var el = self.get("el");
             self.on("afterVisibleChange", function(ev) {
                 var v = ev.newVal;
                 if (v) {
@@ -7026,24 +7131,20 @@ KISSY.Editor.add("overlay", function() {
                     self.fire("hide");
                 }
             });
+            if (self.get("focusMgr")) {
+                self._initFocusNotice();
+                self.on("beforeVisibleChange", self._editorFocusMg, self);
+            }
+            //初始状态隐藏
+            el.css({"left":"-9999px",top:"-9999px"});
+        },
 
-
+        _initEl:function() {
+            //just manage container
+            var self = this,el = self.get("el");
             if (el) {
-                //焦点管理，显示时用a获得焦点
-                el[0].appendChild(new Node("<a href='#' class='ke-focus' " +
-                    "style='" +
-                    "width:0;" +
-                    "height:0;" +
-                    "margin:0;" +
-                    "padding:0;" +
-                    "overflow:hidden;" +
-                    "outline:none;" +
-                    "font-size:0;'" +
-                    "></a>")[0]);
                 self.el = el;
-
             } else {
-
                 //also gen html
                 el = new Node("<div class='ke-dialog' style='width:" +
                     self.get("width") +
@@ -7056,7 +7157,7 @@ KISSY.Editor.add("overlay", function() {
                     "<div class='ke-bd'></div>" +
                     "<div class='ke-ft'>" +
                     "</div>" +
-                    "<a href='#' tabindex='-1' class='ke-focus'></a>" +
+
                     "</div>");
                 document.body.appendChild(el[0]);
                 self.set("el", el);
@@ -7065,19 +7166,13 @@ KISSY.Editor.add("overlay", function() {
                 self.foot = el.one(".ke-ft");
                 self._close = el.one(".ke-close");
                 self._title = el.one(".ke-hd-title").one("h1");
-
                 self._close.on("click", function(ev) {
                     ev.preventDefault();
                     self.hide();
                 });
             }
-            if (self.get("focusMgr")) {
-                self.on("beforeVisibleChange", self._editorFocusMg, self);
-                self._initFocusNotice();
-            }
-            //初始状态隐藏
-            el.css({"left":"-9999px",top:"-9999px"});
         },
+
         center:function() {
             var el = this.get("el"),
                 bw = parseInt(el.css("width")),
@@ -7100,7 +7195,18 @@ KISSY.Editor.add("overlay", function() {
             if (self._focusEl) {
                 return self._focusEl;
             }
-            self._focusEl = self.el.one(".ke-focus");
+            //焦点管理，显示时用a获得焦点
+            self._focusEl = new Node("<a href='#' class='ke-focus' " +
+                "style='" +
+                "width:0;" +
+                "height:0;" +
+                "margin:0;" +
+                "padding:0;" +
+                "overflow:hidden;" +
+                "outline:none;" +
+                "font-size:0;'" +
+                "></a>");
+            self._focusEl.appendTo(self.el);
             return self._focusEl;
         },
         _initFocusNotice:function() {
@@ -7125,15 +7231,15 @@ KISSY.Editor.add("overlay", function() {
                 self._focusEditor = focusManager.currentInstance();
                 editor = self._focusEditor;
                 /*
-                //ie 6,7 在窗口a focus后会丢掉已选择，再选择
-                if (UA.ie && UA.ie < 8 && editor) {
-                    var sel = editor.getSelection(),range = sel.getRanges()[0];
-                    if (!range.collapsed && sel.getType() != KE.Selection.SELECTION_ELEMENT) {
-                        setTimeout(function() {
-                            range.select();
-                        }, 50);
-                    }
-                }*/
+                 //ie 6,7 在窗口a focus后会丢掉已选择，再选择
+                 if (UA.ie && UA.ie < 8 && editor) {
+                 var sel = editor.getSelection(),range = sel.getRanges()[0];
+                 if (!range.collapsed && sel.getType() != KE.Selection.SELECTION_ELEMENT) {
+                 setTimeout(function() {
+                 range.select();
+                 }, 50);
+                 }
+                 }*/
 
                 //console.log("give up focus : " + editor);
                 //聚焦到当前窗口
@@ -7193,7 +7299,6 @@ KISSY.Editor.add("overlay", function() {
     KE.Utils.lazyRun(Overlay.prototype, "_prepareShow", "_realShow");
 
     KE.SimpleOverlay = Overlay;
-
 });
 /**
  * select component for kissy editor
@@ -11707,30 +11812,67 @@ KISSY.Editor.add("justify", function(editor) {
  * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("link", function(editor) {
-    var KE = KISSY.Editor,
-        S = KISSY,
-        DOM = S.DOM,
-        Event = S.Event,
-        TripleButton = KE.TripleButton,
-        KEStyle = KE.Style,
-        Node = S.Node,
-        KERange = KE.Range,
-        Overlay = KE.SimpleOverlay ,
-        dataProcessor = editor.htmlDataProcessor,
-        //htmlFilter = dataProcessor && dataProcessor.htmlFilter,
-        dataFilter = dataProcessor && dataProcessor.dataFilter;
-
+    var KE = KISSY.Editor;
 
     if (!KE.Link) {
         (function() {
+            var S = KISSY,
+                TripleButton = KE.TripleButton,
+                KEStyle = KE.Style,
+                Node = S.Node,
+                KERange = KE.Range,
+                Overlay = KE.SimpleOverlay ,
+                BubbleView = KE.BubbleView,
+                link_Style = {
+                    element : 'a',
+                    attributes:{
+                        "href":"#(href)",
+                        target:"#(target)"
+                    }
+                },
+                /**
+                 * bubbleview/tip 初始化，所有共享一个 tip
+                 */
+                tipHtml = '前往链接： '
+                    + ' <a ' +
+                    'href="" '
+                    + ' target="_blank" ' +
+                    'class="ke-bubbleview-url">' +
+                    '</a> - '
+                    + ' <span ' +
+                    'class="ke-bubbleview-link ke-bubbleview-change">' +
+                    '编辑' +
+                    '</span> - '
+                    + ' <span ' +
+                    'class="ke-bubbleview-link ke-bubbleview-remove">' +
+                    '去除' +
+                    '</span>',
+                bodyHtml = "<div>" +
+                    "<p>" +
+                    "<label>" +
+                    "<span " +
+                    "style='color:#0066CC;font-weight:bold;'>" +
+                    "网址： " +
+                    "</span>" +
+                    "<input " +
+                    "class='ke-link-url' " +
+                    "style='width:230px' " +
+                    "value='http://'/>" +
+                    "</label>" +
+                    "</p>" +
+                    "<p " +
+                    "style='margin-top: 5px;padding-left:45px'>" +
+                    "<label>" +
+                    "<input " +
+                    "class='ke-link-blank' " +
+                    "type='checkbox'/>" +
+                    " &nbsp; 在新窗口打开链接" +
+                    "</label>" +
+                    "</p>" +
 
-            var link_Style = {
-                element : 'a',
-                attributes:{
-                    "href":"#(href)",
-                    target:"#(target)"
-                }
-            };
+                    "</div>",
+                footHtml = "<button class='ke-link-ok'>确定</button> " +
+                    "<button class='ke-link-cancel'>取消</button>";
 
 
             function Link(editor) {
@@ -11743,74 +11885,71 @@ KISSY.Editor.add("link", function(editor) {
              * 所有编辑器实例共享同一功能窗口
              */
             Link.init = function() {
-                var self = this;
-                self.d = new Overlay({
-                    title:"修改链接",
-                    mask:true,
-                    width:"300px"
-                });
-
-                self.d.body.html(bodyHtml);
-                self.d.foot.html(footHtml);
-                self.urlEl = self.d.body.one(".ke-link-url");
-                self.targetEl = self.d.body.one(".ke-link-blank");
-                var cancel = self.d.foot.one(".ke-link-cancel");
-                self.ok = self.d.foot.one(".ke-link-ok");
-                Link.ok.on("click", function(ev) {
-                    var link = Link.d.link;
+                var self = this,
+                    d = new Overlay({
+                        title:"修改链接",
+                        mask:true,
+                        width:"300px"
+                    });
+                self.dialog = d;
+                d.body.html(bodyHtml);
+                d.foot.html(footHtml);
+                d.urlEl = d.body.one(".ke-link-url");
+                d.targetEl = d.body.one(".ke-link-blank");
+                var cancel = d.foot.one(".ke-link-cancel"),
+                    ok = d.foot.one(".ke-link-ok");
+                ok.on("click", function(ev) {
+                    var link = d.link;
                     link._link();
                     ev.halt();
                 }, this);
                 cancel.on("click", function(ev) {
-                    self.d.hide();
+                    d.hide();
                     ev.halt();
                 }, self);
                 Link.init = null;
             };
-            /**
-             * tip初始化，所有共享一个tip
-             */
-            var tipHtml = '<div class="ke-bubbleview-bubble" onmousedown="return false;">前往链接： '
-                + ' <a href="" '
-                + ' target="_blank" class="ke-bubbleview-url"></a> - '
-                + '    <span class="ke-bubbleview-link ke-bubbleview-change">编辑</span> - '
-                + '    <span class="ke-bubbleview-link ke-bubbleview-remove">去除</span>'
-                + '</div>';
-            Link.tip = function() {
-                var self = this,el = new Node(tipHtml);
-                el._4e_unselectable();
-                self.tipwin = new Overlay({el:el,focusMgr:false});
-                //KE.Tips["link"] = self.tipwin;
-                document.body.appendChild(el[0]);
-                self.tipurl = el.one(".ke-bubbleview-url");
-                var tipchange = el.one(".ke-bubbleview-change");
-                var tipremove = el.one(".ke-bubbleview-remove");
-                tipchange.on("click", function(ev) {
-                    Link.tipwin.link.show();
-                    ev.halt();
-                });
-                Event.on(document, "click", function() {
-                    self.tipwin.hide();
-                });
-                tipremove.on("click", function(ev) {
-                    var link = Link.tipwin.link;
-                    link._removeLink();
-                    ev.halt();
-                });
-                Link.tip = null;
-            };
 
-            var bodyHtml = "<div>" +
-                "<p>" +
-                "<label><span style='color:#0066CC;font-weight:bold;'>网址：</span><input class='ke-link-url' style='width:230px' value='http://'/></label>" +
-                "</p>" +
-                "<p style='margin-top: 5px;padding-left:45px'>" +
-                "<label><input class='ke-link-blank' type='checkbox'/> &nbsp; 在新窗口打开链接</label>" +
-                "</p>" +
+            function checkLink(lastElement) {
+                return lastElement._4e_ascendant(function(node) {
+                    return node._4e_name() === 'a' && (!!node.attr("href"));
+                }, true);
+            }
 
-                "</div>",
-                footHtml = "<button class='ke-link-ok'>确定</button> " +
-                    "<button class='ke-link-cancel'>取消</button>";
+            BubbleView.register({
+                pluginName:"link",
+                func:checkLink,
+                init:function() {
+                    var bubble = this,el = bubble.el;
+                    el.html(tipHtml);
+                    var tipurl = el.one(".ke-bubbleview-url"),
+                        tipchange = el.one(".ke-bubbleview-change"),
+                        tipremove = el.one(".ke-bubbleview-remove");
+                    //ie focus not lose
+                    tipchange._4e_unselectable();
+                    tipurl._4e_unselectable();
+                    tipremove._4e_unselectable();
+                    tipchange.on("click", function(ev) {
+                        bubble._plugin.show();
+                        ev.halt();
+                    });
+                    tipremove.on("click", function(ev) {
+                        var link = bubble._plugin;
+                        link._removeLink(bubble._selectedEl);
+                        ev.halt();
+                    });
+
+                    bubble.on("afterVisibleChange", function() {
+
+                        var a = bubble._selectedEl;
+                        if (!a)return;
+                        tipurl.html(a.attr("href"));
+                        tipurl.attr("href", a.attr("href"));
+                    });
+                }
+            });
+
+
             S.augment(Link, {
                 _init:function() {
                     var self = this,editor = self.editor;
@@ -11818,37 +11957,19 @@ KISSY.Editor.add("link", function(editor) {
                         container:editor.toolBarDiv,
                         contentCls:"ke-toolbar-link",
                         title:"编辑超链接 "
-                        //"编辑超链接"
-                        //text:'link',
                     });
                     self.el.on("click", self.show, self);
-                    editor.on("selectionChange", self._selectionChange, self);
-
-                },
-                _prepareTip:function() {
-                    Link.tip && Link.tip();
-                },
-                _realTip:function(a) {
-                    var xy = a._4e_getOffset(document);
-                    xy.top += a.height() + 5;
-                    Link.tipwin.show(xy);
-                    this._a = a;
-                    Link.tipwin.link = this;
-                    Link.tipurl.html(a.attr("href"));
-                    Link.tipurl.attr("href", a.attr("href"));
-                },
-                _showTip:function(a) {
-                    this._prepareTip(a);
-                },
-                _hideTip:function() {
-                    Link.tipwin && Link.tipwin.hide();
+                    BubbleView.attach({
+                        pluginName:"link",
+                        pluginInstance:self
+                    });
                 },
 
-                _removeLink:function() {
-                    var a = this._a,editor = this.editor;
-                    var attr = {
-                        href:a.attr("href")
-                    };
+                _removeLink:function(a) {
+                    var editor = this.editor,
+                        attr = {
+                            href:a.attr("href")
+                        };
                     if (a._4e_hasAttribute("target")) {
                         attr.target = a.attr("target");
                     }
@@ -11858,63 +11979,47 @@ KISSY.Editor.add("link", function(editor) {
                     editor.fire("save");
                     editor.notifySelectionChange();
                 },
-                //借鉴google doc tip提示显示
-                _selectionChange:function(ev) {
-                    var elementPath = ev.path,
-                        //editor = this.editor,
-                        elements = elementPath.elements;
 
-                    if (elementPath && elements) {
-                        var lastElement = elementPath.lastElement;
-                        if (!lastElement) return;
-                        var a = lastElement._4e_ascendant(function(node) {
-                            return node._4e_name() === 'a' && (!!node.attr("href"));
-                        }, true);
-
-                        if (a) {
-                            this._showTip(a);
-                        } else {
-                            this._hideTip();
-                        }
-                    }
-                },
-                hide:function() {
-                    Link.d.hide();
-                },
 
                 //得到当前选中的 link a
                 _getSelectedLink:function() {
-                    var self = this;
-                    var editor = this.editor;
-                    //ie焦点很容易丢失,tipwin没了
-                    var range = editor.getSelection().getRanges()[0];
-                    var common = range.getCommonAncestor();
-                    common && (common = common._4e_ascendant(function(node) {
-                        return node._4e_name() == 'a' && (!!node.attr("href"));
-                    }, true));
+                    var self = this,
+                        editor = this.editor,
+                        //ie焦点很容易丢失,tipwin没了
+                        range = editor.getSelection().getRanges()[0],
+                        common = range.getCommonAncestor();
+                    if (common) {
+                        common = checkLink(common);
+                    }
                     return common;
                 },
 
                 _link:function() {
-                    var self = this,range;
-                    var editor = this.editor,url = Link.urlEl.val();
+                    var self = this,range,
+                        editor = this.editor,
+                        d = Link.dialog,
+                        url = d.urlEl.val(),
+                        link,
+                        attr,
+                        a,
+                        linkStyle;
 
                     if (!S.trim(url)) {
                         return;
                     }
-                    self.hide();
-                    var link = self._getSelectedLink();
+                    d.hide();
+                    link = self._getSelectedLink();
                     //是修改行为
                     if (link) {
                         range = new KERange(editor.document);
                         range.selectNodeContents(link);
                         editor.getSelection().selectRanges([range]);
-                        self._removeLink();
+                        self._removeLink(link);
                     }
-                    var attr = {
+                    attr = {
                         href:url
                     };
-                    if (Link.targetEl[0].checked) {
+                    if (d.targetEl[0].checked) {
                         attr.target = "_blank";
                     } else {
                         attr.target = "_self";
@@ -11923,12 +12028,12 @@ KISSY.Editor.add("link", function(editor) {
                     range = editor.getSelection().getRanges()[0];
                     //没有选择区域时直接插入链接地址
                     if (range.collapsed) {
-                        var a = new Node("<a href='" + url +
+                        a = new Node("<a href='" + url +
                             "' target='" + attr.target + "'>" + url + "</a>", null, editor.document);
                         editor.insertElement(a);
                     } else {
                         editor.fire("save");
-                        var linkStyle = new KEStyle(link_Style, attr);
+                        linkStyle = new KEStyle(link_Style, attr);
                         linkStyle.apply(editor.document);
                         editor.fire("save");
                     }
@@ -11936,38 +12041,30 @@ KISSY.Editor.add("link", function(editor) {
                     editor.notifySelectionChange();
                 },
                 _prepare:function() {
-                    var self = this;
                     Link.init && Link.init();
                 },
                 _real:function() {
-                    var self = this;
-                    Link.d.link = this;
-
-                    var link = self._getSelectedLink();
+                    var self = this,
+                        d = Link.dialog,
+                        link = self._getSelectedLink();
+                    d.link = this;
                     //是修改行为
-
                     if (link) {
-                        Link.urlEl.val(link.attr("href"));
-                        Link.targetEl[0].checked = link.attr("target") == "_blank";
+                        d.urlEl.val(link.attr("href"));
+                        d.targetEl[0].checked = (link.attr("target") == "_blank");
                     }
-                    Link.d.show();
+                    d.show();
                 },
                 show:function() {
-                    var self = this;
-                    self._prepare();
+                    this._prepare();
                 }
             });
             KE.Utils.lazyRun(Link.prototype, "_prepare", "_real");
-            KE.Utils.lazyRun(Link.prototype, "_prepareTip", "_realTip");
             KE.Link = Link;
         })();
     }
     editor.addPlugin(function() {
         new KE.Link(editor);
-        var win = DOM._4e_getWin(editor.document);
-        Event.on(win, "scroll", function() {
-            KE.Link.tipwin && KE.Link.tipwin.hide();
-        });
     });
 });/**
  * list formatting,modified from ckeditor
@@ -13400,7 +13497,6 @@ KISSY.Editor.add("sourcearea", function(editor) {
  * @author: yiminghe@gmail.com
  */
 KISSY.Editor.add("table", function(editor, undefined) {
-    //console.log("table loaded!");
     var KE = KISSY.Editor,
         S = KISSY,
         Node = S.Node,
@@ -13686,7 +13782,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                         i,
                         cols = parseInt(d.tcols.val()),
                         rows = parseInt(d.trows.val()),
-                        cellpad = UA.ie ? "" : "<br/>",
+                        cellpad = UA.ie ? "&nbsp;" : "<br/>",
                         editor = self.editor;
 
                     if (S.trim(d.talign.val()).length != 0)

@@ -2,7 +2,7 @@
  * Constructor for kissy editor and module dependency definition
  * @author: yiminghe@gmail.com, lifesinger@gmail.com
  * @version: 2.0
- * @buildtime: 2010-09-02 19:25:21
+ * @buildtime: 2010-09-03 14:08:49
  */
 KISSY.add("editor", function(S, undefined) {
     function Editor(textarea, cfg) {
@@ -84,7 +84,7 @@ KISSY.add("editor", function(S, undefined) {
             },
             "indent",
             "justify",
-            "link",
+            {name:"link", requires: ["bubbleview"]},
             "list",
             "maximize",
             "music",
@@ -147,6 +147,11 @@ KISSY.add("editor", function(S, undefined) {
             },
             {
                 name: "contextmenu",
+                requires: ["overlay"]   //,
+                //useCss:true
+            },
+            {
+                name: "bubbleview",
                 requires: ["overlay"]   //,
                 //useCss:true
             },

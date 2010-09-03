@@ -84,7 +84,7 @@ KISSY.add("editor", function(S, undefined) {
             },
             "indent",
             "justify",
-            "link",
+            {name:"link", requires: ["bubbleview"]},
             "list",
             "maximize",
             "music",
@@ -147,6 +147,11 @@ KISSY.add("editor", function(S, undefined) {
             },
             {
                 name: "contextmenu",
+                requires: ["overlay"]   //,
+                //useCss:true
+            },
+            {
+                name: "bubbleview",
                 requires: ["overlay"]   //,
                 //useCss:true
             },
