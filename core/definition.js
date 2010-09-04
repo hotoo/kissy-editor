@@ -243,6 +243,7 @@ KISSY.Editor.add("definition", function(KE) {
             } catch(e) {
                 // Trick to solve this issue, forcing the iframe to get ready
                 // by simply setting its "src" property.
+                //noinspection SillyAssignmentJS
                 iframe[0].src = iframe[0].src;
                 // In IE6 though, the above is not enough, so we must pause the
                 // execution for a while, giving it time to think.
@@ -250,7 +251,6 @@ KISSY.Editor.add("definition", function(KE) {
                     setTimeout(run, 10);
                     return;
                 }
-
             }
             run();
             function run() {
@@ -351,16 +351,16 @@ KISSY.Editor.add("definition", function(KE) {
                     lastElement = clone;
             }
 
-            var next = lastElement._4e_nextSourceNode(true);
+            var next = lastElement._4e_nextSourceNode(true),p;
             //末尾时 ie 不会自动产生br，手动产生
             if (!next) {
-                var p = new Node("<p>&nbsp;</p>", null, self.document);
+                p = new Node("<p>&nbsp;</p>", null, self.document);
                 p.insertAfter(lastElement);
                 next = p;
             }
             //firefox,replace br with p，和编辑器整体换行保持一致
             else if (next._4e_name() == "br") {
-                var p = new Node("<p>&nbsp;</p>", null, self.document);
+                p = new Node("<p>&nbsp;</p>", null, self.document);
                 next[0].parentNode.replaceChild(p[0], next[0]);
                 next = p;
             }
