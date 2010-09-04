@@ -286,8 +286,8 @@ KISSY.Editor.add("table", function(editor, undefined) {
                         d = self.tableDialog,
                         html = "<table ",
                         i,
-                        cols = parseInt(d.tcols.val()),
-                        rows = parseInt(d.trows.val()),
+                        cols = parseInt(d.tcols.val()) || 1,
+                        rows = parseInt(d.trows.val()) || 1,
                         cellpad = UA.ie ? "&nbsp;" : "<br/>",
                         editor = self.editor;
 
@@ -324,6 +324,7 @@ KISSY.Editor.add("table", function(editor, undefined) {
                             html += "<th>" + cellpad + "</th>";
                         html += "</tr>";
                         html += "</thead>";
+                        rows -= 1;
                     }
 
                     html += "<tbody>";

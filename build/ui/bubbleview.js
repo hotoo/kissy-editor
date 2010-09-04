@@ -57,7 +57,7 @@ KISSY.Editor.add("bubbleview", function() {
         Event.on(editor.document, "scroll", function() {
             bubble && bubble.hide();
         });
-        Event.on(DOM._4e_getWin(editor.document), "blur", function() {
+        Event.on(document, "click", function() {
             bubble && bubble.hide();
         });
     };

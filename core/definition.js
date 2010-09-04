@@ -351,10 +351,23 @@ KISSY.Editor.add("definition", function(KE) {
                     lastElement = clone;
             }
 
-            range.moveToPosition(lastElement, KER.POSITION_AFTER_END);
             var next = lastElement._4e_nextSourceNode(true);
-            if (next && next.type == KEN.NODE_ELEMENT)
+            //末尾时 ie 不会自动产生br，手动产生
+            if (!next) {
+                var p = new Node("<p>&nbsp;</p>", null, self.document);
+                p.insertAfter(lastElement);
+                next = p;
+            }
+            //firefox,replace br with p，和编辑器整体换行保持一致
+            else if (next._4e_name() == "br") {
+                var p = new Node("<p>&nbsp;</p>", null, self.document);
+                next[0].parentNode.replaceChild(p[0], next[0]);
+                next = p;
+            }
+            range.moveToPosition(lastElement, KER.POSITION_AFTER_END);
+            if (next[0].nodeType == KEN.NODE_ELEMENT)
                 range.moveToElementEditablePosition(next);
+
             selection.selectRanges([ range ]);
             self.focus();
             //http://code.google.com/p/kissy/issues/detail?can=1&start=100&id=121
@@ -365,7 +378,7 @@ KISSY.Editor.add("definition", function(KE) {
         },
 
         insertHtml:function(data) {
-             var self = this;
+            var self = this;
             if (self.htmlDataProcessor)
                 data = self.htmlDataProcessor.toDataFormat(data);//, "p");
             /**
